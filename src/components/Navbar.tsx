@@ -68,7 +68,7 @@ function DropdownMenu({ items }: { items: { label: string; href: string; descrip
 function NavLink({ item }: { item: NavItem }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLLIElement>(null);
-  const timeoutRef = useRef<number | undefined>(undefined);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleMouseEnter = () => {
     clearTimeout(timeoutRef.current);
