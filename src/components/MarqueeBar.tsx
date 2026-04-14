@@ -1,11 +1,10 @@
 const partners = [
   "Malla Reddy University",
   "StudLYF",
-  "GDG Hyderabad",
-  "StartupCypher Hyderabad",
+  "Innovation & Entrepreneurship Cell, MRUH",
+  "GDGon Campus MRUH",
+  "Marquee Film Club, MRUH",
   "LinkedInspire",
-  "Innovation & Entrepreneurship Cell",
-  "Marquee Film Club",
   "MUN Club MRUH",
 ];
 
