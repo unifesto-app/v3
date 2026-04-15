@@ -274,12 +274,13 @@ export default async function EventDetailPage({ params }: Props) {
                 ) : null}
               </div>
               {!isCompleted && event.spotsLeft > 0 ? (
-                <button
-                  className="w-full rounded-full py-3 text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)] hover:-translate-y-0.5"
+                <Link
+                  href={`/events/${event.id}/register`}
+                  className="block w-full text-center rounded-full py-3 text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)] hover:-translate-y-0.5"
                   style={{ background: brandGradient }}
                 >
                   {isFree ? "Register Now — Free" : `Register — ₹${event.price}`}
-                </button>
+                </Link>
               ) : (
                 <p className="text-xs text-center text-slate-600">Thank you for your interest in this event.</p>
               )}
@@ -349,12 +350,13 @@ export default async function EventDetailPage({ params }: Props) {
             <p className="text-xs font-semibold text-white">{event.title}</p>
             <p className="text-sm font-bold text-white">{isFree ? "Free" : `₹${event.price}`}</p>
           </div>
-          <button
+          <Link
+            href={`/events/${event.id}/register`}
             className="rounded-full px-6 py-2.5 text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]"
             style={{ background: brandGradient }}
           >
             {isFree ? "Register Free" : "Register"}
-          </button>
+          </Link>
         </div>
       )}
 
