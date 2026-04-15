@@ -1,5 +1,8 @@
+"use client";
+
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
@@ -10,26 +13,32 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-export async function generateStaticParams() {
-  return getAllEvents().map((e) => ({ id: e.id }));
-}
+type TabType = "overview" | "discussion" | "sponsors" | "contact" | "faq";
 
-export async function generateMetadata({ params }: Props) {
-  const { id } = await params;
-  const event = getEventById(id);
-  if (!event) return { title: "Event Not Found — Unifesto" };
-  return {
-    title: `${event.title} — Unifesto`,
-    description: event.description.split("\n")[0],
-  };
-}
+export default function EventDetailPage({ params }: Props) {
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const [eventId, setEventId] = useState<string>("");
+  const [event, setEvent] = useState<any>(null);
+  
+  // Load event data
+  useState(() => {
+    params.then(({ id }) => {
+      setEventId(id);
+      const eventData = getEventById(id);
+      if (!eventData) {
+        notFound();
+      }
+      setEvent(eventData);
+    });
+  });
 
-
-
-export default async function EventDetailPage({ params }: Props) {
-  const { id } = await params;
-  const event = getEventById(id);
-  if (!event) notFound();
+  if (!event) {
+    return (
+      <main className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </main>
+    );
+  }
 
   const isCompleted = event.status.includes("completed") || event.status.includes("past");
   const isFree = event.price === 0;
@@ -165,21 +174,52 @@ export default async function EventDetailPage({ params }: Props) {
               </section>
             )}
 
-            {/* About */}
-            <section id="overview">
-              <h2 className="text-lg font-bold text-white mb-3">About This Event</h2>
-              <div className="text-sm text-slate-400 leading-relaxed space-y-3">
-                {event.description.split("\n\n").map((para, i) => (
-                  <p key={i}>{para}</p>
+            {/* Tabs */}
+            <div className="border-b border-white/10">
+              <div className="flex gap-1 overflow-x-auto">
+                {[
+                  { id: "overview", label: "Overview" },
+                  { id: "discussion", label: "Discussion" },
+                  { id: "sponsors", label: "Sponsors & Partners" },
+                  { id: "contact", label: "Contact" },
+                  { id: "faq", label: "FAQs" },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as TabType)}
+                    className={`px-4 py-3 text-sm font-semibold whitespace-nowrap transition-all ${
+                      activeTab === tab.id
+                        ? "text-white border-b-2"
+                        : "text-slate-500 hover:text-slate-300"
+                    }`}
+                    style={activeTab === tab.id ? { borderColor: "#3491ff" } : {}}
+                  >
+                    {tab.label}
+                  </button>
                 ))}
               </div>
-            </section>
+            </div>
 
-            {/* Sub-events */}
-            {subEvents.length > 0 && (
-              <section id="sub-events">
-                <h2 className="text-lg font-bold text-white mb-4">Sub-Events ({subEvents.length})</h2>
-                <div className="grid grid-cols-1 gap-4">
+            {/* Tab Content */}
+            <div className="min-h-[400px]">
+              {/* Overview Tab */}
+              {activeTab === "overview" && (
+                <div className="space-y-10">
+                  {/* About */}
+                  <section>
+                    <h2 className="text-lg font-bold text-white mb-3">About This Event</h2>
+                    <div className="text-sm text-slate-400 leading-relaxed space-y-3">
+                      {event.description.split("\n\n").map((para: string, i: number) => (
+                        <p key={i}>{para}</p>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* Sub-events */}
+                  {subEvents.length > 0 && (
+                    <section>
+                      <h2 className="text-lg font-bold text-white mb-4">Sub-Events ({subEvents.length})</h2>
+                      <div className="grid grid-cols-1 gap-4">
                   {subEvents.map((subEvent) => (
                     <Link
                       key={subEvent.id}
@@ -220,35 +260,166 @@ export default async function EventDetailPage({ params }: Props) {
                         </svg>
                       </div>
                     </Link>
-                  ))}
-                </div>
-              </section>
-            )}
+                      ))}
+                    </div>
+                  </section>
+                  )}
 
-            {/* Schedule */}
-            {event.schedule.length > 0 && (
-              <section id="agenda">
-                <h2 className="text-lg font-bold text-white mb-4">Agenda</h2>
-                <div className="flex flex-col gap-0">
-                  {event.schedule.map((item, i) => (
-                    <div key={i} className="flex gap-4">
-                      <div className="flex flex-col items-center">
-                        <div
-                          className="w-2.5 h-2.5 rounded-full mt-1 flex-shrink-0"
-                          style={{ background: i === 0 ? brandGradient : "rgba(255,255,255,0.15)" }}
-                        />
-                        {i < event.schedule.length - 1 && <div className="w-px flex-1 bg-white/5 my-1" />}
+                  {/* Schedule */}
+                  {event.schedule.length > 0 && (
+                    <section>
+                      <h2 className="text-lg font-bold text-white mb-4">Agenda</h2>
+                      <div className="flex flex-col gap-0">
+                        {event.schedule.map((item: any, i: number) => (
+                          <div key={i} className="flex gap-4">
+                            <div className="flex flex-col items-center">
+                              <div
+                                className="w-2.5 h-2.5 rounded-full mt-1 flex-shrink-0"
+                                style={{ background: i === 0 ? brandGradient : "rgba(255,255,255,0.15)" }}
+                              />
+                              {i < event.schedule.length - 1 && <div className="w-px flex-1 bg-white/5 my-1" />}
+                            </div>
+                            <div className="pb-4">
+                              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">{item.time}</p>
+                              <p className="text-sm font-medium text-white">{item.title}</p>
+                              {item.speaker && <p className="text-xs text-slate-500 mt-0.5">{item.speaker}</p>}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className="pb-4">
-                        <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">{item.time}</p>
-                        <p className="text-sm font-medium text-white">{item.title}</p>
-                        {item.speaker && <p className="text-xs text-slate-500 mt-0.5">{item.speaker}</p>}
-                      </div>
+                    </section>
+                  )}
+                </div>
+              )}
+
+              {/* Discussion Tab */}
+              {activeTab === "discussion" && (
+                <div className="space-y-6">
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-white/5">
+                      <svg className="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">Discussion Coming Soon</h3>
+                    <p className="text-sm text-slate-500">
+                      Connect with other attendees and ask questions about the event.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Sponsors & Partners Tab */}
+              {activeTab === "sponsors" && (
+                <div className="space-y-6">
+                  <section>
+                    <h2 className="text-lg font-bold text-white mb-4">Event Sponsors</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {[
+                        { name: "Tech Corp", type: "Title Sponsor" },
+                        { name: "Innovation Labs", type: "Gold Sponsor" },
+                        { name: "Digital Solutions", type: "Silver Sponsor" },
+                      ].map((sponsor) => (
+                        <div key={sponsor.name} className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center hover:bg-white/[0.04] transition-all">
+                          <div className="w-16 h-16 rounded-lg mx-auto mb-3 flex items-center justify-center text-lg font-bold text-black" style={{ background: brandGradient }}>
+                            {sponsor.name.split(" ").map(n => n[0]).join("")}
+                          </div>
+                          <p className="text-sm font-semibold text-white mb-1">{sponsor.name}</p>
+                          <p className="text-xs text-slate-500">{sponsor.type}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section>
+                    <h2 className="text-lg font-bold text-white mb-4">Community Partners</h2>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        "Developer Community",
+                        "Student Tech Club",
+                        "Innovation Hub",
+                        "Startup Network",
+                      ].map((partner) => (
+                        <div key={partner} className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-center hover:bg-white/[0.04] transition-all">
+                          <p className="text-sm font-medium text-white">{partner}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {/* Contact Tab */}
+              {activeTab === "contact" && (
+                <div className="space-y-6">
+                  <section>
+                    <h2 className="text-lg font-bold text-white mb-4">Contact Organizers</h2>
+                    <div className="space-y-4">
+                      {[
+                        { name: "Event Coordinator", email: "events@unifesto.com", phone: "+91 98765 43210" },
+                        { name: "Technical Support", email: "support@unifesto.com", phone: "+91 98765 43211" },
+                      ].map((contact) => (
+                        <div key={contact.name} className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                          <h3 className="text-base font-bold text-white mb-3">{contact.name}</h3>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center gap-2">
+                              <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                              </svg>
+                              <a href={`mailto:${contact.email}`} className="text-slate-300 hover:text-white transition-colors">
+                                {contact.email}
+                              </a>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                              </svg>
+                              <a href={`tel:${contact.phone}`} className="text-slate-300 hover:text-white transition-colors">
+                                {contact.phone}
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {/* FAQ Tab */}
+              {activeTab === "faq" && (
+                <div className="space-y-4">
+                  <h2 className="text-lg font-bold text-white mb-4">Frequently Asked Questions</h2>
+                  {[
+                    {
+                      q: "What should I bring to the event?",
+                      a: "Please bring a valid ID, your registration confirmation (QR code), and any materials mentioned in the event description."
+                    },
+                    {
+                      q: "Is parking available?",
+                      a: "Yes, free parking is available at the venue. Please arrive early as spaces are limited."
+                    },
+                    {
+                      q: "Can I get a refund if I can't attend?",
+                      a: "Refunds are available up to 48 hours before the event. Please contact the organizers for refund requests."
+                    },
+                    {
+                      q: "Will food be provided?",
+                      a: "Light refreshments will be provided. Lunch is included for full-day events."
+                    },
+                    {
+                      q: "Is the event accessible?",
+                      a: "Yes, the venue is wheelchair accessible and has facilities for attendees with special needs."
+                    },
+                  ].map((faq, i) => (
+                    <div key={i} className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                      <h3 className="text-base font-bold text-white mb-2">{faq.q}</h3>
+                      <p className="text-sm text-slate-400 leading-relaxed">{faq.a}</p>
                     </div>
                   ))}
                 </div>
-              </section>
-            )}
+              )}
+            </div>
 
           </div>
 
