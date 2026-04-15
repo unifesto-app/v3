@@ -2,7 +2,7 @@
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
@@ -21,7 +21,7 @@ export default function EventDetailPage({ params }: Props) {
   const [event, setEvent] = useState<any>(null);
   
   // Load event data
-  useState(() => {
+  useEffect(() => {
     params.then(({ id }) => {
       setEventId(id);
       const eventData = getEventById(id);
@@ -30,7 +30,7 @@ export default function EventDetailPage({ params }: Props) {
       }
       setEvent(eventData);
     });
-  });
+  }, [params]);
 
   if (!event) {
     return (
@@ -97,7 +97,7 @@ export default function EventDetailPage({ params }: Props) {
           </div>
           {/* Category + tags */}
           <div className="flex flex-wrap gap-2 mb-3">
-            {event.tags.map((tag) => (
+            {event.tags.map((tag: string) => (
               <span key={tag} className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-white/10 text-white/70 backdrop-blur-sm border border-white/10">
                 {tag}
               </span>
@@ -158,14 +158,14 @@ export default function EventDetailPage({ params }: Props) {
               <section>
                 <h2 className="text-lg font-bold text-white mb-4">Organized By</h2>
                 <div className="flex flex-wrap gap-3">
-                  {collaborators.map((collab) => (
+                  {collaborators.map((collab: any) => (
                     <Link
                       key={collab.id}
                       href={`/org/${collab.id}`}
                       className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2.5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-200 group"
                     >
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-black" style={{ background: brandGradient }}>
-                        {collab.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                        {collab.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
                       </div>
                       <span className="text-sm font-semibold text-white group-hover:text-white/80 transition-colors">{collab.name}</span>
                     </Link>
