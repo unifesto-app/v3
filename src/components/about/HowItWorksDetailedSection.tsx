@@ -109,14 +109,13 @@ export default function HowItWorksDetailedSection() {
             title="For Students"
             subtitle="Attendee flow"
             steps={studentFlow}
-            color="#60a5fa"
+            color="#3491ff"
           />
-          <div className="hidden lg:block w-px bg-white/5" />
           <FlowColumn
             title="For Organisers"
             subtitle="Organiser flow"
             steps={organiserFlow}
-            color="#3491ff"
+            color="#0062ff"
           />
         </div>
       </div>

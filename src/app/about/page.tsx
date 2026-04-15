@@ -22,7 +22,7 @@ export default function AboutPage() {
       <section className="relative bg-black pt-36 pb-20 px-6 text-center overflow-hidden">
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(37,99,235,0.1) 0%, transparent 70%)" }}
+          style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(52,145,255,0.1) 0%, transparent 70%)" }}
           aria-hidden="true"
         />
         <div className="relative z-10 max-w-3xl mx-auto">

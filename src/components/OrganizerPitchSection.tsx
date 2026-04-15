@@ -80,7 +80,7 @@ export default function OrganizerPitchSection() {
 
             <a
               id="organizer-start-hosting"
-              href="#"
+              href="/host"
               className="inline-flex items-center gap-2 rounded-full px-7 py-3 text-sm font-semibold transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)] hover:-translate-y-0.5"
               style={{ background: brandGradient, color: "black" }}
             >

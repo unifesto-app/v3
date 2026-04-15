@@ -177,7 +177,7 @@ const mockEvents: MockEvent[] = [
       { time: "03:30 PM", title: "Results & Awards" },
       { time: "04:00 PM", title: "Closing Ceremony" },
     ],
-    posterGradient: "linear-gradient(135deg, #1e3a5f 0%, #0d2137 60%, #091929 100%)",
+    posterGradient: "linear-gradient(135deg, #3491ff 0%, #0062ff 60%, #001a4d 100%)",
   },
   {
     id: "esummit26",
@@ -208,7 +208,7 @@ const mockEvents: MockEvent[] = [
       { time: "04:00 PM", title: "Startup Pitch Finals" },
       { time: "05:30 PM", title: "Awards & Closing" },
     ],
-    posterGradient: "linear-gradient(135deg, #0f2744 0%, #1a3a6e 50%, #1e4080 100%)",
+    posterGradient: "linear-gradient(135deg, #0062ff 0%, #3491ff 50%, #5aa3ff 100%)",
   },
   {
     id: "hack-league",
@@ -238,7 +238,7 @@ const mockEvents: MockEvent[] = [
       { time: "11:00 AM", title: "Demo Day" },
       { time: "02:00 PM", title: "Results & Prizes" },
     ],
-    posterGradient: "linear-gradient(135deg, #0a1f3d 0%, #0d3060 50%, #0f3d7a 100%)",
+    posterGradient: "linear-gradient(135deg, #001a4d 0%, #0062ff 50%, #3491ff 100%)",
   },
   {
     id: "wds2026",
@@ -270,7 +270,7 @@ const mockEvents: MockEvent[] = [
       { time: "04:00 PM", title: "Closing Debate" },
       { time: "05:00 PM", title: "Awards Night" },
     ],
-    posterGradient: "linear-gradient(135deg, #0e1f3d 0%, #1a2f5a 50%, #1e3870 100%)",
+    posterGradient: "linear-gradient(135deg, #0062ff 0%, #1a75ff 50%, #3491ff 100%)",
   },
   {
     id: "devsprints",
@@ -302,7 +302,7 @@ const mockEvents: MockEvent[] = [
       { time: "04:00 PM", title: "Track 4: Open Source Sprint" },
       { time: "05:00 PM", title: "Project Showcase & Close" },
     ],
-    posterGradient: "linear-gradient(135deg, #0a2010 0%, #0f3018 50%, #0d3a1a 100%)",
+    posterGradient: "linear-gradient(135deg, #0062ff 0%, #0080ff 50%, #3491ff 100%)",
   },
   {
     id: "pitch-perfect",
@@ -333,7 +333,7 @@ const mockEvents: MockEvent[] = [
       { time: "02:45 PM", title: "Judging & Results" },
       { time: "03:00 PM", title: "Prize Distribution" },
     ],
-    posterGradient: "linear-gradient(135deg, #1e1000 0%, #3d2000 50%, #4a2800 100%)",
+    posterGradient: "linear-gradient(135deg, #3491ff 0%, #0062ff 50%, #004acc 100%)",
   },
   {
     id: "unite",
@@ -363,7 +363,7 @@ const mockEvents: MockEvent[] = [
       { time: "08:00 PM", title: "Awards Ceremony" },
       { time: "08:45 PM", title: "Closing Performance" },
     ],
-    posterGradient: "linear-gradient(135deg, #2d0a3a 0%, #3d0f4f 50%, #4a1260 100%)",
+    posterGradient: "linear-gradient(135deg, #1a75ff 0%, #3491ff 50%, #5aa3ff 100%)",
   },
   {
     id: "geetotsav",
@@ -393,7 +393,7 @@ const mockEvents: MockEvent[] = [
       { time: "08:30 PM", title: "Open Mic" },
       { time: "09:30 PM", title: "Closing Act" },
     ],
-    posterGradient: "linear-gradient(135deg, #1a0a2e 0%, #2d1060 50%, #1a0a2e 100%)",
+    posterGradient: "linear-gradient(135deg, #0062ff 0%, #3491ff 50%, #0062ff 100%)",
   },
   {
     id: "linkedinspire-summit",
@@ -423,7 +423,7 @@ const mockEvents: MockEvent[] = [
       { time: "01:00 PM", title: "Personal Branding Workshop" },
       { time: "01:45 PM", title: "Q&A & Close" },
     ],
-    posterGradient: "linear-gradient(135deg, #0a1628 0%, #0d2040 50%, #0f2a52 100%)",
+    posterGradient: "linear-gradient(135deg, #001a4d 0%, #0062ff 50%, #1a75ff 100%)",
   },
   {
     id: "research-expo",
@@ -454,7 +454,7 @@ const mockEvents: MockEvent[] = [
       { time: "02:00 PM", title: "Project/Prototype Showcase" },
       { time: "03:30 PM", title: "Expert Feedback & Awards" },
     ],
-    posterGradient: "linear-gradient(135deg, #001a2e 0%, #00264a 50%, #003366 100%)",
+    posterGradient: "linear-gradient(135deg, #001a4d 0%, #004acc 50%, #0062ff 100%)",
   },
   {
     id: "frames-fest",
@@ -484,7 +484,7 @@ const mockEvents: MockEvent[] = [
       { time: "06:30 PM", title: "Screening Block 2" },
       { time: "07:30 PM", title: "Jury Discussion & Awards" },
     ],
-    posterGradient: "linear-gradient(135deg, #1a0020 0%, #2d003d 50%, #3d0050 100%)",
+    posterGradient: "linear-gradient(135deg, #0062ff 0%, #1a5acc 50%, #3491ff 100%)",
   },
   {
     id: "science-day",
@@ -515,7 +515,7 @@ const mockEvents: MockEvent[] = [
       { time: "02:00 PM", title: "Guest Talk: History of Science" },
       { time: "04:00 PM", title: "Science Exhibition" },
     ],
-    posterGradient: "linear-gradient(135deg, #001833 0%, #002244 50%, #002f5c 100%)",
+    posterGradient: "linear-gradient(135deg, #001a4d 0%, #003d99 50%, #0062ff 100%)",
   },
 ];
 

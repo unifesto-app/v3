@@ -12,7 +12,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    label: "Events",
+    label: "Discover",
     dropdown: [
       { label: "All Events", href: "/events", description: "Browse everything on campus" },
       { label: "Trending", href: "/events?status=trending", description: "What everyone is talking about" },
@@ -21,7 +21,7 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    label: "Organisations",
+    label: "Communities",
     dropdown: [
       { label: "Browse All", href: "/orgs", description: "Universities, clubs & more" },
       { label: "Universities & Colleges", href: "/orgs?type=university", description: "Top-level institutions" },
@@ -34,10 +34,10 @@ const navItems: NavItem[] = [
   {
     label: "Host Event",
     dropdown: [
-      { label: "Create Event", href: "/#host", description: "Set up your event in minutes" },
-      { label: "Ticketing & RSVP", href: "/#host", description: "Sell tickets or collect RSVPs" },
-      { label: "QR Check-in", href: "/#host", description: "Fraud-proof entry system" },
-      { label: "Analytics", href: "/#host", description: "Track attendance & insights" },
+      { label: "Create Event", href: "/host#request-form", description: "Set up your event in minutes" },
+      { label: "Ticketing & RSVP", href: "/host#ticketing", description: "Sell tickets or collect RSVPs" },
+      { label: "QR Check-in", href: "/host#checkin", description: "Fraud-proof entry system" },
+      { label: "Analytics", href: "/host#analytics", description: "Track attendance & insights" },
     ],
   },
   {

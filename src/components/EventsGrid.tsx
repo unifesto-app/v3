@@ -102,11 +102,11 @@ export default function EventsGrid() {
           <a
             id="view-all-events"
             href="/events"
-            className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:shadow-[0_0_24px_rgba(52,145,255,0.4)] hover:-translate-y-0.5"
-            style={{ background: brandGradient }}
+            className="inline-flex items-center gap-2 text-sm font-semibold transition-all duration-200 hover:opacity-80 group"
+            style={gradientText}
           >
             View all {status === "all" ? "" : status} events
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
             </svg>
           </a>

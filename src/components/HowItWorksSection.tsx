@@ -36,16 +36,6 @@ const steps = [
 export default function HowItWorksSection() {
   return (
     <section id="how-it-works" aria-labelledby="hiw-heading" className="relative bg-black py-20 md:py-28 px-6 overflow-hidden">
-      {/* Subtle grid background */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.03]"
-        style={{
-          backgroundImage: "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }}
-        aria-hidden="true"
-      />
-
       <div className="relative z-10 max-w-5xl mx-auto text-center">
         <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-3" style={gradientText}>
           Simple by design

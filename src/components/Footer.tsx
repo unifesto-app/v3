@@ -49,7 +49,7 @@ const exploreLinks = [
   { label: "MUN & Debates", href: "/events?category=MUN" },
 ];
 
-const organisationsLinks = [
+const communitiesLinks = [
   { label: "Browse All", href: "/orgs" },
   { label: "Universities", href: "/orgs?type=university" },
   { label: "Departments", href: "/orgs?type=department" },
@@ -180,8 +180,8 @@ export default function Footer() {
           </div>
 
           <LinkColumn title="Product" links={productLinks} />
-          <LinkColumn title="Explore Events" links={exploreLinks} />
-          <LinkColumn title="Organisations" links={organisationsLinks} />
+          <LinkColumn title="Discover" links={exploreLinks} />
+          <LinkColumn title="Communities" links={communitiesLinks} />
           <LinkColumn title="Company" links={companyLinks} />
           <LinkColumn title="Legal" links={legalLinks} />
 

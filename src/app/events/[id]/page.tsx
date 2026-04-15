@@ -3,7 +3,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
-import { getEventById, getAllEvents } from "@/lib/mockEvents";
+import { getEventById, getAllEvents, getEventsByOrgTree } from "@/lib/mockEvents";
 import { brandGradient, gradientText } from "@/lib/styles";
 
 interface Props {
@@ -36,9 +36,15 @@ export default async function EventDetailPage({ params }: Props) {
   const isLowSpots = event.spotsLeft > 0 && event.spotsLeft <= 30;
   const spotsPercent = Math.round((event.spotsLeft / event.totalSpots) * 100);
 
-  // Related events (same category, exclude current)
+  // Events from same org/sub-orgs (exclude current)
+  const orgEvents = getEventsByOrgTree(event.org.id)
+    .filter((e) => e.id !== event.id)
+    .slice(0, 3);
+
+  // Related events (same category, exclude current and org events)
+  const orgEventIds = new Set(orgEvents.map(e => e.id));
   const related = getAllEvents()
-    .filter((e) => e.id !== event.id && e.category === event.category)
+    .filter((e) => e.id !== event.id && e.category === event.category && !orgEventIds.has(e.id))
     .slice(0, 3);
 
   return (
@@ -47,7 +53,7 @@ export default async function EventDetailPage({ params }: Props) {
 
       {/* Hero */}
       <section
-        className="relative pt-20 min-h-[340px] md:min-h-[400px] flex items-end pb-8 px-6 overflow-hidden"
+        className="relative pt-20 min-h-[450px] md:min-h-[550px] flex items-end pb-8 px-6 overflow-hidden"
         style={{ background: event.posterGradient }}
       >
         {/* Gradient overlay to blend into page */}
@@ -211,6 +217,21 @@ export default async function EventDetailPage({ params }: Props) {
           </div>
 
         </div>
+
+        {/* Events from same organization */}
+        {orgEvents.length > 0 && (
+          <div className="mt-16 pt-10 border-t border-white/5">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-white">More from {event.organizer}</h2>
+              <Link href={`/org/${event.org.id}`} className="text-xs font-medium" style={gradientText}>
+                View all →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {orgEvents.map((e, i) => <EventCard key={e.id} event={e} index={i} />)}
+            </div>
+          </div>
+        )}
 
         {/* Related events */}
         {related.length > 0 && (

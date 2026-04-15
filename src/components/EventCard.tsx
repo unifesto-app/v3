@@ -30,7 +30,7 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
       onClick={() => router.push(`/events/${event.id}`)}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") router.push(`/events/${event.id}`); }}
       tabIndex={0}
-      className={`animate-fade-in-up ${delayClass} group flex flex-col rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02] hover:bg-white/[0.03] hover:border-white/10 hover:-translate-y-1.5 hover:shadow-[0_20px_60px_rgba(37,99,235,0.2)] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+      className={`animate-fade-in-up ${delayClass} group flex flex-col rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02] hover:bg-white/[0.03] hover:border-white/10 hover:-translate-y-1.5 hover:shadow-[0_20px_60px_rgba(52,145,255,0.2)] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3491ff]`}
     >
       {/* Poster */}
       <div
@@ -49,21 +49,12 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
           {event.tags.slice(0, 2).map((tag) => (
             <span
               key={tag}
-              className="text-[10px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-sm bg-white/10 text-white border-white/10"
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-sm bg-white/10 text-black border-white/10"
             >
               {tag}
             </span>
           ))}
         </div>
-        {/* Spots bar */}
-        {!isCompleted && event.spotsLeft > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/30">
-            <div
-              className="h-full transition-all duration-500"
-              style={{ width: `${spotsPercent}%`, background: brandGradient }}
-            />
-          </div>
-        )}
       </div>
 
       {/* Card body */}
@@ -71,7 +62,7 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
         {/* Title + org */}
         <div>
           <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">{event.category}</p>
-          <h3 className="text-base font-extrabold text-white leading-snug group-hover:text-blue-200 transition-colors duration-200">
+          <h3 className="text-base font-extrabold text-white leading-snug transition-colors duration-200">
             {event.title}
           </h3>
           {/* Organizer — valid <a> since outer is <div>, not <a> */}

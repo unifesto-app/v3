@@ -7,31 +7,31 @@
 /* ─── Unifesto Design Tokens ─────────────────────────────────────────── */
 :root {
   --background: #000000;
-  --foreground: #f1f7ff;
-  --card: #0a0f1e;
-  --card-foreground: #f1f7ff;
-  --popover: #0a0f1e;
-  --popover-foreground: #f1f7ff;
-  --primary: #2563eb;
-  --primary-bright: #3b82f6;
-  --primary-foreground: #ffffff;
-  --secondary: #0f172a;
-  --secondary-foreground: #94a3b8;
-  --muted: #0f172a;
-  --muted-foreground: #64748b;
-  --accent: #1d4ed8;
-  --accent-foreground: #ffffff;
-  --destructive: #ef4444;
-  --border: rgba(37, 99, 235, 0.3);
-  --input: rgba(37, 99, 235, 0.2);
-  --ring: #3b82f6;
+  --foreground: #ffffff;
+  --card: #000000;
+  --card-foreground: #ffffff;
+  --popover: #000000;
+  --popover-foreground: #ffffff;
+  --primary: #3491ff;
+  --primary-bright: #0062ff;
+  --primary-foreground: #000000;
+  --secondary: #000000;
+  --secondary-foreground: #ffffff;
+  --muted: #000000;
+  --muted-foreground: #ffffff;
+  --accent: #3491ff;
+  --accent-foreground: #000000;
+  --destructive: #3491ff;
+  --border: rgba(52, 145, 255, 0.3);
+  --input: rgba(52, 145, 255, 0.2);
+  --ring: #3491ff;
   --radius: 0.75rem;
 
   /* Legacy vars for backward compat */
   --bg: #000000;
-  --panel: #071329;
-  --text: #f1f7ff;
-  --text-muted: #7fa7d2;
+  --panel: #000000;
+  --text: #ffffff;
+  --text-muted: #ffffff;
 }
 
 /* ─── Base Reset ─────────────────────────────────────────────────────── */
@@ -111,11 +111,11 @@ a {
 
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(37, 99, 235, 0.4), 0 0 40px rgba(37, 99, 235, 0.15);
+    box-shadow: 0 0 20px rgba(52, 145, 255, 0.4), 0 0 40px rgba(52, 145, 255, 0.15);
   }
 
   50% {
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(59, 130, 246, 0.25);
+    box-shadow: 0 0 30px rgba(0, 98, 255, 0.6), 0 0 60px rgba(0, 98, 255, 0.25);
   }
 }
 

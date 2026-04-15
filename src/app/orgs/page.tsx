@@ -26,33 +26,28 @@ function OrgCard({ org }: { org: Org }) {
       className="group flex flex-col rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.4)] transition-all duration-300 overflow-hidden"
     >
       {/* Poster */}
-      <div className="relative h-32 flex items-end p-3 overflow-hidden">
-        <img
-          src={org.image}
-          alt={org.name}
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+      <div className="relative h-32 flex items-end p-3 overflow-hidden" style={{ background: brandGradient }}>
         {/* Subtle sheen */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.07) 0%, transparent 60%)" }}
           aria-hidden="true"
         />
-        {/* Bottom gradient fade for text contrast if any */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
+        
+        {/* Badge */}
+        <div className="absolute top-3 right-3">
+          <span
+            className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full backdrop-blur-sm bg-white/10 text-black border border-white/10"
+          >
+            {ORG_TYPE_LABELS[org.type]}
+          </span>
+        </div>
       </div>
 
       <div className="p-4 flex flex-col gap-3 flex-1">
         {/* Header */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap mb-1">
-            <span
-              className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full backdrop-blur-sm bg-white/10 text-white border border-white/10"
-            >
-              {ORG_TYPE_LABELS[org.type]}
-            </span>
-          </div>
-          <h3 className="text-base font-extrabold text-white group-hover:text-blue-200 transition-colors leading-snug">
+          <h3 className="text-base font-extrabold text-white transition-colors leading-snug">
             {org.name}
           </h3>
         </div>
@@ -114,7 +109,7 @@ function OrgsContent() {
       <section className="relative pt-28 pb-10 px-6 border-b border-white/5 overflow-hidden">
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 50% 60% at 50% -10%, rgba(37,99,235,0.07) 0%, transparent 70%)" }}
+          style={{ background: "radial-gradient(ellipse 50% 60% at 50% -10%, rgba(52,145,255,0.07) 0%, transparent 70%)" }}
           aria-hidden="true"
         />
         <div className="relative z-10 max-w-6xl mx-auto">
@@ -139,7 +134,7 @@ function OrgsContent() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search organisations..."
-              className="w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-blue-500 transition-colors"
+              className="w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-[#3491ff] transition-colors"
             />
           </div>
           <div className="flex items-center gap-1 bg-white/5 rounded-full p-1 border border-white/5 overflow-x-auto">
@@ -163,30 +158,24 @@ function OrgsContent() {
               const children = allOrgs.filter((o) => o.parentOrgId === parent.id);
               return (
                 <div key={parent.id}>
-                  {/* Parent */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-4">
+                  {/* Parent and its children in same grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     <OrgCard org={parent} />
+                    {children.map((child) => (
+                      <OrgCard key={child.id} org={child} />
+                    ))}
                   </div>
-                  {/* Children indented */}
-                  {children.length > 0 && (
-                    <div className="ml-6 pl-4 border-l border-white/5">
-                      <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-3">
-                        Sub-organisations ({children.length})
+                  
+                  {/* Grandchildren if any */}
+                  {children.some((child) => allOrgs.some((o) => o.parentOrgId === child.id)) && (
+                    <div className="ml-6 pl-4 border-l border-white/5 mt-5">
+                      <p className="text-[10px] font-semibold text-white uppercase tracking-widest mb-3">
+                        Sub-organisations
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {children.map((child) => {
-                          // Grandchildren
                           const grandchildren = allOrgs.filter((o) => o.parentOrgId === child.id);
-                          return (
-                            <div key={child.id}>
-                              <OrgCard org={child} />
-                              {grandchildren.length > 0 && (
-                                <div className="ml-4 pl-3 border-l border-white/5 mt-3 space-y-2">
-                                  {grandchildren.map((gc) => <OrgCard key={gc.id} org={gc} />)}
-                                </div>
-                              )}
-                            </div>
-                          );
+                          return grandchildren.map((gc) => <OrgCard key={gc.id} org={gc} />);
                         })}
                       </div>
                     </div>
@@ -194,7 +183,6 @@ function OrgsContent() {
                 </div>
               );
             })}
-            {/* Orgs without a parent that aren't top-level (communities, individuals with no parentOrgId counted as top-level above) already handled */}
           </div>
         ) : (
           /* Flat grid for filtered view */
