@@ -12,34 +12,44 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    label: "Discover",
+    label: "Events",
     dropdown: [
-      { label: "All Events", href: "#events", description: "Browse everything on campus" },
-      { label: "Hackathons", href: "#hackathons", description: "Code, build & compete" },
-      { label: "Cultural Fests", href: "#cultural", description: "Music, art & performances" },
-      { label: "Workshops", href: "#workshops", description: "Learn new skills" },
-      { label: "MUN & Debates", href: "#mun", description: "Lead, argue & win" },
+      { label: "All Events", href: "/events", description: "Browse everything on campus" },
+      { label: "Trending", href: "/events?status=trending", description: "What everyone is talking about" },
+      { label: "Upcoming", href: "/events?status=upcoming", description: "Don't miss what's next" },
+      { label: "Featured", href: "/events?status=featured", description: "Handpicked by the team" },
     ],
   },
   {
-    label: "Host an Event",
+    label: "Organisations",
     dropdown: [
-      { label: "Create Event", href: "#host", description: "Set up your event in minutes" },
-      { label: "Ticketing & RSVP", href: "#tickets", description: "Sell tickets or collect RSVPs" },
-      { label: "QR Check-in", href: "#checkin", description: "Fraud-proof entry system" },
-      { label: "Analytics", href: "#analytics", description: "Track attendance & insights" },
+      { label: "Browse All", href: "/orgs", description: "Universities, clubs & more" },
+      { label: "Universities & Colleges", href: "/orgs?type=university", description: "Top-level institutions" },
+      { label: "Departments", href: "/orgs?type=department", description: "Schools & academic units" },
+      { label: "Clubs & Cells", href: "/orgs?type=club", description: "Student-run organisations" },
+      { label: "Communities", href: "/orgs?type=community", description: "Independent groups" },
+      { label: "Individuals", href: "/orgs?type=individual", description: "Independent event organisers" },
     ],
   },
-  { label: "Pricing", href: "#pricing" },
+  {
+    label: "Host Event",
+    dropdown: [
+      { label: "Create Event", href: "/#host", description: "Set up your event in minutes" },
+      { label: "Ticketing & RSVP", href: "/#host", description: "Sell tickets or collect RSVPs" },
+      { label: "QR Check-in", href: "/#host", description: "Fraud-proof entry system" },
+      { label: "Analytics", href: "/#host", description: "Track attendance & insights" },
+    ],
+  },
   {
     label: "About",
     dropdown: [
-      { label: "About Us", href: "#about", description: "Our story & mission" },
-      { label: "Careers", href: "#careers", description: "Join the team" },
-      { label: "Blog", href: "#blog", description: "News & updates" },
-      { label: "Contact", href: "mailto:support@unifesto.app", description: "We're here to help" },
+      { label: "About Us", href: "/about", description: "Our story & mission" },
+      { label: "Features", href: "/about#features", description: "What we offer" },
+      { label: "Use Cases", href: "/about#use-cases", description: "Events we support" },
+      { label: "Testimonials", href: "/about#testimonials", description: "What people say" },
     ],
   },
+  { label: "Pricing", href: "/pricing" },
 ];
 
 function DropdownMenu({ items }: { items: { label: string; href: string; description?: string }[] }) {

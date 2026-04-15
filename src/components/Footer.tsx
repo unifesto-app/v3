@@ -34,23 +34,31 @@ const socials = [
 ];
 
 const productLinks = [
-  { label: "Event Discovery", href: "#events" },
-  { label: "Event Hosting", href: "#host" },
-  { label: "Ticketing & RSVP", href: "#tickets" },
-  { label: "QR Check-in", href: "#checkin" },
-  { label: "Analytics", href: "#analytics" },
+  { label: "Event Discovery", href: "/events" },
+  { label: "Event Hosting", href: "/#host" },
+  { label: "Ticketing & RSVP", href: "/#host" },
+  { label: "QR Check-in", href: "/#host" },
+  { label: "Analytics", href: "/#host" },
 ];
 
 const exploreLinks = [
-  { label: "All Events", href: "#events" },
-  { label: "Hackathons", href: "#hackathons" },
-  { label: "Cultural Fests", href: "#cultural" },
-  { label: "Workshops", href: "#workshops" },
-  { label: "MUN & Debates", href: "#mun" },
+  { label: "All Events", href: "/events" },
+  { label: "Hackathons", href: "/events?category=Hackathon" },
+  { label: "Cultural Fests", href: "/events?category=Cultural" },
+  { label: "Workshops", href: "/events?category=Workshop" },
+  { label: "MUN & Debates", href: "/events?category=MUN" },
+];
+
+const organisationsLinks = [
+  { label: "Browse All", href: "/orgs" },
+  { label: "Universities", href: "/orgs?type=university" },
+  { label: "Departments", href: "/orgs?type=department" },
+  { label: "Clubs & Cells", href: "/orgs?type=club" },
+  { label: "Communities", href: "/orgs?type=community" },
 ];
 
 const companyLinks = [
-  { label: "About Us", href: "#about" },
+  { label: "About Us", href: "/about" },
   { label: "Careers", href: "#careers" },
   { label: "Blog", href: "#blog" },
   { label: "Contact", href: "mailto:support@unifesto.app" },
@@ -107,7 +115,7 @@ export default function Footer() {
             <p className="text-xs text-slate-500 mt-0.5">Get campus event updates straight to your inbox.</p>
           </div>
           {subscribed ? (
-            <p className="text-sm font-medium" style={gradientText}>You&apos;re subscribed! 🎉</p>
+            <p className="text-sm font-medium" style={gradientText}>You&apos;re subscribed!</p>
           ) : (
             <form onSubmit={handleSubscribe} className="flex items-center gap-2 w-full md:w-auto">
               <input
@@ -117,7 +125,7 @@ export default function Footer() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
-                className="flex-1 md:w-64 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white placeholder-slate-600 outline-none focus:border-blue-500 transition-colors duration-200"
+                className="flex-1 md:w-64 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white placeholder-slate-600 outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200"
               />
               <button
                 type="submit"
@@ -131,7 +139,7 @@ export default function Footer() {
         </div>
 
         {/* Main grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 py-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 py-12">
 
           {/* Brand column — spans 2 on lg */}
           <div className="col-span-2 flex flex-col gap-4">
@@ -160,7 +168,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-white border border-white/5 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all duration-200"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-white border border-white/5 hover:border-white/20 hover:bg-white/5 transition-all duration-200"
                 >
                   {s.icon}
                 </a>
@@ -172,7 +180,8 @@ export default function Footer() {
           </div>
 
           <LinkColumn title="Product" links={productLinks} />
-          <LinkColumn title="Explore" links={exploreLinks} />
+          <LinkColumn title="Explore Events" links={exploreLinks} />
+          <LinkColumn title="Organisations" links={organisationsLinks} />
           <LinkColumn title="Company" links={companyLinks} />
           <LinkColumn title="Legal" links={legalLinks} />
 

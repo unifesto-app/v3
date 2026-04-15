@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { gradientText, brandGradient } from "@/lib/styles";
 
@@ -59,24 +59,25 @@ export default function Hero() {
 
         {/* CTA Buttons */}
         <div className="animate-fade-in-up animate-delay-300 flex flex-wrap items-center justify-center gap-3 md:gap-4">
-          <Button
+          <Link
             id="hero-discover-events"
-            className="rounded-full px-6 py-2.5 md:px-7 md:py-3 h-auto text-sm md:text-base font-semibold border-0 shadow-[0_0_24px_rgba(37,99,235,0.5)] hover:shadow-[0_0_40px_rgba(52,145,255,0.65)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
+            href="/events"
+            className="rounded-full px-6 py-2.5 md:px-7 md:py-3 text-sm md:text-base font-semibold shadow-[0_0_24px_rgba(37,99,235,0.5)] hover:shadow-[0_0_40px_rgba(52,145,255,0.65)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
             style={{ background: brandGradient, color: "#000000" }}
           >
             Discover Events
-          </Button>
+          </Link>
           <div
             style={{ background: brandGradient, borderRadius: "9999px", padding: "1px" }}
             className="transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 hover:shadow-[0_0_20px_rgba(52,145,255,0.35)]"
           >
-            <Button
+            <Link
               id="hero-host-event"
-              className="rounded-full px-6 py-2.5 md:px-7 md:py-3 h-auto text-sm md:text-base font-semibold border-0 transition-all duration-300"
-              style={{ background: "#000000" }}
+              href="/#host"
+              className="block rounded-full px-6 py-2.5 md:px-7 md:py-3 text-sm md:text-base font-semibold bg-black transition-all duration-300"
             >
               <span style={gradientText}>Host an Event</span>
-            </Button>
+            </Link>
           </div>
         </div>
 
