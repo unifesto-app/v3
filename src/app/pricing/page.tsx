@@ -15,7 +15,7 @@ const plans = [
     description: "Perfect for student clubs running occasional events.",
     featured: false,
     cta: "Get Started Free",
-    ctaHref: "#",
+    ctaHref: "/auth",
     features: [
       "Up to 3 events/month",
       "Unlimited free RSVPs",
@@ -32,7 +32,7 @@ const plans = [
     description: "For serious organisers who need the full toolkit.",
     featured: true,
     cta: "Start with Pro",
-    ctaHref: "#",
+    ctaHref: "/auth",
     features: [
       "Unlimited events",
       "Paid ticketing & RSVP",

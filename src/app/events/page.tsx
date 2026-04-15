@@ -17,11 +17,23 @@ function EventsContent() {
   const [status, setStatus] = useState(searchParams.get("status") ?? "all");
   const [price, setPrice] = useState<"all" | "free" | "paid">("all");
   const [dateRange, setDateRange] = useState<"all" | "today" | "week" | "upcoming">("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
 
-  const events = useMemo(
+  const allEvents = useMemo(
     () => filterEvents({ query, category, status, price, dateRange }),
     [query, category, status, price, dateRange]
   );
+
+  // Reset to page 1 when filters change
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [query, category, status, price, dateRange]);
+
+  const totalPages = Math.ceil(allEvents.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const events = allEvents.slice(startIndex, endIndex);
 
   const clearAll = () => {
     setQuery("");
@@ -157,16 +169,67 @@ function EventsContent() {
 
         {/* Results count */}
         <p className="text-xs text-slate-600 mb-5">
-          {events.length === 0 ? "No events" : `${events.length} event${events.length !== 1 ? "s" : ""}`}{hasFilters ? " matching your filters" : " total"}
+          {allEvents.length === 0 ? "No events" : `${allEvents.length} event${allEvents.length !== 1 ? "s" : ""}`}{hasFilters ? " matching your filters" : " total"}
+          {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
         </p>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
           {events.length > 0
-            ? events.map((event, i) => <EventCard key={event.id} event={event} index={i} />)
+            ? events.map((event, i) => <EventCard key={event.id} event={event} index={startIndex + i} />)
             : <EmptyState onClear={clearAll} onCategory={(cat) => { setQuery(""); setStatus("all"); setPrice("all"); setDateRange("all"); setCategory(cat); }} />
           }
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 pt-8 border-t border-white/5">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="rounded-lg px-4 py-2 text-sm font-medium border border-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-all duration-200"
+            >
+              Previous
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                // Show first page, last page, current page, and pages around current
+                const showPage = page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+                const showEllipsis = (page === 2 && currentPage > 3) || (page === totalPages - 1 && currentPage < totalPages - 2);
+                
+                if (showEllipsis) {
+                  return <span key={page} className="px-2 text-slate-600">...</span>;
+                }
+                
+                if (!showPage) return null;
+                
+                return (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className="rounded-lg w-10 h-10 text-sm font-medium transition-all duration-200"
+                    style={
+                      currentPage === page
+                        ? { background: brandGradient, color: "#000" }
+                        : { border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8" }
+                    }
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="rounded-lg px-4 py-2 text-sm font-medium border border-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-all duration-200"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
       <Footer />

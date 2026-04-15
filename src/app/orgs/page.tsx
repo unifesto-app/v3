@@ -12,10 +12,8 @@ import { brandGradient, gradientText } from "@/lib/styles";
 const TYPE_FILTERS = [
   { key: "all", label: "All" },
   { key: "university", label: "Universities" },
-  { key: "department", label: "Departments" },
-  { key: "club", label: "Clubs & Cells" },
+  { key: "club", label: "Clubs" },
   { key: "community", label: "Communities" },
-  { key: "individual", label: "Individuals" },
 ];
 
 function OrgCard({ org }: { org: Org }) {
@@ -79,20 +77,25 @@ function OrgsContent() {
   const searchParams = useSearchParams();
   const [typeFilter, setTypeFilter] = useState(searchParams.get("type") ?? "all");
   const [query, setQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
 
   const allOrgs = getAllOrgs();
 
   const filtered = useMemo(() => {
     const lcQuery = query.toLowerCase();
     return allOrgs.filter((o) => {
-      const matchesType =
-        typeFilter === "all" ||
-        (typeFilter === "club" ? (o.type === "club" || o.type === "cell") : o.type === typeFilter);
+      const matchesType = typeFilter === "all" || o.type === typeFilter;
       const matchesQuery =
         !query || o.name.toLowerCase().includes(lcQuery) || o.description.toLowerCase().includes(lcQuery);
       return matchesType && matchesQuery;
     });
   }, [allOrgs, typeFilter, query]);
+
+  // Reset to page 1 when filters change
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [typeFilter, query]);
 
   // Top-level orgs for hierarchy view (no parent)
   const topLevel = filtered.filter((o) => !o.parentOrgId);
@@ -100,6 +103,12 @@ function OrgsContent() {
   const childOrgs = filtered.filter((o) => !!o.parentOrgId);
 
   const showHierarchy = typeFilter === "all" && !query;
+
+  // Pagination for flat view
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedOrgs = filtered.slice(startIndex, endIndex);
 
   return (
     <main className="min-h-screen bg-black overflow-x-hidden">
@@ -116,7 +125,7 @@ function OrgsContent() {
           <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-2" style={gradientText}>Browse</p>
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-3">Organisations</h1>
           <p className="text-slate-500 text-sm md:text-base max-w-xl">
-            Universities, departments, clubs, communities & individuals — all the organisers behind events on Unifesto.
+            Universities, clubs & communities — all the organisers behind events on Unifesto.
           </p>
         </div>
       </section>
@@ -189,11 +198,64 @@ function OrgsContent() {
           <div>
             <p className="text-xs text-slate-600 mb-5">
               {filtered.length} organisation{filtered.length !== 1 ? "s" : ""}
+              {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
             </p>
             {filtered.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filtered.map((o) => <OrgCard key={o.id} org={o} />)}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+                  {paginatedOrgs.map((o) => <OrgCard key={o.id} org={o} />)}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 pt-8 border-t border-white/5">
+                    <button
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="rounded-lg px-4 py-2 text-sm font-medium border border-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-all duration-200"
+                    >
+                      Previous
+                    </button>
+                    
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                        // Show first page, last page, current page, and pages around current
+                        const showPage = page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+                        const showEllipsis = (page === 2 && currentPage > 3) || (page === totalPages - 1 && currentPage < totalPages - 2);
+                        
+                        if (showEllipsis) {
+                          return <span key={page} className="px-2 text-slate-600">...</span>;
+                        }
+                        
+                        if (!showPage) return null;
+                        
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className="rounded-lg w-10 h-10 text-sm font-medium transition-all duration-200"
+                            style={
+                              currentPage === page
+                                ? { background: brandGradient, color: "#000" }
+                                : { border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8" }
+                            }
+                          >
+                            {page}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="rounded-lg px-4 py-2 text-sm font-medium border border-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-all duration-200"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-20 border border-white/5 rounded-2xl">
                 <p className="text-sm text-slate-500">No organisations match your search.</p>

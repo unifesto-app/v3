@@ -125,10 +125,38 @@ export default function HostEventPage() {
 
               <ul className="flex flex-col gap-3 mb-10">
                 {[
-                  { icon: "💳", text: "Free & paid ticketing options" },
-                  { icon: "👥", text: "Capacity management & waitlists" },
-                  { icon: "⚡", text: "Instant email confirmations" },
-                  { icon: "📊", text: "Real-time registration tracking" },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    ), 
+                    text: "Free & paid ticketing options" 
+                  },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    ), 
+                    text: "Capacity management & waitlists" 
+                  },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    ), 
+                    text: "Instant email confirmations" 
+                  },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    ), 
+                    text: "Real-time registration tracking" 
+                  },
                 ].map((item) => (
                   <li key={item.text} className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-black" style={{ background: brandGradient }}>
@@ -236,10 +264,38 @@ export default function HostEventPage() {
 
               <ul className="flex flex-col gap-3 mb-10">
                 {[
-                  { icon: "📱", text: "Instant QR code generation" },
-                  { icon: "🔒", text: "Duplicate entry prevention" },
-                  { icon: "📡", text: "Offline mode support" },
-                  { icon: "⚡", text: "Real-time sync across devices" },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                    ), 
+                    text: "Instant QR code generation" 
+                  },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    ), 
+                    text: "Duplicate entry prevention" 
+                  },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+                      </svg>
+                    ), 
+                    text: "Offline mode support" 
+                  },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    ), 
+                    text: "Real-time sync across devices" 
+                  },
                 ].map((item) => (
                   <li key={item.text} className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-black" style={{ background: brandGradient }}>
@@ -281,10 +337,38 @@ export default function HostEventPage() {
 
               <ul className="flex flex-col gap-3 mb-10">
                 {[
-                  { icon: "📈", text: "Live attendance tracking" },
-                  { icon: "👥", text: "Attendee demographics" },
-                  { icon: "📊", text: "Registration insights" },
-                  { icon: "📥", text: "Export reports (CSV)" },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    ), 
+                    text: "Live attendance tracking" 
+                  },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    ), 
+                    text: "Attendee demographics" 
+                  },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    ), 
+                    text: "Registration insights" 
+                  },
+                  { 
+                    icon: (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                      </svg>
+                    ), 
+                    text: "Export reports (CSV)" 
+                  },
                 ].map((item) => (
                   <li key={item.text} className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-black" style={{ background: brandGradient }}>

@@ -25,10 +25,8 @@ const navItems: NavItem[] = [
     dropdown: [
       { label: "Browse All", href: "/orgs", description: "Universities, clubs & more" },
       { label: "Universities & Colleges", href: "/orgs?type=university", description: "Top-level institutions" },
-      { label: "Departments", href: "/orgs?type=department", description: "Schools & academic units" },
-      { label: "Clubs & Cells", href: "/orgs?type=club", description: "Student-run organisations" },
+      { label: "Clubs", href: "/orgs?type=club", description: "Student clubs, cells & departments" },
       { label: "Communities", href: "/orgs?type=community", description: "Independent groups" },
-      { label: "Individuals", href: "/orgs?type=individual", description: "Independent event organisers" },
     ],
   },
   {
@@ -182,25 +180,27 @@ export default function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4 pt-2">
-            <Button
-              id="nav-get-started"
-              className="rounded-full px-6 py-2.5 h-auto text-sm font-semibold border-0 transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]"
-              style={{ background: "transparent", border: "1px solid #3491ff", color: "#3491ff" }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLButtonElement;
-                el.style.background = brandGradient;
-                el.style.color = "#000000";
-                el.style.borderColor = "transparent";
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLButtonElement;
-                el.style.background = "transparent";
-                el.style.color = "#3491ff";
-                el.style.borderColor = "#3491ff";
-              }}
-            >
-              Get Started
-            </Button>
+            <a href="/auth">
+              <Button
+                id="nav-get-started"
+                className="rounded-full px-6 py-2.5 h-auto text-sm font-semibold border-0 transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]"
+                style={{ background: "transparent", border: "1px solid #3491ff", color: "#3491ff" }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLButtonElement;
+                  el.style.background = brandGradient;
+                  el.style.color = "#000000";
+                  el.style.borderColor = "transparent";
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLButtonElement;
+                  el.style.background = "transparent";
+                  el.style.color = "#3491ff";
+                  el.style.borderColor = "#3491ff";
+                }}
+              >
+                Get Started
+              </Button>
+            </a>
           </div>
 
           {/* Mobile toggle */}
@@ -271,14 +271,16 @@ export default function Navbar() {
                   </div>
                 ))}
                 <div className="px-2 pt-1 pb-1">
-                  <Button
-                    id="mobile-get-started"
-                    className="mt-1 rounded-full px-6 py-3 h-auto text-sm font-semibold border-0 transition-all duration-300 w-full"
-                    style={{ background: brandGradient, color: "#000000" }}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Get Started
-                  </Button>
+                  <a href="/auth" className="block">
+                    <Button
+                      id="mobile-get-started"
+                      className="mt-1 rounded-full px-6 py-3 h-auto text-sm font-semibold border-0 transition-all duration-300 w-full"
+                      style={{ background: brandGradient, color: "#000000" }}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Get Started
+                    </Button>
+                  </a>
                 </div>
               </div>
             </div>

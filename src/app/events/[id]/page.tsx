@@ -3,7 +3,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
-import { getEventById, getAllEvents, getEventsByOrgTree } from "@/lib/mockEvents";
+import { getEventById, getAllEvents, getEventsByOrgTree, getSubEvents, getParentEvent, getAllCollaborators } from "@/lib/mockEvents";
 import { brandGradient, gradientText } from "@/lib/styles";
 
 interface Props {
@@ -36,15 +36,26 @@ export default async function EventDetailPage({ params }: Props) {
   const isLowSpots = event.spotsLeft > 0 && event.spotsLeft <= 30;
   const spotsPercent = Math.round((event.spotsLeft / event.totalSpots) * 100);
 
-  // Events from same org/sub-orgs (exclude current)
+  // Get sub-events if this is a parent event
+  const subEvents = event.isParentEvent ? getSubEvents(event.id) : [];
+  
+  // Get parent event if this is a sub-event
+  const parentEvent = event.parentEventId ? getParentEvent(event.id) : undefined;
+  
+  // Get all collaborators
+  const collaborators = getAllCollaborators(event);
+  const hasCollaborators = collaborators.length > 1;
+
+  // Events from same org/sub-orgs (exclude current and sub-events)
+  const subEventIds = new Set(subEvents.map(e => e.id));
   const orgEvents = getEventsByOrgTree(event.org.id)
-    .filter((e) => e.id !== event.id)
+    .filter((e) => e.id !== event.id && !subEventIds.has(e.id))
     .slice(0, 3);
 
-  // Related events (same category, exclude current and org events)
+  // Related events (same category, exclude current, org events, and sub-events)
   const orgEventIds = new Set(orgEvents.map(e => e.id));
   const related = getAllEvents()
-    .filter((e) => e.id !== event.id && e.category === event.category && !orgEventIds.has(e.id))
+    .filter((e) => e.id !== event.id && e.category === event.category && !orgEventIds.has(e.id) && !subEventIds.has(e.id))
     .slice(0, 3);
 
   return (
@@ -117,6 +128,43 @@ export default async function EventDetailPage({ params }: Props) {
           {/* Main content */}
           <div className="lg:col-span-2 flex flex-col gap-10">
 
+            {/* Parent Event Link */}
+            {parentEvent && (
+              <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Part of</p>
+                <Link href={`/events/${parentEvent.id}`} className="flex items-center gap-3 group">
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-white group-hover:text-white/80 transition-colors">{parentEvent.title}</p>
+                    <p className="text-xs text-slate-500">{parentEvent.date}</p>
+                  </div>
+                  <svg className="w-4 h-4 text-slate-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            )}
+
+            {/* Collaborators */}
+            {hasCollaborators && (
+              <section>
+                <h2 className="text-lg font-bold text-white mb-4">Organized By</h2>
+                <div className="flex flex-wrap gap-3">
+                  {collaborators.map((collab) => (
+                    <Link
+                      key={collab.id}
+                      href={`/org/${collab.id}`}
+                      className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2.5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-200 group"
+                    >
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-black" style={{ background: brandGradient }}>
+                        {collab.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                      </div>
+                      <span className="text-sm font-semibold text-white group-hover:text-white/80 transition-colors">{collab.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* About */}
             <section id="overview">
               <h2 className="text-lg font-bold text-white mb-3">About This Event</h2>
@@ -126,6 +174,56 @@ export default async function EventDetailPage({ params }: Props) {
                 ))}
               </div>
             </section>
+
+            {/* Sub-events */}
+            {subEvents.length > 0 && (
+              <section id="sub-events">
+                <h2 className="text-lg font-bold text-white mb-4">Sub-Events ({subEvents.length})</h2>
+                <div className="grid grid-cols-1 gap-4">
+                  {subEvents.map((subEvent) => (
+                    <Link
+                      key={subEvent.id}
+                      href={`/events/${subEvent.id}`}
+                      className="rounded-xl border border-white/5 bg-white/[0.02] p-4 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-200 group"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white/70 border border-white/10">
+                              {subEvent.time}
+                            </span>
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-black" style={{ background: brandGradient }}>
+                              {subEvent.category}
+                            </span>
+                          </div>
+                          <h3 className="text-base font-bold text-white group-hover:text-white/80 transition-colors mb-1">{subEvent.title}</h3>
+                          <p className="text-xs text-slate-500 mb-2">{subEvent.organizer}</p>
+                          <p className="text-xs text-slate-400 line-clamp-2">{subEvent.description}</p>
+                          <div className="flex items-center gap-4 mt-3 text-xs text-slate-500">
+                            <span className="flex items-center gap-1">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                              {subEvent.location}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                              </svg>
+                              {subEvent.attendees} attended
+                            </span>
+                          </div>
+                        </div>
+                        <svg className="w-5 h-5 text-slate-600 group-hover:text-white transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Schedule */}
             {event.schedule.length > 0 && (

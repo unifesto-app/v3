@@ -109,7 +109,7 @@ export default async function OrgPage({ params }: Props) {
         {subOrgs.length > 0 && (
           <section className="mb-12">
             <h2 className="text-base font-bold text-white mb-4">
-              Clubs & Departments
+              Clubs
               <span className="ml-2 text-xs font-normal text-slate-500">({subOrgs.length})</span>
             </h2>
             <div className="flex flex-wrap gap-3">

@@ -13,7 +13,7 @@ export type EventCategory =
 export interface Org {
   id: string;
   name: string;
-  type: "university" | "college" | "department" | "club" | "cell" | "community" | "individual";
+  type: "university" | "college" | "club" | "community";
   description: string;
   parentOrgId?: string;
   image: string;
@@ -35,6 +35,7 @@ export interface MockEvent {
   id: string;
   title: string;
   org: OrgRef;
+  collaborators?: OrgRef[];  // For collaboration events
   organizer: string;  // kept for backwards compat display
   college: string;
   date: string;
@@ -53,6 +54,8 @@ export interface MockEvent {
   attendees: number;
   schedule: ScheduleItem[];
   posterGradient: string;
+  parentEventId?: string;  // For sub-events
+  isParentEvent?: boolean;  // Indicates this event has sub-events
 }
 
 // ─── Org Data ────────────────────────────────────────────────────────────────
@@ -68,7 +71,7 @@ export const orgs: Org[] = [
   {
     id: "ie-cell",
     name: "Innovation & Entrepreneurship Cell",
-    type: "cell",
+    type: "club",
     description: "The IE Cell at MRUH is the driving force behind the campus startup ecosystem. From ideathons to summits, we build tomorrow's founders today.",
     parentOrgId: "mruh",
     image: "/orgs/tech.png",
@@ -108,7 +111,7 @@ export const orgs: Org[] = [
   {
     id: "bos-rd",
     name: "BOS & R&D Dept. MRUH",
-    type: "department",
+    type: "club",
     description: "The Board of Studies and Research & Development Department drives academic innovation at MRUH, organising Science Day, research expos, and faculty-led seminars.",
     parentOrgId: "mruh",
     image: "/orgs/tech.png",
@@ -124,8 +127,16 @@ export const orgs: Org[] = [
   {
     id: "soe",
     name: "School of Engineering",
-    type: "department",
+    type: "college",
     description: "The School of Engineering at MRUH houses departments across CSE, ECE, Mechanical, Civil and more — and is home to several active technical clubs and cells.",
+    parentOrgId: "mruh",
+    image: "/orgs/mruh.png",
+  },
+  {
+    id: "sos",
+    name: "School of Science",
+    type: "college",
+    description: "The School of Science at MRUH encompasses Physics, Chemistry, Mathematics, and Life Sciences departments, fostering scientific research and innovation.",
     parentOrgId: "mruh",
     image: "/orgs/mruh.png",
   },
@@ -135,14 +146,6 @@ export const orgs: Org[] = [
     type: "community",
     description: "TEDx MRUH is an independently organised TED event that brings together ideas worth spreading — student talks, workshops, and community conversations.",
     image: "/orgs/event.png",
-  },
-  {
-    id: "abhinav-tej",
-    name: "Abhinav Tej",
-    type: "individual",
-    description: "Student developer & event organiser at Malla Reddy University.",
-    parentOrgId: "mruh",
-    image: "/orgs/tech.png",
   },
 ];
 
@@ -488,8 +491,12 @@ const mockEvents: MockEvent[] = [
   },
   {
     id: "science-day",
-    title: "National Science Day",
+    title: "National Science Day 2026",
     org: { id: "bos-rd", name: "BOS & R&D Dept. MRUH" },
+    collaborators: [
+      { id: "soe", name: "School of Engineering" },
+      { id: "sos", name: "School of Science" },
+    ],
     organizer: "BOS & R&D Dept. MRUH",
     college: "Malla Reddy University",
     date: "Saturday, February 28, 2026",
@@ -498,24 +505,144 @@ const mockEvents: MockEvent[] = [
     category: "Science & Tech",
     eventType: "inPerson",
     status: ["past"],
-    tags: ["Completed"],
+    tags: ["Completed", "Collaboration"],
     description:
-      "National Science Day celebrations with exhibitions, quizzes, lab demos & talks. Marking Raman Effect Day with science all day.",
+      "National Science Day celebrations — a collaborative event organized by BOS & R&D Department with School of Engineering and School of Science. Features 4 sub-events including exhibitions, quizzes, lab demos & talks. Marking Raman Effect Day with science all day.",
     price: 0,
     spotsLeft: 0,
     totalSpots: 900,
     registrationDeadline: "February 25, 2026",
     location: "Science Block, Malla Reddy University",
     attendees: 870,
+    isParentEvent: true,
     schedule: [
       { time: "09:00 AM", title: "Inauguration" },
-      { time: "09:30 AM", title: "Science Quiz" },
+      { time: "09:30 AM", title: "Science Quiz Competition" },
       { time: "11:00 AM", title: "Lab Demonstrations" },
       { time: "01:00 PM", title: "Lunch" },
       { time: "02:00 PM", title: "Guest Talk: History of Science" },
       { time: "04:00 PM", title: "Science Exhibition" },
     ],
     posterGradient: "linear-gradient(135deg, #001a4d 0%, #003d99 50%, #0062ff 100%)",
+  },
+  {
+    id: "science-day-quiz",
+    title: "Science Quiz Competition",
+    org: { id: "soe", name: "School of Engineering" },
+    organizer: "School of Engineering",
+    college: "Malla Reddy University",
+    date: "Saturday, February 28, 2026",
+    dateISO: "2026-02-28",
+    time: "09:30 AM – 11:00 AM",
+    category: "Science & Tech",
+    eventType: "inPerson",
+    status: ["past"],
+    tags: ["Completed", "Sub-event"],
+    description:
+      "Inter-department science quiz competition covering Physics, Chemistry, Biology, and Mathematics. Part of National Science Day 2026 celebrations.",
+    price: 0,
+    spotsLeft: 0,
+    totalSpots: 200,
+    registrationDeadline: "February 25, 2026",
+    location: "Auditorium, Science Block",
+    attendees: 185,
+    parentEventId: "science-day",
+    schedule: [
+      { time: "09:30 AM", title: "Registration & Team Formation" },
+      { time: "10:00 AM", title: "Round 1: Written Quiz" },
+      { time: "10:30 AM", title: "Round 2: Rapid Fire" },
+      { time: "11:00 AM", title: "Prize Distribution" },
+    ],
+    posterGradient: "linear-gradient(135deg, #0062ff 0%, #3491ff 50%, #5aa3ff 100%)",
+  },
+  {
+    id: "science-day-lab-demo",
+    title: "Interactive Lab Demonstrations",
+    org: { id: "soe", name: "School of Engineering" },
+    organizer: "School of Engineering",
+    college: "Malla Reddy University",
+    date: "Saturday, February 28, 2026",
+    dateISO: "2026-02-28",
+    time: "11:00 AM – 01:00 PM",
+    category: "Science & Tech",
+    eventType: "inPerson",
+    status: ["past"],
+    tags: ["Completed", "Sub-event"],
+    description:
+      "Hands-on lab demonstrations across Physics, Chemistry, and Engineering labs. Students can interact with experiments and learn from faculty. Part of National Science Day 2026.",
+    price: 0,
+    spotsLeft: 0,
+    totalSpots: 300,
+    registrationDeadline: "February 25, 2026",
+    location: "Lab Complex, Science Block",
+    attendees: 280,
+    parentEventId: "science-day",
+    schedule: [
+      { time: "11:00 AM", title: "Physics Lab Demo" },
+      { time: "11:30 AM", title: "Chemistry Lab Demo" },
+      { time: "12:00 PM", title: "Engineering Lab Demo" },
+      { time: "12:30 PM", title: "Q&A with Faculty" },
+    ],
+    posterGradient: "linear-gradient(135deg, #1a75ff 0%, #3491ff 50%, #0062ff 100%)",
+  },
+  {
+    id: "science-day-talk",
+    title: "History of Science: A Journey",
+    org: { id: "soe", name: "School of Engineering" },
+    organizer: "School of Engineering",
+    college: "Malla Reddy University",
+    date: "Saturday, February 28, 2026",
+    dateISO: "2026-02-28",
+    time: "02:00 PM – 03:30 PM",
+    category: "Science & Tech",
+    eventType: "inPerson",
+    status: ["past"],
+    tags: ["Completed", "Sub-event"],
+    description:
+      "Guest lecture on the evolution of scientific thought from ancient times to modern discoveries. Special focus on Indian contributions to science. Part of National Science Day 2026.",
+    price: 0,
+    spotsLeft: 0,
+    totalSpots: 250,
+    registrationDeadline: "February 25, 2026",
+    location: "Main Auditorium, Block 3",
+    attendees: 235,
+    parentEventId: "science-day",
+    schedule: [
+      { time: "02:00 PM", title: "Introduction", speaker: "Dr. Rajesh Kumar" },
+      { time: "02:15 PM", title: "Ancient Scientific Discoveries" },
+      { time: "02:45 PM", title: "Modern Science & Technology" },
+      { time: "03:15 PM", title: "Q&A Session" },
+    ],
+    posterGradient: "linear-gradient(135deg, #004acc 0%, #0062ff 50%, #1a75ff 100%)",
+  },
+  {
+    id: "science-day-exhibition",
+    title: "Science Exhibition & Projects",
+    org: { id: "sos", name: "School of Science" },
+    organizer: "School of Science",
+    college: "Malla Reddy University",
+    date: "Saturday, February 28, 2026",
+    dateISO: "2026-02-28",
+    time: "04:00 PM – 05:00 PM",
+    category: "Science & Tech",
+    eventType: "inPerson",
+    status: ["past"],
+    tags: ["Completed", "Sub-event"],
+    description:
+      "Student science project exhibition showcasing innovative research and experiments. Open to all departments. Best projects awarded. Part of National Science Day 2026.",
+    price: 0,
+    spotsLeft: 0,
+    totalSpots: 400,
+    registrationDeadline: "February 25, 2026",
+    location: "Exhibition Hall, Science Block",
+    attendees: 370,
+    parentEventId: "science-day",
+    schedule: [
+      { time: "04:00 PM", title: "Exhibition Opens" },
+      { time: "04:30 PM", title: "Judging Round" },
+      { time: "04:45 PM", title: "Best Project Awards" },
+    ],
+    posterGradient: "linear-gradient(135deg, #003d99 0%, #0062ff 50%, #3491ff 100%)",
   },
 ];
 
@@ -602,6 +729,26 @@ export const PRICE_FILTERS = [
   { key: "paid", label: "Paid" },
 ];
 
+// ─── Event Relationship API ──────────────────────────────────────────────────
+
+export function getSubEvents(parentEventId: string): MockEvent[] {
+  return mockEvents.filter((e) => e.parentEventId === parentEventId);
+}
+
+export function getParentEvent(eventId: string): MockEvent | undefined {
+  const event = getEventById(eventId);
+  if (!event?.parentEventId) return undefined;
+  return getEventById(event.parentEventId);
+}
+
+export function isCollaborationEvent(event: MockEvent): boolean {
+  return !!event.collaborators && event.collaborators.length > 0;
+}
+
+export function getAllCollaborators(event: MockEvent): OrgRef[] {
+  return [event.org, ...(event.collaborators || [])];
+}
+
 // ─── Org API ─────────────────────────────────────────────────────────────────
 
 export function getAllOrgs(): Org[] {
@@ -650,9 +797,6 @@ export function getParentChain(orgId: string): Org[] {
 export const ORG_TYPE_LABELS: Record<Org["type"], string> = {
   university: "University",
   college: "College",
-  department: "Department",
   club: "Club",
-  cell: "Cell",
   community: "Community",
-  individual: "Individual",
 };
