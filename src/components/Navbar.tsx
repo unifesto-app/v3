@@ -8,28 +8,33 @@ type NavItem = {
   label: string;
   href?: string;
   dropdown?: { label: string; href: string; description?: string }[];
+  twoColumn?: { title: string; items: { label: string; href: string; description?: string }[] }[];
 };
 
 const navItems: NavItem[] = [
   {
     label: "Discover",
-    dropdown: [
-      { label: "All Events", href: "/events", description: "Browse everything on campus" },
-      { label: "Trending", href: "/events?status=trending", description: "What everyone is talking about" },
-      { label: "Upcoming", href: "/events?status=upcoming", description: "Don't miss what's next" },
-      { label: "Featured", href: "/events?status=featured", description: "Handpicked by the team" },
+    twoColumn: [
+      {
+        title: "Events",
+        items: [
+          { label: "All Events", href: "/events", description: "Browse everything on campus" },
+          { label: "Trending", href: "/events?status=trending", description: "What everyone is talking about" },
+          { label: "Upcoming", href: "/events?status=upcoming", description: "Don't miss what's next" },
+          { label: "Featured", href: "/events?status=featured", description: "Handpicked by the team" },
+        ],
+      },
+      {
+        title: "Organizations",
+        items: [
+          { label: "Browse All", href: "/orgs", description: "Universities, clubs & more" },
+          { label: "Universities & Colleges", href: "/orgs?type=university", description: "Top-level institutions" },
+          { label: "Clubs", href: "/orgs?type=club", description: "Student clubs, cells & departments" },
+          { label: "Communities", href: "/orgs?type=community", description: "Independent groups" },
+        ],
+      },
     ],
   },
-  {
-    label: "Communities",
-    dropdown: [
-      { label: "Browse All", href: "/orgs", description: "Universities, clubs & more" },
-      { label: "Universities & Colleges", href: "/orgs?type=university", description: "Top-level institutions" },
-      { label: "Clubs", href: "/orgs?type=club", description: "Student clubs, cells & departments" },
-      { label: "Communities", href: "/orgs?type=community", description: "Independent groups" },
-    ],
-  },
-  { label: "Host Event", href: "/host" },
   {
     label: "About",
     dropdown: [
@@ -39,13 +44,19 @@ const navItems: NavItem[] = [
       { label: "Testimonials", href: "/about#testimonials", description: "What people say" },
     ],
   },
+  { label: "Host Event", href: "/host" },
+  {
+    label: "Features",
+    dropdown: [
+      { label: "Event Discovery", href: "/features#event-discovery", description: "Find all campus events in one place" },
+      { label: "Event Hosting", href: "/features#event-hosting", description: "Create & manage events easily" },
+      { label: "Ticketing & RSVP", href: "/features#ticketing-rsvp", description: "Registration & QR tickets" },
+      { label: "Analytics", href: "/features#analytics", description: "Real-time insights & reports" },
+    ],
+  },
   {
     label: "Products",
     dropdown: [
-      { label: "Event Discovery", href: "/products#event-discovery", description: "Find all campus events in one place" },
-      { label: "Event Hosting", href: "/products#event-hosting", description: "Create & manage events easily" },
-      { label: "Ticketing & RSVP", href: "/products#ticketing-rsvp", description: "Registration & QR tickets" },
-      { label: "Analytics", href: "/products#analytics", description: "Real-time insights & reports" },
       { label: "QR Check-in App", href: "/products#qr-checkin", description: "Fast event entry management" },
       { label: "Certificate Generation", href: "/products#certificate", description: "Automated certificates & verification" },
       { label: "Event App", href: "/products#event-app", description: "Companion app for attendees" },
@@ -53,6 +64,36 @@ const navItems: NavItem[] = [
     ],
   },
 ];
+
+function TwoColumnDropdown({ columns }: { columns: { title: string; items: { label: string; href: string; description?: string }[] }[] }) {
+  return (
+    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 rounded-2xl border border-white/10 bg-black/80 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden z-50 pointer-events-auto">
+      {/* Gradient top border accent */}
+      <div className="h-px w-full" style={{ background: brandGradient }} />
+      <div className="flex">
+        {columns.map((column, idx) => (
+          <div key={column.title} className={`p-1.5 w-56 ${idx > 0 ? 'border-l border-white/10' : ''}`}>
+            <div className="px-3 py-2 mb-1">
+              <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">{column.title}</span>
+            </div>
+            {column.items.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                className="flex flex-col px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all duration-200 group"
+              >
+                <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors">{item.label}</span>
+                {item.description && (
+                  <span className="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition-colors">{item.description}</span>
+                )}
+              </a>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function DropdownMenu({ items }: { items: { label: string; href: string; description?: string }[] }) {
   return (
@@ -93,7 +134,7 @@ function NavLink({ item }: { item: NavItem }) {
 
   useEffect(() => () => clearTimeout(timeoutRef.current), []);
 
-  if (!item.dropdown) {
+  if (!item.dropdown && !item.twoColumn) {
     return (
       <li>
         <a
@@ -123,7 +164,8 @@ function NavLink({ item }: { item: NavItem }) {
         </svg>
         <span className="absolute -bottom-0.5 left-0 w-0 h-px group-hover:w-full transition-all duration-300" style={{ background: brandGradient }} />
       </button>
-      {open && <DropdownMenu items={item.dropdown} />}
+      {open && item.twoColumn && <TwoColumnDropdown columns={item.twoColumn} />}
+      {open && item.dropdown && <DropdownMenu items={item.dropdown} />}
     </li>
   );
 }
@@ -233,7 +275,7 @@ export default function Navbar() {
               <div className="p-2">
                 {navItems.map((item) => (
                   <div key={item.label}>
-                    {item.dropdown ? (
+                    {item.dropdown || item.twoColumn ? (
                       <>
                         <button
                           className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-base text-slate-300/80 hover:text-white font-medium hover:bg-white/5 transition-all duration-200"
@@ -249,17 +291,38 @@ export default function Navbar() {
                         </button>
                         {mobileExpanded === item.label && (
                           <div className="pl-4 pb-1">
-                            {item.dropdown.map((sub) => (
-                              <a
-                                key={sub.label}
-                                href={sub.href}
-                                className="flex flex-col px-3 py-2 rounded-xl hover:bg-white/5 transition-all duration-200"
-                                onClick={() => setMenuOpen(false)}
-                              >
-                                <span className="text-sm font-medium text-white/80">{sub.label}</span>
-                                {sub.description && <span className="text-[11px] text-slate-500">{sub.description}</span>}
-                              </a>
-                            ))}
+                            {item.twoColumn ? (
+                              item.twoColumn.map((column) => (
+                                <div key={column.title} className="mb-2">
+                                  <div className="px-3 py-1.5">
+                                    <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">{column.title}</span>
+                                  </div>
+                                  {column.items.map((sub) => (
+                                    <a
+                                      key={sub.label}
+                                      href={sub.href}
+                                      className="flex flex-col px-3 py-2 rounded-xl hover:bg-white/5 transition-all duration-200"
+                                      onClick={() => setMenuOpen(false)}
+                                    >
+                                      <span className="text-sm font-medium text-white/80">{sub.label}</span>
+                                      {sub.description && <span className="text-[11px] text-slate-500">{sub.description}</span>}
+                                    </a>
+                                  ))}
+                                </div>
+                              ))
+                            ) : (
+                              item.dropdown?.map((sub) => (
+                                <a
+                                  key={sub.label}
+                                  href={sub.href}
+                                  className="flex flex-col px-3 py-2 rounded-xl hover:bg-white/5 transition-all duration-200"
+                                  onClick={() => setMenuOpen(false)}
+                                >
+                                  <span className="text-sm font-medium text-white/80">{sub.label}</span>
+                                  {sub.description && <span className="text-[11px] text-slate-500">{sub.description}</span>}
+                                </a>
+                              ))
+                            )}
                           </div>
                         )}
                       </>

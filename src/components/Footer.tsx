@@ -33,44 +33,31 @@ const socials = [
   },
 ];
 
+const featureLinks = [
+  { label: "Event Discovery", href: "/features#event-discovery" },
+  { label: "Event Hosting", href: "/features#event-hosting" },
+  { label: "Ticketing & RSVP", href: "/features#ticketing-rsvp" },
+  { label: "Analytics", href: "/features#analytics" },
+];
+
 const productLinks = [
-  { label: "Event Discovery", href: "/products#event-discovery" },
-  { label: "Event Hosting", href: "/products#event-hosting" },
-  { label: "Ticketing & RSVP", href: "/products#ticketing-rsvp" },
-  { label: "Analytics", href: "/products#analytics" },
   { label: "QR Check-in", href: "/products#qr-checkin" },
   { label: "Certificates", href: "/products#certificate" },
   { label: "Event App", href: "/products#event-app" },
   { label: "Mobile Apps", href: "/products#mobile-apps" },
 ];
 
-const exploreLinks = [
-  { label: "All Events", href: "/events" },
-  { label: "Hackathons", href: "/events?category=Hackathon" },
-  { label: "Cultural Fests", href: "/events?category=Cultural" },
-  { label: "Workshops", href: "/events?category=Workshop" },
-  { label: "MUN & Debates", href: "/events?category=MUN" },
-];
-
-const communitiesLinks = [
-  { label: "Browse All", href: "/orgs" },
-  { label: "Universities", href: "/orgs?type=university" },
-  { label: "Departments", href: "/orgs?type=department" },
-  { label: "Clubs & Cells", href: "/orgs?type=club" },
-  { label: "Communities", href: "/orgs?type=community" },
-];
-
 const companyLinks = [
   { label: "About Us", href: "/about" },
-  { label: "Careers", href: "#careers" },
-  { label: "Blog", href: "#blog" },
+  { label: "Careers", href: "/careers" },
+  { label: "Blog", href: "/blog" },
   { label: "Contact", href: "mailto:support@unifesto.app" },
 ];
 
 const legalLinks = [
-  { label: "Privacy Policy", href: "#privacy" },
-  { label: "Refund Policy", href: "#refund" },
-  { label: "Terms & Conditions", href: "#terms" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Refund Policy", href: "/refund" },
+  { label: "Terms & Conditions", href: "/terms" },
 ];
 
 function LinkColumn({ title, links }: { title: string; links: { label: string; href: string }[] }) {
@@ -142,7 +129,7 @@ export default function Footer() {
         </div>
 
         {/* Main grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 py-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 py-12">
 
           {/* Brand column — spans 2 on lg */}
           <div className="col-span-2 flex flex-col gap-4">
@@ -182,9 +169,8 @@ export default function Footer() {
             </a>
           </div>
 
-          <LinkColumn title="Product" links={productLinks} />
-          <LinkColumn title="Discover" links={exploreLinks} />
-          <LinkColumn title="Communities" links={communitiesLinks} />
+          <LinkColumn title="Features" links={featureLinks} />
+          <LinkColumn title="Products" links={productLinks} />
           <LinkColumn title="Company" links={companyLinks} />
           <LinkColumn title="Legal" links={legalLinks} />
 
