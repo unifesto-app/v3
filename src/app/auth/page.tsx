@@ -50,14 +50,24 @@ export default function AuthPage() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(`${mode} submitted:`, formData);
-    setSubmitted(true);
     
-    setTimeout(() => {
-      setSubmitted(false);
-      if (mode === "forgot") {
+    // Mock authentication - set auth token in localStorage
+    if (mode === "login" || mode === "signup") {
+      localStorage.setItem("mockAuth", "true");
+      setSubmitted(true);
+      
+      // Redirect to profile after successful login/signup
+      setTimeout(() => {
+        window.location.href = "/profile";
+      }, 1500);
+    } else {
+      // Forgot password flow
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
         setMode("login");
-      }
-    }, 3000);
+      }, 3000);
+    }
   };
 
   const resetForm = () => {
