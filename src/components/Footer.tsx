@@ -34,11 +34,14 @@ const socials = [
 ];
 
 const productLinks = [
-  { label: "Event Discovery", href: "/events" },
-  { label: "Event Hosting", href: "/#host" },
-  { label: "Ticketing & RSVP", href: "/#host" },
-  { label: "QR Check-in", href: "/#host" },
-  { label: "Analytics", href: "/#host" },
+  { label: "Event Discovery", href: "/products#event-discovery" },
+  { label: "Event Hosting", href: "/products#event-hosting" },
+  { label: "Ticketing & RSVP", href: "/products#ticketing-rsvp" },
+  { label: "Analytics", href: "/products#analytics" },
+  { label: "QR Check-in", href: "/products#qr-checkin" },
+  { label: "Certificates", href: "/products#certificate" },
+  { label: "Event App", href: "/products#event-app" },
+  { label: "Mobile Apps", href: "/products#mobile-apps" },
 ];
 
 const exploreLinks = [

@@ -29,15 +29,7 @@ const navItems: NavItem[] = [
       { label: "Communities", href: "/orgs?type=community", description: "Independent groups" },
     ],
   },
-  {
-    label: "Host Event",
-    dropdown: [
-      { label: "Create Event", href: "/host#request-form", description: "Set up your event in minutes" },
-      { label: "Ticketing & RSVP", href: "/host#ticketing", description: "Sell tickets or collect RSVPs" },
-      { label: "QR Check-in", href: "/host#checkin", description: "Fraud-proof entry system" },
-      { label: "Analytics", href: "/host#analytics", description: "Track attendance & insights" },
-    ],
-  },
+  { label: "Host Event", href: "/host" },
   {
     label: "About",
     dropdown: [
@@ -47,7 +39,19 @@ const navItems: NavItem[] = [
       { label: "Testimonials", href: "/about#testimonials", description: "What people say" },
     ],
   },
-  { label: "Pricing", href: "/pricing" },
+  {
+    label: "Products",
+    dropdown: [
+      { label: "Event Discovery", href: "/products#event-discovery", description: "Find all campus events in one place" },
+      { label: "Event Hosting", href: "/products#event-hosting", description: "Create & manage events easily" },
+      { label: "Ticketing & RSVP", href: "/products#ticketing-rsvp", description: "Registration & QR tickets" },
+      { label: "Analytics", href: "/products#analytics", description: "Real-time insights & reports" },
+      { label: "QR Check-in App", href: "/products#qr-checkin", description: "Fast event entry management" },
+      { label: "Certificate Generation", href: "/products#certificate", description: "Automated certificates & verification" },
+      { label: "Event App", href: "/products#event-app", description: "Companion app for attendees" },
+      { label: "Mobile Apps", href: "/products#mobile-apps", description: "Android & iOS discovery apps" },
+    ],
+  },
 ];
 
 function DropdownMenu({ items }: { items: { label: string; href: string; description?: string }[] }) {

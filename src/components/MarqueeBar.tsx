@@ -1,3 +1,5 @@
+import { brandGradient } from "@/lib/styles";
+
 const partners = [
   "Malla Reddy University",
   "StudLYF",
@@ -24,7 +26,7 @@ export default function MarqueeBar() {
       className="relative overflow-hidden py-0 mt-18"
     >
       {/* Top bleed */}
-      <div className="w-full relative overflow-hidden" style={{ background: "linear-gradient(135deg, #3491ff, #0062ff)" }}>
+      <div className="w-full relative overflow-hidden" style={{ background: brandGradient }}>
         {/* Shimmer overlay */}
         <div
           className="absolute inset-0 pointer-events-none"
