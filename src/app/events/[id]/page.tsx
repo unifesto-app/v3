@@ -13,7 +13,7 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-type TabType = "overview" | "discussion" | "sponsors" | "contact" | "faq";
+type TabType = "overview" | "agenda" | "speakers" | "rewards" | "sponsors" | "faq" | "contact";
 
 export default function EventDetailPage({ params }: Props) {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
@@ -179,11 +179,13 @@ export default function EventDetailPage({ params }: Props) {
               <div className="flex gap-1 overflow-x-auto">
                 {[
                   { id: "overview", label: "Overview" },
-                  { id: "discussion", label: "Discussion" },
-                  { id: "sponsors", label: "Sponsors & Partners" },
-                  { id: "contact", label: "Contact" },
+                  { id: "agenda", label: "Agenda", show: event.schedule.length > 0 },
+                  { id: "speakers", label: "Speakers", show: event.speakers && event.speakers.length > 0 },
+                  { id: "rewards", label: "Rewards", show: event.rewards && event.rewards.length > 0 },
+                  { id: "sponsors", label: "Sponsors" },
                   { id: "faq", label: "FAQs" },
-                ].map((tab) => (
+                  { id: "contact", label: "Contact" },
+                ].filter(tab => tab.show !== false).map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as TabType)}
@@ -214,129 +216,6 @@ export default function EventDetailPage({ params }: Props) {
                       ))}
                     </div>
                   </section>
-
-                  {/* Guests & Speakers */}
-                  {event.speakers && event.speakers.length > 0 && (
-                    <section>
-                      <h2 className="text-lg font-bold text-white mb-4">Guests & Speakers</h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {event.speakers.map((speaker: any) => (
-                          <div
-                            key={speaker.name}
-                            className="rounded-xl border border-white/10 bg-white/[0.02] p-5 hover:bg-white/[0.04] hover:border-white/15 transition-all duration-300"
-                          >
-                            <div className="flex gap-4">
-                              {/* Avatar */}
-                              <div
-                                className="w-16 h-16 rounded-xl flex items-center justify-center text-lg font-bold text-black flex-shrink-0"
-                                style={{ background: brandGradient }}
-                              >
-                                {speaker.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
-                              </div>
-                              
-                              {/* Info */}
-                              <div className="flex-1 min-w-0">
-                                <h3 className="text-base font-bold text-white mb-1">{speaker.name}</h3>
-                                <p className="text-xs font-semibold text-slate-400 mb-0.5">{speaker.title}</p>
-                                <p className="text-xs text-slate-500 mb-3">{speaker.organization}</p>
-                                <p className="text-xs text-slate-400 leading-relaxed mb-3">{speaker.bio}</p>
-                                
-                                {/* Social Links */}
-                                {speaker.social && (
-                                  <div className="flex gap-2">
-                                    {speaker.social.linkedin && (
-                                      <a
-                                        href={speaker.social.linkedin}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-200"
-                                        aria-label="LinkedIn"
-                                      >
-                                        <svg className="w-3.5 h-3.5 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
-                                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                                        </svg>
-                                      </a>
-                                    )}
-                                    {speaker.social.twitter && (
-                                      <a
-                                        href={speaker.social.twitter}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-200"
-                                        aria-label="Twitter"
-                                      >
-                                        <svg className="w-3.5 h-3.5 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
-                                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                                        </svg>
-                                      </a>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  {/* Rewards & Prizes */}
-                  {event.rewards && event.rewards.length > 0 && (
-                    <section>
-                      <h2 className="text-lg font-bold text-white mb-4">Rewards & Prizes</h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {event.rewards.map((reward: any, index: number) => (
-                          <div
-                            key={index}
-                            className="rounded-xl border border-white/10 bg-white/[0.02] p-5 hover:bg-white/[0.04] hover:border-white/15 transition-all duration-300 relative overflow-hidden"
-                          >
-                            {/* Gradient accent */}
-                            <div
-                              className="absolute top-0 left-0 w-1 h-full"
-                              style={{ background: brandGradient }}
-                            />
-                            
-                            <div className="pl-3">
-                              {/* Position badge */}
-                              <div className="flex items-center gap-2 mb-3">
-                                {index === 0 && (
-                                  <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                                  </svg>
-                                )}
-                                <span className="text-xs font-bold uppercase tracking-wider" style={gradientText}>
-                                  {reward.position}
-                                </span>
-                              </div>
-                              
-                              {/* Prize */}
-                              <h3 className="text-base font-bold text-white mb-2">{reward.prize}</h3>
-                              
-                              {/* Description */}
-                              {reward.description && (
-                                <p className="text-xs text-slate-400 leading-relaxed">{reward.description}</p>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Additional info */}
-                      <div className="mt-4 rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                        <div className="flex items-start gap-3">
-                          <svg className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <div className="flex-1">
-                            <p className="text-xs font-semibold text-white mb-1">Prize Distribution</p>
-                            <p className="text-xs text-slate-500 leading-relaxed">
-                              Winners will be announced at the closing ceremony. Prizes and certificates will be distributed on the same day. Digital certificates will be emailed within 48 hours.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </section>
-                  )}
 
                   {/* Sub-events */}
                   {subEvents.length > 0 && (
@@ -387,48 +266,160 @@ export default function EventDetailPage({ params }: Props) {
                     </div>
                   </section>
                   )}
-
-                  {/* Schedule */}
-                  {event.schedule.length > 0 && (
-                    <section>
-                      <h2 className="text-lg font-bold text-white mb-4">Agenda</h2>
-                      <div className="flex flex-col gap-0">
-                        {event.schedule.map((item: any, i: number) => (
-                          <div key={i} className="flex gap-4">
-                            <div className="flex flex-col items-center">
-                              <div
-                                className="w-2.5 h-2.5 rounded-full mt-1 flex-shrink-0"
-                                style={{ background: i === 0 ? brandGradient : "rgba(255,255,255,0.15)" }}
-                              />
-                              {i < event.schedule.length - 1 && <div className="w-px flex-1 bg-white/5 my-1" />}
-                            </div>
-                            <div className="pb-4">
-                              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">{item.time}</p>
-                              <p className="text-sm font-medium text-white">{item.title}</p>
-                              {item.speaker && <p className="text-xs text-slate-500 mt-0.5">{item.speaker}</p>}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  )}
                 </div>
               )}
 
-              {/* Discussion Tab */}
-              {activeTab === "discussion" && (
+              {/* Agenda Tab */}
+              {activeTab === "agenda" && (
                 <div className="space-y-6">
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-white/5">
-                      <svg className="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                      </svg>
+                  <section>
+                    <h2 className="text-lg font-bold text-white mb-4">Event Schedule</h2>
+                    <div className="flex flex-col gap-0">
+                      {event.schedule.map((item: any, i: number) => (
+                        <div key={i} className="flex gap-4">
+                          <div className="flex flex-col items-center">
+                            <div
+                              className="w-2.5 h-2.5 rounded-full mt-1 flex-shrink-0"
+                              style={{ background: i === 0 ? brandGradient : "rgba(255,255,255,0.15)" }}
+                            />
+                            {i < event.schedule.length - 1 && <div className="w-px flex-1 bg-white/5 my-1" />}
+                          </div>
+                          <div className="pb-4">
+                            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">{item.time}</p>
+                            <p className="text-sm font-medium text-white">{item.title}</p>
+                            {item.speaker && <p className="text-xs text-slate-500 mt-0.5">{item.speaker}</p>}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">Discussion Coming Soon</h3>
-                    <p className="text-sm text-slate-500">
-                      Connect with other attendees and ask questions about the event.
-                    </p>
-                  </div>
+                  </section>
+                </div>
+              )}
+
+              {/* Speakers Tab */}
+              {activeTab === "speakers" && (
+                <div className="space-y-6">
+                  <section>
+                    <h2 className="text-lg font-bold text-white mb-4">Featured Speakers & Guests</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {event.speakers?.map((speaker: any) => (
+                        <div
+                          key={speaker.name}
+                          className="rounded-xl border border-white/10 bg-white/[0.02] p-5 hover:bg-white/[0.04] hover:border-white/15 transition-all duration-300"
+                        >
+                          <div className="flex gap-4">
+                            {/* Avatar */}
+                            <div
+                              className="w-16 h-16 rounded-xl flex items-center justify-center text-lg font-bold text-black flex-shrink-0"
+                              style={{ background: brandGradient }}
+                            >
+                              {speaker.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                            </div>
+                            
+                            {/* Info */}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-base font-bold text-white mb-1">{speaker.name}</h3>
+                              <p className="text-xs font-semibold text-slate-400 mb-0.5">{speaker.title}</p>
+                              <p className="text-xs text-slate-500 mb-3">{speaker.organization}</p>
+                              <p className="text-xs text-slate-400 leading-relaxed mb-3">{speaker.bio}</p>
+                              
+                              {/* Social Links */}
+                              {speaker.social && (
+                                <div className="flex gap-2">
+                                  {speaker.social.linkedin && (
+                                    <a
+                                      href={speaker.social.linkedin}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-200"
+                                      aria-label="LinkedIn"
+                                    >
+                                      <svg className="w-3.5 h-3.5 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                      </svg>
+                                    </a>
+                                  )}
+                                  {speaker.social.twitter && (
+                                    <a
+                                      href={speaker.social.twitter}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-200"
+                                      aria-label="Twitter"
+                                    >
+                                      <svg className="w-3.5 h-3.5 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                      </svg>
+                                    </a>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {/* Rewards Tab */}
+              {activeTab === "rewards" && (
+                <div className="space-y-6">
+                  <section>
+                    <h2 className="text-lg font-bold text-white mb-4">Prizes & Incentives</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {event.rewards?.map((reward: any, index: number) => (
+                        <div
+                          key={index}
+                          className="rounded-xl border border-white/10 bg-white/[0.02] p-5 hover:bg-white/[0.04] hover:border-white/15 transition-all duration-300 relative overflow-hidden"
+                        >
+                          {/* Gradient accent */}
+                          <div
+                            className="absolute top-0 left-0 w-1 h-full"
+                            style={{ background: brandGradient }}
+                          />
+                          
+                          <div className="pl-3">
+                            {/* Position badge */}
+                            <div className="flex items-center gap-2 mb-3">
+                              {index === 0 && (
+                                <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                                </svg>
+                              )}
+                              <span className="text-xs font-bold uppercase tracking-wider" style={gradientText}>
+                                {reward.position}
+                              </span>
+                            </div>
+                            
+                            {/* Prize */}
+                            <h3 className="text-base font-bold text-white mb-2">{reward.prize}</h3>
+                            
+                            {/* Description */}
+                            {reward.description && (
+                              <p className="text-xs text-slate-400 leading-relaxed">{reward.description}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Additional info */}
+                    <div className="mt-4 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                      <div className="flex items-start gap-3">
+                        <svg className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="flex-1">
+                          <p className="text-xs font-semibold text-white mb-1">Prize Distribution</p>
+                          <p className="text-xs text-slate-500 leading-relaxed">
+                            Winners will be announced at the closing ceremony. Prizes and certificates will be distributed on the same day. Digital certificates will be emailed within 48 hours.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
                 </div>
               )}
 
