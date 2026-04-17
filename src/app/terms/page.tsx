@@ -4,7 +4,21 @@ import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Terms & Conditions — Unifesto",
-  description: "Read the terms and conditions for using the Unifesto platform.",
+  description: "Read the terms and conditions for using the Unifesto platform. Understand your rights and responsibilities.",
+  keywords: ["terms and conditions", "terms of service", "user agreement", "unifesto terms", "platform rules"],
+  openGraph: {
+    title: "Terms & Conditions — Unifesto",
+    description: "Read the terms and conditions for using the Unifesto platform.",
+    type: "website",
+    url: "https://www.unifesto.app/terms",
+    siteName: "Unifesto",
+  },
+  twitter: {
+    card: "summary",
+    title: "Terms & Conditions — Unifesto",
+    description: "Read the terms and conditions for using the Unifesto platform.",
+    site: "@unifestoapp",
+  },
 };
 
 export default function TermsPage() {

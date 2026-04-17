@@ -4,7 +4,21 @@ import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Privacy Policy — Unifesto",
-  description: "Learn how Unifesto collects, uses, and protects your personal information.",
+  description: "Learn how Unifesto collects, uses, and protects your personal information. Your privacy is our priority.",
+  keywords: ["privacy policy", "data protection", "user privacy", "unifesto privacy", "data security"],
+  openGraph: {
+    title: "Privacy Policy — Unifesto",
+    description: "Learn how Unifesto collects, uses, and protects your personal information.",
+    type: "website",
+    url: "https://www.unifesto.app/privacy",
+    siteName: "Unifesto",
+  },
+  twitter: {
+    card: "summary",
+    title: "Privacy Policy — Unifesto",
+    description: "Learn how Unifesto collects, uses, and protects your personal information.",
+    site: "@unifestoapp",
+  },
 };
 
 export default function PrivacyPage() {

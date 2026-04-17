@@ -10,7 +10,21 @@ import TestimonialsSection from "@/components/about/TestimonialsSection";
 
 export const metadata = {
   title: "About — Unifesto",
-  description: "Learn how Unifesto is transforming campus event management at Malla Reddy University.",
+  description: "Learn how Unifesto is transforming campus event management at Malla Reddy University and beyond. Discover, host, and elevate college events seamlessly.",
+  keywords: ["about unifesto", "campus events platform", "event management", "malla reddy university", "student events"],
+  openGraph: {
+    title: "About Unifesto — Transform Campus Events",
+    description: "Learn how Unifesto is transforming campus event management at Malla Reddy University and beyond.",
+    type: "website",
+    url: "https://www.unifesto.app/about",
+    siteName: "Unifesto",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Unifesto — Transform Campus Events",
+    description: "Learn how Unifesto is transforming campus event management at Malla Reddy University and beyond.",
+    site: "@unifestoapp",
+  },
 };
 
 export default function AboutPage() {

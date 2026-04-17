@@ -4,7 +4,21 @@ import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Blog — Unifesto",
-  description: "Stories, insights, and updates from the Unifesto team about campus events and student life.",
+  description: "Stories, insights, and updates from the Unifesto team about campus events, student life, and event management best practices.",
+  keywords: ["unifesto blog", "campus events blog", "event management tips", "student life", "event stories"],
+  openGraph: {
+    title: "Blog — Unifesto",
+    description: "Stories, insights, and updates from the Unifesto team about campus events and student life.",
+    type: "website",
+    url: "https://www.unifesto.app/blog",
+    siteName: "Unifesto",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog — Unifesto",
+    description: "Stories, insights, and updates from the Unifesto team about campus events and student life.",
+    site: "@unifestoapp",
+  },
 };
 
 const categories = [

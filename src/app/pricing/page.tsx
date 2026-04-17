@@ -4,7 +4,21 @@ import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Pricing — Unifesto",
-  description: "Simple, transparent pricing for students and event organisers on campus.",
+  description: "Simple, transparent pricing for students and event organizers. Free for organizers to create events. No hidden fees for campus events.",
+  keywords: ["unifesto pricing", "event pricing", "free event hosting", "campus event costs", "student event pricing"],
+  openGraph: {
+    title: "Pricing — Unifesto",
+    description: "Simple, transparent pricing for students and event organizers on campus.",
+    type: "website",
+    url: "https://www.unifesto.app/pricing",
+    siteName: "Unifesto",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Pricing — Unifesto",
+    description: "Simple, transparent pricing for students and event organizers on campus.",
+    site: "@unifestoapp",
+  },
 };
 
 const plans = [

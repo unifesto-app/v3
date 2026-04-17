@@ -3,8 +3,22 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Products — Unifesto",
-  description: "Explore Unifesto's standalone products for campus event management.",
+  title: "Products & Features — Unifesto",
+  description: "Explore Unifesto's standalone products and platform features for campus event management. QR check-in, certificates, analytics, and more.",
+  keywords: ["unifesto products", "event management tools", "qr check-in", "event certificates", "event analytics", "campus event software"],
+  openGraph: {
+    title: "Products & Features — Unifesto",
+    description: "Explore Unifesto's standalone products and platform features for campus event management.",
+    type: "website",
+    url: "https://www.unifesto.app/products",
+    siteName: "Unifesto",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Products & Features — Unifesto",
+    description: "Explore Unifesto's standalone products and platform features for campus event management.",
+    site: "@unifestoapp",
+  },
 };
 
 // Standalone Products

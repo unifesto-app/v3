@@ -4,7 +4,21 @@ import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Platform Features — Unifesto",
-  description: "Explore Unifesto's core platform features for campus event management.",
+  description: "Discover Unifesto's core platform features: Event Discovery, Event Hosting, Ticketing & RSVP, and Analytics. Everything you need for campus events.",
+  keywords: ["event discovery", "event hosting", "ticketing system", "event analytics", "campus event features", "rsvp management"],
+  openGraph: {
+    title: "Platform Features — Unifesto",
+    description: "Discover Unifesto's core platform features for seamless campus event management.",
+    type: "website",
+    url: "https://www.unifesto.app/features",
+    siteName: "Unifesto",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Platform Features — Unifesto",
+    description: "Discover Unifesto's core platform features for seamless campus event management.",
+    site: "@unifestoapp",
+  },
 };
 
 // Core Platform Features

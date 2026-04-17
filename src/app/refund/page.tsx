@@ -4,7 +4,21 @@ import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Refund Policy — Unifesto",
-  description: "Learn about Unifesto's refund and cancellation policy for event tickets.",
+  description: "Learn about Unifesto's refund and cancellation policy for event tickets. Fair and transparent refund process.",
+  keywords: ["refund policy", "cancellation policy", "ticket refund", "event refund", "unifesto refund"],
+  openGraph: {
+    title: "Refund Policy — Unifesto",
+    description: "Learn about Unifesto's refund and cancellation policy for event tickets.",
+    type: "website",
+    url: "https://www.unifesto.app/refund",
+    siteName: "Unifesto",
+  },
+  twitter: {
+    card: "summary",
+    title: "Refund Policy — Unifesto",
+    description: "Learn about Unifesto's refund and cancellation policy for event tickets.",
+    site: "@unifestoapp",
+  },
 };
 
 export default function RefundPage() {
