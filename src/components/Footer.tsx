@@ -49,10 +49,16 @@ const productLinks = [
 
 const companyLinks = [
   { label: "About Us", href: "/about" },
-  { label: "Support", href: "/support" },
   { label: "Careers", href: "/careers" },
   { label: "Blog", href: "/blog" },
-  { label: "Contact", href: "mailto:support@unifesto.app" },
+];
+
+const supportLinks = [
+  { label: "Help Center", href: "/support" },
+  { label: "FAQs", href: "/support#faq" },
+  { label: "Contact Us", href: "/support#contact" },
+  { label: "Live Chat", href: "#chat" },
+  { label: "Email Support", href: "mailto:support@unifesto.app" },
 ];
 
 const legalLinks = [
@@ -130,7 +136,7 @@ export default function Footer() {
         </div>
 
         {/* Main grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 py-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 py-12">
 
           {/* Brand column — spans 2 on lg */}
           <div className="col-span-2 flex flex-col gap-4">
@@ -172,6 +178,7 @@ export default function Footer() {
 
           <LinkColumn title="Features" links={featureLinks} />
           <LinkColumn title="Products" links={productLinks} />
+          <LinkColumn title="Support" links={supportLinks} />
           <LinkColumn title="Company" links={companyLinks} />
           <LinkColumn title="Legal" links={legalLinks} />
 
