@@ -43,6 +43,13 @@ export interface Speaker {
   };
 }
 
+export interface Reward {
+  position: string;
+  prize: string;
+  description?: string;
+  icon?: string;
+}
+
 export interface MockEvent {
   id: string;
   title: string;
@@ -66,6 +73,7 @@ export interface MockEvent {
   attendees: number;
   schedule: ScheduleItem[];
   speakers?: Speaker[];  // Guest speakers and special guests
+  rewards?: Reward[];  // Prizes, certificates, goodies
   posterGradient: string;
   parentEventId?: string;  // For sub-events
   isParentEvent?: boolean;  // Indicates this event has sub-events
@@ -193,6 +201,28 @@ const mockEvents: MockEvent[] = [
       { time: "03:30 PM", title: "Results & Awards" },
       { time: "04:00 PM", title: "Closing Ceremony" },
     ],
+    rewards: [
+      {
+        position: "Winner",
+        prize: "₹15,000 Cash Prize",
+        description: "Best pitch + mentorship sessions with industry experts"
+      },
+      {
+        position: "1st Runner Up",
+        prize: "₹10,000 Cash Prize",
+        description: "Incubation support + networking opportunities"
+      },
+      {
+        position: "2nd Runner Up",
+        prize: "₹5,000 Cash Prize",
+        description: "Certificate of excellence + goodies"
+      },
+      {
+        position: "All Participants",
+        prize: "Certificate of Participation",
+        description: "Digital certificate + event swag"
+      }
+    ],
     posterGradient: "linear-gradient(135deg, #3491ff 0%, #0062ff 60%, #001a4d 100%)",
   },
   {
@@ -254,6 +284,28 @@ const mockEvents: MockEvent[] = [
         }
       }
     ],
+    rewards: [
+      {
+        position: "Best Startup Pitch",
+        prize: "₹50,000 Seed Funding",
+        description: "Cash prize + 6 months free incubation + mentorship"
+      },
+      {
+        position: "Runner Up",
+        prize: "₹25,000 Cash Prize",
+        description: "Mentorship sessions + networking with VCs"
+      },
+      {
+        position: "People's Choice",
+        prize: "₹10,000 Cash Prize",
+        description: "Voted by attendees + social media promotion"
+      },
+      {
+        position: "All Attendees",
+        prize: "Networking Kit",
+        description: "Event merchandise + startup resource guide + certificate"
+      }
+    ],
     posterGradient: "linear-gradient(135deg, #0062ff 0%, #3491ff 50%, #5aa3ff 100%)",
   },
   {
@@ -283,6 +335,28 @@ const mockEvents: MockEvent[] = [
       { time: "Next Day 10:00 AM", title: "Submission Deadline" },
       { time: "11:00 AM", title: "Demo Day" },
       { time: "02:00 PM", title: "Results & Prizes" },
+    ],
+    rewards: [
+      {
+        position: "Overall Winner",
+        prize: "₹30,000 Cash Prize",
+        description: "Trophy + GitHub Pro subscription + swag kit"
+      },
+      {
+        position: "Track Winners (4 tracks)",
+        prize: "₹10,000 Each",
+        description: "Certificate + tech goodies + cloud credits"
+      },
+      {
+        position: "Best Beginner Team",
+        prize: "₹5,000 Cash Prize",
+        description: "Learning resources + mentorship sessions"
+      },
+      {
+        position: "All Participants",
+        prize: "Hacker Kit",
+        description: "T-shirt + stickers + certificate + meals & snacks"
+      }
     ],
     posterGradient: "linear-gradient(135deg, #001a4d 0%, #0062ff 50%, #3491ff 100%)",
   },
@@ -378,6 +452,28 @@ const mockEvents: MockEvent[] = [
       { time: "02:00 PM", title: "Grand Finale (Top 3)" },
       { time: "02:45 PM", title: "Judging & Results" },
       { time: "03:00 PM", title: "Prize Distribution" },
+    ],
+    rewards: [
+      {
+        position: "Winner",
+        prize: "₹25,000 Seed Funding",
+        description: "Fast-track incubation + 3 months mentorship"
+      },
+      {
+        position: "1st Runner Up",
+        prize: "₹15,000 Cash Prize",
+        description: "Mentorship sessions + pitch deck review"
+      },
+      {
+        position: "2nd Runner Up",
+        prize: "₹10,000 Cash Prize",
+        description: "Business plan consultation + resources"
+      },
+      {
+        position: "All Finalists",
+        prize: "Entrepreneur Kit",
+        description: "Certificate + startup resources + networking access"
+      }
     ],
     posterGradient: "linear-gradient(135deg, #3491ff 0%, #0062ff 50%, #004acc 100%)",
   },
@@ -488,6 +584,18 @@ const mockEvents: MockEvent[] = [
           linkedin: "https://linkedin.com/in/nehakapoor",
           twitter: "https://twitter.com/nehakapoor"
         }
+      }
+    ],
+    rewards: [
+      {
+        position: "All Attendees",
+        prize: "Professional Development Kit",
+        description: "Certificate of attendance + LinkedIn profile review + career resources guide"
+      },
+      {
+        position: "Best Profile Makeover",
+        prize: "Premium Career Coaching",
+        description: "3 one-on-one sessions with career experts"
       }
     ],
     posterGradient: "linear-gradient(135deg, #001a4d 0%, #0062ff 50%, #1a75ff 100%)",

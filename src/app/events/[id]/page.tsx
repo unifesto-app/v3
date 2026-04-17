@@ -280,6 +280,64 @@ export default function EventDetailPage({ params }: Props) {
                     </section>
                   )}
 
+                  {/* Rewards & Prizes */}
+                  {event.rewards && event.rewards.length > 0 && (
+                    <section>
+                      <h2 className="text-lg font-bold text-white mb-4">Rewards & Prizes</h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {event.rewards.map((reward: any, index: number) => (
+                          <div
+                            key={index}
+                            className="rounded-xl border border-white/10 bg-white/[0.02] p-5 hover:bg-white/[0.04] hover:border-white/15 transition-all duration-300 relative overflow-hidden"
+                          >
+                            {/* Gradient accent */}
+                            <div
+                              className="absolute top-0 left-0 w-1 h-full"
+                              style={{ background: brandGradient }}
+                            />
+                            
+                            <div className="pl-3">
+                              {/* Position badge */}
+                              <div className="flex items-center gap-2 mb-3">
+                                {index === 0 && (
+                                  <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                                  </svg>
+                                )}
+                                <span className="text-xs font-bold uppercase tracking-wider" style={gradientText}>
+                                  {reward.position}
+                                </span>
+                              </div>
+                              
+                              {/* Prize */}
+                              <h3 className="text-base font-bold text-white mb-2">{reward.prize}</h3>
+                              
+                              {/* Description */}
+                              {reward.description && (
+                                <p className="text-xs text-slate-400 leading-relaxed">{reward.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Additional info */}
+                      <div className="mt-4 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className="flex-1">
+                            <p className="text-xs font-semibold text-white mb-1">Prize Distribution</p>
+                            <p className="text-xs text-slate-500 leading-relaxed">
+                              Winners will be announced at the closing ceremony. Prizes and certificates will be distributed on the same day. Digital certificates will be emailed within 48 hours.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
                   {/* Sub-events */}
                   {subEvents.length > 0 && (
                     <section>
