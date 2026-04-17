@@ -33,6 +33,20 @@ export default function EventDetailPage({ params }: Props) {
     });
   }, [params]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isDiscussionOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isDiscussionOpen]);
+
   if (!event) {
     return (
       <main className="min-h-screen bg-black flex items-center justify-center">
