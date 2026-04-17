@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import FloatingSupport from "@/components/FloatingSupport";
 
 const agrandir = localFont({
   src: "./assets/fonts/Agrandir/Agrandir-Regular.otf",
@@ -39,7 +40,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${agrandir.variable} ${sweetApricot.variable} scroll-smooth`}>
-      <body className="min-h-screen bg-black antialiased">{children}</body>
+      <body className="min-h-screen bg-black antialiased">
+        {children}
+        <FloatingSupport />
+      </body>
     </html>
   );
 }
