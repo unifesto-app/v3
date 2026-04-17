@@ -176,10 +176,10 @@ export default function Footer() {
             </a>
           </div>
 
-          <LinkColumn title="Features" links={featureLinks} />
           <LinkColumn title="Products" links={productLinks} />
-          <LinkColumn title="Support" links={supportLinks} />
+          <LinkColumn title="Features" links={featureLinks} />
           <LinkColumn title="Company" links={companyLinks} />
+          <LinkColumn title="Support" links={supportLinks} />
           <LinkColumn title="Legal" links={legalLinks} />
 
         </div>
