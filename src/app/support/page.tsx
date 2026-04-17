@@ -819,19 +819,20 @@ export default function SupportPage() {
 
       {/* Contact Form */}
       {activeTab === "contact" && (
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-3" style={gradientText}>
-              Still Need Help?
-            </p>
-            <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-3">
-              Send us a<br />
-              <span style={gradientText}>message.</span>
-            </h2>
-            <p className="text-slate-500 text-sm md:text-base">
-              Our support team will get back to you within 24 hours.
-            </p>
-          </div>
+        <section className="relative py-20 px-6 border-t border-white/5">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-12">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-3" style={gradientText}>
+                Still Need Help?
+              </p>
+              <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-3">
+                Send us a<br />
+                <span style={gradientText}>message.</span>
+              </h2>
+              <p className="text-slate-500 text-sm md:text-base">
+                Our support team will get back to you within 24 hours.
+              </p>
+            </div>
 
           {submitted ? (
             <div className="p-8 rounded-2xl border border-green-500/20 bg-green-500/5 text-center">
@@ -923,13 +924,14 @@ export default function SupportPage() {
               </button>
             </form>
           )}
-        </div>
-      </section>
+          </div>
+        </section>
       )}
 
       {/* Quick Links */}
       {activeTab === "contact" && (
-        <div className="max-w-6xl mx-auto">
+        <section className="relative py-20 px-6 border-t border-white/5">
+          <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">
               Helpful Resources
@@ -967,8 +969,8 @@ export default function SupportPage() {
               <p className="text-xs text-slate-500">Verify certificates, employee IDs, and organization credentials.</p>
             </a>
           </div>
-        </div>
-      </section>
+          </div>
+        </section>
       )}
 
       <Footer />
