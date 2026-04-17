@@ -266,6 +266,97 @@ export default function EventDetailPage({ params }: Props) {
                     </div>
                   </section>
                   )}
+
+                  {/* Discussion */}
+                  <section>
+                    <h2 className="text-lg font-bold text-white mb-4">Discussion</h2>
+                    
+                    {/* Comment Input */}
+                    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 mb-4">
+                      <textarea
+                        placeholder="Ask a question or share your thoughts about this event..."
+                        className="w-full bg-transparent text-sm text-white placeholder:text-slate-600 resize-none focus:outline-none"
+                        rows={3}
+                      />
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+                        <p className="text-xs text-slate-600">Sign in to join the discussion</p>
+                        <button
+                          className="px-4 py-2 rounded-lg text-xs font-semibold text-black transition-all duration-200 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]"
+                          style={{ background: brandGradient }}
+                        >
+                          Post Comment
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Sample Comments */}
+                    <div className="space-y-4">
+                      {[
+                        {
+                          author: "Rahul Sharma",
+                          time: "2 hours ago",
+                          comment: "Really excited for this event! Will there be any hands-on workshops or just talks?",
+                          replies: 1
+                        },
+                        {
+                          author: "Priya Patel",
+                          time: "5 hours ago",
+                          comment: "Is parking available at the venue? Also, what's the dress code?",
+                          replies: 2
+                        },
+                        {
+                          author: "Amit Kumar",
+                          time: "1 day ago",
+                          comment: "This looks amazing! Can't wait to attend. Are there any prerequisites we should know about?",
+                          replies: 0
+                        }
+                      ].map((comment, i) => (
+                        <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] p-4 hover:bg-white/[0.03] transition-all">
+                          <div className="flex items-start gap-3">
+                            {/* Avatar */}
+                            <div
+                              className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold text-black flex-shrink-0"
+                              style={{ background: brandGradient }}
+                            >
+                              {comment.author.split(" ").map(n => n[0]).join("")}
+                            </div>
+                            
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="text-sm font-semibold text-white">{comment.author}</p>
+                                <span className="text-xs text-slate-600">·</span>
+                                <p className="text-xs text-slate-600">{comment.time}</p>
+                              </div>
+                              <p className="text-sm text-slate-400 leading-relaxed mb-3">{comment.comment}</p>
+                              
+                              {/* Actions */}
+                              <div className="flex items-center gap-4">
+                                <button className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-white transition-colors">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                  </svg>
+                                  Reply
+                                </button>
+                                {comment.replies > 0 && (
+                                  <button className="text-xs font-medium" style={gradientText}>
+                                    View {comment.replies} {comment.replies === 1 ? 'reply' : 'replies'}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Load More */}
+                    <div className="text-center mt-6">
+                      <button className="text-sm font-semibold text-slate-500 hover:text-white transition-colors">
+                        Load more comments
+                      </button>
+                    </div>
+                  </section>
                 </div>
               )}
 
