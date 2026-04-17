@@ -47,26 +47,81 @@ export default function AuthPage() {
     setShowOrgDropdown(false);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(`${mode} submitted:`, formData);
     
-    // Mock authentication - set auth token in localStorage
-    if (mode === "login" || mode === "signup") {
-      localStorage.setItem("mockAuth", "true");
-      setSubmitted(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       
-      // Redirect to profile after successful login/signup
-      setTimeout(() => {
-        window.location.href = "/profile";
-      }, 1500);
-    } else {
-      // Forgot password flow
-      setSubmitted(true);
-      setTimeout(() => {
-        setSubmitted(false);
-        setMode("login");
-      }, 3000);
+      if (mode === "signup") {
+        // Registration
+        const response = await fetch(`${apiUrl}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.mobile,
+            organization: formData.organization,
+            password: formData.password,
+            confirmPassword: formData.confirmPassword,
+          }),
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          alert(data.error || 'Registration failed');
+          return;
+        }
+
+        // Store session
+        if (data.data?.session) {
+          localStorage.setItem('auth_token', data.data.session.access_token);
+          localStorage.setItem('user', JSON.stringify(data.data.user));
+        }
+        
+        setSubmitted(true);
+        setTimeout(() => window.location.href = "/profile", 1500);
+        
+      } else if (mode === "login") {
+        // Login
+        const response = await fetch(`${apiUrl}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          alert(data.error || 'Login failed');
+          return;
+        }
+
+        // Store session
+        if (data.data?.session) {
+          localStorage.setItem('auth_token', data.data.session.access_token);
+          localStorage.setItem('user', JSON.stringify(data.data.user));
+        }
+        
+        setSubmitted(true);
+        setTimeout(() => window.location.href = "/profile", 1500);
+        
+      } else {
+        // Forgot password flow (mock for now)
+        setSubmitted(true);
+        setTimeout(() => {
+          setSubmitted(false);
+          setMode("login");
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+      alert('An error occurred. Please try again.');
     }
   };
 
@@ -87,6 +142,30 @@ export default function AuthPage() {
     setMode(newMode);
     resetForm();
     setSubmitted(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const response = await fetch(`${apiUrl}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          redirectTo: `${window.location.origin}/auth/callback`,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success && data.data?.url) {
+        window.location.href = data.data.url;
+      } else {
+        alert('Failed to initiate Google sign-in');
+      }
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      alert('An error occurred. Please try again.');
+    }
   };
 
   return (
@@ -519,6 +598,31 @@ export default function AuthPage() {
                           </div>
                         )}
                       </div>
+                    )}
+
+                    {/* Google Sign In */}
+                    {mode !== "forgot" && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={handleGoogleSignIn}
+                          className="w-full rounded-full px-6 py-3.5 text-sm font-bold bg-white text-black border border-white/20 transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:-translate-y-0.5 flex items-center justify-center gap-3"
+                        >
+                          <svg className="w-5 h-5" viewBox="0 0 24 24">
+                            <path fill="#EA4335" d="M12 10.2v3.96h5.62c-.24 1.34-1.52 3.92-5.62 3.92-3.38 0-6.14-2.8-6.14-6.24S8.62 5.64 12 5.64c1.92 0 3.21.82 3.95 1.52l2.69-2.59C16.91 2.98 14.73 2 12 2 6.92 2 2.8 6.12 2.8 11.2S6.92 20.4 12 20.4c6.7 0 8.84-4.7 8.84-7.16 0-.47-.05-.83-.11-1.16H12Z" />
+                            <path fill="#4285F4" d="M3.48 7.38l3.2 2.35C7.56 7.38 9.56 5.64 12 5.64c1.92 0 3.21.82 3.95 1.52l2.69-2.59C16.91 2.98 14.73 2 12 2 8.03 2 4.58 4.24 3.48 7.38Z" />
+                            <path fill="#FBBC05" d="M12 20.4c2.62 0 4.84-.86 6.45-2.35l-2.98-2.44c-.82.56-1.9 1.12-3.47 1.12-4.07 0-5.35-2.53-5.6-3.85l-3.24 2.5C4.23 18.08 7.69 20.4 12 20.4Z" />
+                            <path fill="#34A853" d="M21.84 12.04c0-.53-.05-.94-.13-1.35H12v3.96h5.62c-.28 1.57-1.6 2.88-3.15 3.14l2.98 2.44C19.95 18.35 21.84 15.86 21.84 12.04Z" />
+                          </svg>
+                          Continue with Google
+                        </button>
+
+                        <div className="flex items-center gap-3">
+                          <div className="h-px bg-white/10 flex-1" />
+                          <span className="text-xs text-slate-600 uppercase tracking-wide">or</span>
+                          <div className="h-px bg-white/10 flex-1" />
+                        </div>
+                      </>
                     )}
 
                     {/* Submit Button */}
