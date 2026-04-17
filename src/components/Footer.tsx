@@ -49,6 +49,7 @@ const productLinks = [
 
 const companyLinks = [
   { label: "About Us", href: "/about" },
+  { label: "Support", href: "/support" },
   { label: "Careers", href: "/careers" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "mailto:support@unifesto.app" },

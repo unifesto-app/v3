@@ -42,6 +42,7 @@ const navItems: NavItem[] = [
       { label: "Features", href: "/about#features", description: "What we offer" },
       { label: "Use Cases", href: "/about#use-cases", description: "Events we support" },
       { label: "Testimonials", href: "/about#testimonials", description: "What people say" },
+      { label: "Support", href: "/support", description: "Get help & contact us" },
     ],
   },
   { label: "Host Event", href: "/host" },
