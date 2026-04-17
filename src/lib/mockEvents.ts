@@ -31,6 +31,18 @@ export interface ScheduleItem {
   speaker?: string;
 }
 
+export interface Speaker {
+  name: string;
+  title: string;
+  organization: string;
+  bio: string;
+  image?: string;
+  social?: {
+    linkedin?: string;
+    twitter?: string;
+  };
+}
+
 export interface MockEvent {
   id: string;
   title: string;
@@ -53,6 +65,7 @@ export interface MockEvent {
   location: string;
   attendees: number;
   schedule: ScheduleItem[];
+  speakers?: Speaker[];  // Guest speakers and special guests
   posterGradient: string;
   parentEventId?: string;  // For sub-events
   isParentEvent?: boolean;  // Indicates this event has sub-events
@@ -210,6 +223,36 @@ const mockEvents: MockEvent[] = [
       { time: "02:30 PM", title: "Panel: Future of Student Entrepreneurship" },
       { time: "04:00 PM", title: "Startup Pitch Finals" },
       { time: "05:30 PM", title: "Awards & Closing" },
+    ],
+    speakers: [
+      {
+        name: "Priya Sharma",
+        title: "Founder & CEO",
+        organization: "TechVentures India",
+        bio: "Serial entrepreneur with 3 successful exits. Passionate about empowering student founders and building the next generation of Indian startups.",
+        social: {
+          linkedin: "https://linkedin.com/in/priyasharma",
+          twitter: "https://twitter.com/priyasharma"
+        }
+      },
+      {
+        name: "Rahul Mehta",
+        title: "Partner",
+        organization: "Sequoia Capital India",
+        bio: "Early-stage investor focused on SaaS and consumer tech. Previously founded two startups and led product at Flipkart.",
+        social: {
+          linkedin: "https://linkedin.com/in/rahulmehta"
+        }
+      },
+      {
+        name: "Dr. Anita Desai",
+        title: "Director",
+        organization: "IIT Hyderabad Incubation Center",
+        bio: "Academic entrepreneur bridging research and commercialization. Mentored 50+ student startups to funding and market success.",
+        social: {
+          linkedin: "https://linkedin.com/in/anitadesai"
+        }
+      }
     ],
     posterGradient: "linear-gradient(135deg, #0062ff 0%, #3491ff 50%, #5aa3ff 100%)",
   },
@@ -426,6 +469,27 @@ const mockEvents: MockEvent[] = [
       { time: "01:00 PM", title: "Personal Branding Workshop" },
       { time: "01:45 PM", title: "Q&A & Close" },
     ],
+    speakers: [
+      {
+        name: "Vikram Singh",
+        title: "Head of Talent Acquisition",
+        organization: "Microsoft India",
+        bio: "15+ years in tech recruitment. Helped thousands of students land their dream jobs through strategic personal branding and networking.",
+        social: {
+          linkedin: "https://linkedin.com/in/vikramsingh"
+        }
+      },
+      {
+        name: "Neha Kapoor",
+        title: "Career Coach & LinkedIn Expert",
+        organization: "CareerCraft",
+        bio: "Former HR leader turned career coach. Specializes in helping students build powerful LinkedIn profiles that attract recruiters.",
+        social: {
+          linkedin: "https://linkedin.com/in/nehakapoor",
+          twitter: "https://twitter.com/nehakapoor"
+        }
+      }
+    ],
     posterGradient: "linear-gradient(135deg, #001a4d 0%, #0062ff 50%, #1a75ff 100%)",
   },
   {
@@ -456,6 +520,26 @@ const mockEvents: MockEvent[] = [
       { time: "01:00 PM", title: "Lunch" },
       { time: "02:00 PM", title: "Project/Prototype Showcase" },
       { time: "03:30 PM", title: "Expert Feedback & Awards" },
+    ],
+    speakers: [
+      {
+        name: "Dr. Rajesh Kumar",
+        title: "Chief Scientist",
+        organization: "DRDO Hyderabad",
+        bio: "Leading researcher in aerospace engineering with 20+ patents. Passionate about nurturing young researchers and promoting innovation in defense technology.",
+        social: {
+          linkedin: "https://linkedin.com/in/drrajeshkumar"
+        }
+      },
+      {
+        name: "Prof. Meera Iyer",
+        title: "Head of Research",
+        organization: "IIIT Hyderabad",
+        bio: "AI and Machine Learning expert with 100+ publications. Actively mentors student research projects and promotes interdisciplinary collaboration.",
+        social: {
+          linkedin: "https://linkedin.com/in/meeraiyer"
+        }
+      }
     ],
     posterGradient: "linear-gradient(135deg, #001a4d 0%, #004acc 50%, #0062ff 100%)",
   },

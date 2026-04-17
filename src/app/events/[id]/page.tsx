@@ -215,6 +215,71 @@ export default function EventDetailPage({ params }: Props) {
                     </div>
                   </section>
 
+                  {/* Guests & Speakers */}
+                  {event.speakers && event.speakers.length > 0 && (
+                    <section>
+                      <h2 className="text-lg font-bold text-white mb-4">Guests & Speakers</h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {event.speakers.map((speaker: any) => (
+                          <div
+                            key={speaker.name}
+                            className="rounded-xl border border-white/10 bg-white/[0.02] p-5 hover:bg-white/[0.04] hover:border-white/15 transition-all duration-300"
+                          >
+                            <div className="flex gap-4">
+                              {/* Avatar */}
+                              <div
+                                className="w-16 h-16 rounded-xl flex items-center justify-center text-lg font-bold text-black flex-shrink-0"
+                                style={{ background: brandGradient }}
+                              >
+                                {speaker.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                              </div>
+                              
+                              {/* Info */}
+                              <div className="flex-1 min-w-0">
+                                <h3 className="text-base font-bold text-white mb-1">{speaker.name}</h3>
+                                <p className="text-xs font-semibold text-slate-400 mb-0.5">{speaker.title}</p>
+                                <p className="text-xs text-slate-500 mb-3">{speaker.organization}</p>
+                                <p className="text-xs text-slate-400 leading-relaxed mb-3">{speaker.bio}</p>
+                                
+                                {/* Social Links */}
+                                {speaker.social && (
+                                  <div className="flex gap-2">
+                                    {speaker.social.linkedin && (
+                                      <a
+                                        href={speaker.social.linkedin}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-200"
+                                        aria-label="LinkedIn"
+                                      >
+                                        <svg className="w-3.5 h-3.5 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                        </svg>
+                                      </a>
+                                    )}
+                                    {speaker.social.twitter && (
+                                      <a
+                                        href={speaker.social.twitter}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-200"
+                                        aria-label="Twitter"
+                                      >
+                                        <svg className="w-3.5 h-3.5 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                        </svg>
+                                      </a>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
                   {/* Sub-events */}
                   {subEvents.length > 0 && (
                     <section>
