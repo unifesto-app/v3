@@ -62,7 +62,7 @@ export default function Hero() {
           <Link
             id="hero-discover-events"
             href="/events"
-            className="rounded-full px-6 py-2.5 md:px-7 md:py-3 text-sm md:text-base font-semibold hover:shadow-[0_0_40px_rgba(52,145,255,0.65)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
+            className="rounded-full px-6 py-2.5 md:px-7 md:py-3 text-sm md:text-base font-semibold shadow-[0_0_24px_rgba(37,99,235,0.5)] hover:shadow-[0_0_40px_rgba(52,145,255,0.65)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
             style={{ background: brandGradient, color: "#000000" }}
           >
             Discover Events

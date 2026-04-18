@@ -319,8 +319,8 @@ export default function FloatingSupport() {
             style={{ background: brandGradient }}
             aria-label="Contact Support"
           >
-            {/* Pulse Animation */}
-            <span className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ background: brandGradient }} />
+            {/* Pulse Animation - Only on Hover */}
+            <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 group-hover:animate-ping" style={{ background: brandGradient }} />
             
             {/* Icon */}
             <svg
