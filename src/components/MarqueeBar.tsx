@@ -2,12 +2,13 @@ import { brandGradient } from "@/lib/styles";
 
 const partners = [
   "Malla Reddy University",
+  "Innovation & Entrepreneurship Cell MRUH",
   "StudLYF",
-  "Innovation & Entrepreneurship Cell, MRUH",
   "GDGon Campus MRUH",
-  "Marquee Film Club, MRUH",
-  "LinkedInspire",
+  "Marquee Film Club MRUH",
   "MUN Club MRUH",
+  "Alan Turing Club MRUH",
+  "AWS Cloud Clubs MRUH",
 ];
 
 // Duplicate for seamless loop

@@ -50,78 +50,49 @@ export default function AuthPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    // Mock authentication - no real API calls
+    // In production, this would call your backend API
+    
+    if (mode === "signup") {
+      // Mock registration
+      const mockUser = {
+        id: Math.random().toString(36).substr(2, 9),
+        name: formData.name,
+        email: formData.email,
+        phone: formData.mobile,
+        organization: formData.organization,
+      };
       
-      if (mode === "signup") {
-        // Registration
-        const response = await fetch(`${apiUrl}/api/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            phone: formData.mobile,
-            organization: formData.organization,
-            password: formData.password,
-            confirmPassword: formData.confirmPassword,
-          }),
-        });
-
-        const data = await response.json();
-        
-        if (!response.ok) {
-          alert(data.error || 'Registration failed');
-          return;
-        }
-
-        // Store session
-        if (data.data?.session) {
-          localStorage.setItem('auth_token', data.data.session.access_token);
-          localStorage.setItem('user', JSON.stringify(data.data.user));
-        }
-        
-        setSubmitted(true);
-        setTimeout(() => window.location.href = "/profile", 1500);
-        
-      } else if (mode === "login") {
-        // Login
-        const response = await fetch(`${apiUrl}/api/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        });
-
-        const data = await response.json();
-        
-        if (!response.ok) {
-          alert(data.error || 'Login failed');
-          return;
-        }
-
-        // Store session
-        if (data.data?.session) {
-          localStorage.setItem('auth_token', data.data.session.access_token);
-          localStorage.setItem('user', JSON.stringify(data.data.user));
-        }
-        
-        setSubmitted(true);
-        setTimeout(() => window.location.href = "/profile", 1500);
-        
-      } else {
-        // Forgot password flow (mock for now)
-        setSubmitted(true);
-        setTimeout(() => {
-          setSubmitted(false);
-          setMode("login");
-        }, 3000);
-      }
-    } catch (error) {
-      console.error('Auth error:', error);
-      alert('An error occurred. Please try again.');
+      // Store mock session
+      localStorage.setItem('auth_token', 'mock_token_' + Date.now());
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      
+      setSubmitted(true);
+      setTimeout(() => window.location.href = "/profile", 1500);
+      
+    } else if (mode === "login") {
+      // Mock login
+      const mockUser = {
+        id: 'mock_user_123',
+        name: 'Demo User',
+        email: formData.email,
+        organization: 'Malla Reddy University',
+      };
+      
+      // Store mock session
+      localStorage.setItem('auth_token', 'mock_token_' + Date.now());
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      
+      setSubmitted(true);
+      setTimeout(() => window.location.href = "/profile", 1500);
+      
+    } else {
+      // Forgot password flow (mock)
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setMode("login");
+      }, 3000);
     }
   };
 
@@ -145,27 +116,21 @@ export default function AuthPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-      const response = await fetch(`${apiUrl}/api/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          redirectTo: `${window.location.origin}/auth/callback`,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success && data.data?.url) {
-        window.location.href = data.data.url;
-      } else {
-        alert('Failed to initiate Google sign-in');
-      }
-    } catch (error) {
-      console.error('Google sign-in error:', error);
-      alert('An error occurred. Please try again.');
-    }
+    // Mock Google Sign-In
+    // In production, this would redirect to Google OAuth
+    const mockUser = {
+      id: 'google_user_' + Date.now(),
+      name: 'Google User',
+      email: 'user@gmail.com',
+      organization: 'Malla Reddy University',
+    };
+    
+    // Store mock session
+    localStorage.setItem('auth_token', 'mock_google_token_' + Date.now());
+    localStorage.setItem('user', JSON.stringify(mockUser));
+    
+    setSubmitted(true);
+    setTimeout(() => window.location.href = "/profile", 1500);
   };
 
   return (
