@@ -46,7 +46,6 @@ const navItems: NavItem[] = [
     ],
   },
   { label: "Host Event", href: "/host" },
-  { label: "Docs", href: "/docs" },
   {
     label: "Features",
     dropdown: [
