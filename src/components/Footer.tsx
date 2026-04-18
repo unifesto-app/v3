@@ -51,6 +51,7 @@ const companyLinks = [
   { label: "About Us", href: "/about" },
   { label: "Careers", href: "/careers" },
   { label: "Blog", href: "/blog" },
+  { label: "Docs", href: "/docs" },
 ];
 
 const supportLinks = [
