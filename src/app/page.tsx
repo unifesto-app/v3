@@ -1,7 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import MarqueeBar from "@/components/MarqueeBar";
-import StatsSection from "@/components/StatsSection";
 import EventsGrid from "@/components/EventsGrid";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import FeaturesHighlightSection from "@/components/FeaturesHighlightSection";
@@ -16,7 +15,6 @@ export default function Home() {
       <Navbar />
       <Hero />
       <MarqueeBar />
-      <StatsSection />
       <EventsGrid />
       <HowItWorksSection />
       <FeaturesHighlightSection />
