@@ -6,6 +6,8 @@ import { gradientText, brandGradient } from "@/lib/styles";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createClient } from "@/lib/supabase/client";
+import { getProfile, updateProfile, createProfileIfNotExists } from "@/lib/api/profile";
+import type { Profile } from "@/types/profile";
 
 // Mock user data
 const mockUser = {
@@ -118,45 +120,87 @@ export default function ProfilePage() {
   const [showWallet, setShowWallet] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [editedUser, setEditedUser] = useState({
-    name: mockUser.name,
-    bio: mockUser.bio,
-    phone: mockUser.phone,
-    department: mockUser.department,
-    year: mockUser.year,
+    name: "",
+    bio: "",
+    phone: "",
+    username: "",
   });
+  const [saveError, setSaveError] = useState("");
+  const [saveLoading, setSaveLoading] = useState(false);
 
   const handleCopyReferral = () => {
-    navigator.clipboard.writeText(mockUser.referral.link);
+    const referralLink = `https://unifesto.app/signup?ref=${profile?.username || profile?.id}`;
+    navigator.clipboard.writeText(referralLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSaveProfile = () => {
-    // In a real app, this would save to backend
-    console.log("Saving profile:", editedUser);
-    setIsEditing(false);
+  const handleSaveProfile = async () => {
+    setSaveError("");
+    setSaveLoading(true);
+    
+    try {
+      const updated = await updateProfile({
+        name: editedUser.name,
+        bio: editedUser.bio,
+        phone: editedUser.phone,
+        username: editedUser.username,
+      });
+
+      if (updated) {
+        setProfile(updated);
+        setIsEditing(false);
+      } else {
+        setSaveError("Failed to update profile");
+      }
+    } catch (error: any) {
+      setSaveError(error.message || "Failed to update profile");
+    } finally {
+      setSaveLoading(false);
+    }
   };
 
   const handleCancelEdit = () => {
-    setEditedUser({
-      name: mockUser.name,
-      bio: mockUser.bio,
-      phone: mockUser.phone,
-      department: mockUser.department,
-      year: mockUser.year,
-    });
+    if (profile) {
+      setEditedUser({
+        name: profile.name || "",
+        bio: profile.bio || "",
+        phone: profile.phone || "",
+        username: profile.username || "",
+      });
+    }
+    setSaveError("");
     setIsEditing(false);
   };
 
   useEffect(() => {
-    // Check authentication with Supabase
+    // Check authentication with Supabase and load profile
     const checkAuth = async () => {
       const supabase = createClient();
       const { data: { session }, error } = await supabase.auth.getSession();
       
       if (session && !error) {
         setIsAuthenticated(true);
+        
+        // Load or create profile
+        let userProfile = await getProfile();
+        
+        if (!userProfile) {
+          // Create profile if it doesn't exist
+          userProfile = await createProfileIfNotExists();
+        }
+        
+        if (userProfile) {
+          setProfile(userProfile);
+          setEditedUser({
+            name: userProfile.name || "",
+            bio: userProfile.bio || "",
+            phone: userProfile.phone || "",
+            username: userProfile.username || "",
+          });
+        }
       } else {
         // Redirect to auth page if not logged in
         router.push("/auth");
@@ -204,16 +248,30 @@ export default function ProfilePage() {
           <div className="flex flex-col lg:flex-row items-start gap-8">
             {/* Avatar */}
             <div className="flex-shrink-0">
-              <div
-                className="w-28 h-28 rounded-full flex items-center justify-center text-3xl font-bold text-white"
-                style={{ background: brandGradient }}
-              >
-                {mockUser.name.split(" ").map(n => n[0]).join("")}
-              </div>
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt={profile.name || "Profile"}
+                  className="w-28 h-28 rounded-full object-cover"
+                />
+              ) : (
+                <div
+                  className="w-28 h-28 rounded-full flex items-center justify-center text-3xl font-bold text-white"
+                  style={{ background: brandGradient }}
+                >
+                  {profile?.name ? profile.name.split(" ").map(n => n[0]).join("") : profile?.email?.[0].toUpperCase() || "U"}
+                </div>
+              )}
             </div>
 
             {/* User Info */}
             <div className="flex-1">
+              {saveError && (
+                <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                  <p className="text-sm text-red-400">{saveError}</p>
+                </div>
+              )}
+              
               {isEditing ? (
                 <div className="space-y-4">
                   <div>
@@ -223,6 +281,17 @@ export default function ProfilePage() {
                       value={editedUser.name}
                       onChange={(e) => setEditedUser({ ...editedUser, name: e.target.value })}
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-slate-600 outline-none focus:border-[#3491ff] transition-colors"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 mb-2">Username</label>
+                    <input
+                      type="text"
+                      value={editedUser.username}
+                      onChange={(e) => setEditedUser({ ...editedUser, username: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-slate-600 outline-none focus:border-[#3491ff] transition-colors"
+                      placeholder="Choose a unique username"
                     />
                   </div>
                   <div>
@@ -232,39 +301,34 @@ export default function ProfilePage() {
                       onChange={(e) => setEditedUser({ ...editedUser, bio: e.target.value })}
                       rows={3}
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-slate-600 outline-none focus:border-[#3491ff] transition-colors resize-none"
+                      placeholder="Tell us about yourself"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-2">Department</label>
-                      <input
-                        type="text"
-                        value={editedUser.department}
-                        onChange={(e) => setEditedUser({ ...editedUser, department: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-slate-600 outline-none focus:border-[#3491ff] transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-2">Year</label>
-                      <input
-                        type="text"
-                        value={editedUser.year}
-                        onChange={(e) => setEditedUser({ ...editedUser, year: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-slate-600 outline-none focus:border-[#3491ff] transition-colors"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 mb-2">Phone</label>
+                    <input
+                      type="tel"
+                      value={editedUser.phone}
+                      onChange={(e) => setEditedUser({ ...editedUser, phone: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-slate-600 outline-none focus:border-[#3491ff] transition-colors"
+                      placeholder="Your phone number"
+                    />
                   </div>
                 </div>
               ) : (
                 <>
                   <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-2">
-                    {editedUser.name}
+                    {profile?.name || "User"}
                   </h1>
-                  <p className="text-slate-400 mb-1">{mockUser.college}</p>
-                  <p className="text-slate-500 text-sm mb-4">{editedUser.department} • {editedUser.year}</p>
-                  <p className="text-slate-300 text-sm leading-relaxed max-w-2xl">
-                    {editedUser.bio}
-                  </p>
+                  {profile?.username && (
+                    <p className="text-slate-400 mb-1">@{profile.username}</p>
+                  )}
+                  <p className="text-slate-400 mb-1">{profile?.email}</p>
+                  {profile?.bio && (
+                    <p className="text-slate-300 text-sm leading-relaxed max-w-2xl mt-4">
+                      {profile.bio}
+                    </p>
+                  )}
                 </>
               )}
             </div>
@@ -275,14 +339,16 @@ export default function ProfilePage() {
                 <>
                   <button
                     onClick={handleSaveProfile}
-                    className="rounded-full px-6 py-2.5 text-sm font-semibold text-black transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]"
+                    disabled={saveLoading}
+                    className="rounded-full px-6 py-2.5 text-sm font-semibold text-black transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ background: brandGradient }}
                   >
-                    Save Changes
+                    {saveLoading ? "Saving..." : "Save Changes"}
                   </button>
                   <button
                     onClick={handleCancelEdit}
-                    className="rounded-full px-6 py-2.5 text-sm font-semibold border border-white/10 text-slate-300 hover:text-white hover:border-white/20 transition-all duration-300"
+                    disabled={saveLoading}
+                    className="rounded-full px-6 py-2.5 text-sm font-semibold border border-white/10 text-slate-300 hover:text-white hover:border-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancel
                   </button>
@@ -312,6 +378,19 @@ export default function ProfilePage() {
               <p className="text-2xl font-bold text-white mb-1">{mockUser.stats.eventsAttended}</p>
               <p className="text-xs text-slate-500">Events Attended</p>
             </div>
+            <div className="p-5 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
+              <p className="text-2xl font-bold text-white mb-1">{mockUser.stats.eventsHosted}</p>
+              <p className="text-xs text-slate-500">Events Hosted</p>
+            </div>
+            <div className="p-5 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
+              <p className="text-2xl font-bold text-white mb-1">{mockUser.stats.ticketsBooked}</p>
+              <p className="text-xs text-slate-500">Tickets Booked</p>
+            </div>
+            <div className="p-5 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
+              <p className="text-2xl font-bold" style={gradientText}>{mockUser.wallet.balance}</p>
+              <p className="text-xs text-slate-500">Uni Coins</p>
+            </div>
+          </div>
             <div className="p-5 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
               <p className="text-2xl font-bold text-white mb-1">{mockUser.stats.eventsHosted}</p>
               <p className="text-xs text-slate-500">Events Hosted</p>
@@ -458,10 +537,10 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-xs font-semibold text-slate-400 mb-2">Your Code</label>
+                  <label className="block text-xs font-semibold text-slate-400 mb-2">Your Referral Code</label>
                   <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
                     <span className="flex-1 text-lg font-bold tracking-wider" style={gradientText}>
-                      {mockUser.referral.code}
+                      {profile?.username || profile?.id?.slice(0, 8).toUpperCase() || "UNIFESTO"}
                     </span>
                     <button
                       onClick={handleCopyReferral}
@@ -482,7 +561,7 @@ export default function ProfilePage() {
 
                 <div className="space-y-2">
                   <a
-                    href={`https://wa.me/?text=Join Unifesto and discover amazing campus events! Use my referral code: ${mockUser.referral.code} - ${mockUser.referral.link}`}
+                    href={`https://wa.me/?text=Join Unifesto and discover amazing campus events! Use my referral code: ${profile?.username || profile?.id?.slice(0, 8).toUpperCase()} - https://unifesto.app/signup?ref=${profile?.username || profile?.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 hover:bg-[#25D366]/20 transition-all duration-200"
@@ -495,7 +574,7 @@ export default function ProfilePage() {
 
                   <div className="flex gap-2">
                     <a
-                      href={`https://twitter.com/intent/tweet?text=Join Unifesto and discover amazing campus events! Use my referral code: ${mockUser.referral.code}&url=${mockUser.referral.link}`}
+                      href={`https://twitter.com/intent/tweet?text=Join Unifesto and discover amazing campus events! Use my referral code: ${profile?.username || profile?.id?.slice(0, 8).toUpperCase()}&url=https://unifesto.app/signup?ref=${profile?.username || profile?.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#1DA1F2]/10 border border-[#1DA1F2]/20 hover:bg-[#1DA1F2]/20 transition-all duration-200"
@@ -506,7 +585,7 @@ export default function ProfilePage() {
                       <span className="text-xs font-semibold text-[#1DA1F2]">X</span>
                     </a>
                     <a
-                      href={`https://www.linkedin.com/sharing/share-offsite/?url=${mockUser.referral.link}`}
+                      href={`https://www.linkedin.com/sharing/share-offsite/?url=https://unifesto.app/signup?ref=${profile?.username || profile?.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#0A66C2]/10 border border-[#0A66C2]/20 hover:bg-[#0A66C2]/20 transition-all duration-200"
@@ -536,7 +615,7 @@ export default function ProfilePage() {
                       <label className="block text-[10px] text-slate-500 mb-1">Email</label>
                       <input
                         type="email"
-                        value={mockUser.email}
+                        value={profile?.email || ""}
                         disabled
                         className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-500 cursor-not-allowed"
                       />
@@ -554,7 +633,7 @@ export default function ProfilePage() {
                       <label className="block text-[10px] text-slate-500 mb-1">Member Since</label>
                       <input
                         type="text"
-                        value={mockUser.joinedDate}
+                        value={profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ""}
                         disabled
                         className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-500 cursor-not-allowed"
                       />
@@ -564,15 +643,15 @@ export default function ProfilePage() {
                   <div className="space-y-3">
                     <div>
                       <p className="text-[10px] text-slate-500 mb-1">Email</p>
-                      <p className="text-xs text-white">{mockUser.email}</p>
+                      <p className="text-xs text-white">{profile?.email || "Not provided"}</p>
                     </div>
                     <div>
                       <p className="text-[10px] text-slate-500 mb-1">Phone</p>
-                      <p className="text-xs text-white">{editedUser.phone}</p>
+                      <p className="text-xs text-white">{profile?.phone || "Not provided"}</p>
                     </div>
                     <div>
                       <p className="text-[10px] text-slate-500 mb-1">Member Since</p>
-                      <p className="text-xs text-white">{mockUser.joinedDate}</p>
+                      <p className="text-xs text-white">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : "Not available"}</p>
                     </div>
                   </div>
                 )}
