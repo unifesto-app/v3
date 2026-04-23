@@ -24,14 +24,14 @@ export async function getProfile(): Promise<Profile | null> {
       .from("profiles")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Error fetching profile:", error);
       return null;
     }
 
-    return data as Profile;
+    return data as Profile | null;
   } catch (error) {
     console.error("Unexpected error in getProfile:", error);
     return null;
@@ -54,11 +54,11 @@ export async function createProfileIfNotExists(): Promise<Profile | null> {
     }
 
     // Check if profile exists
-    const { data: existingProfile } = await supabase
+    const { data: existingProfile, error: fetchError } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     if (existingProfile) {
       return existingProfile as Profile;
@@ -78,7 +78,7 @@ export async function createProfileIfNotExists(): Promise<Profile | null> {
       .from("profiles")
       .insert(newProfile)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Error creating profile:", error);
@@ -89,7 +89,7 @@ export async function createProfileIfNotExists(): Promise<Profile | null> {
       return null;
     }
 
-    return data as Profile;
+    return data as Profile | null;
   } catch (error) {
     console.error("Unexpected error in createProfileIfNotExists:", error);
     return null;
@@ -120,7 +120,7 @@ export async function updateProfile(
         .select("id")
         .eq("username", updateDto.username)
         .neq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (existingUsername) {
         throw new Error("Username already taken");
@@ -136,14 +136,14 @@ export async function updateProfile(
       })
       .eq("id", user.id)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Error updating profile:", error);
       return null;
     }
 
-    return data as Profile;
+    return data as Profile | null;
   } catch (error) {
     console.error("Unexpected error in updateProfile:", error);
     throw error;
@@ -161,7 +161,7 @@ export async function isUsernameAvailable(username: string): Promise<boolean> {
       .from("profiles")
       .select("id")
       .eq("username", username)
-      .single();
+      .maybeSingle();
 
     return !data;
   } catch (error) {
