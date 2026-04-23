@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { brandGradient } from "@/lib/styles";
+import { createClient } from "@/lib/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 type NavItem = {
   label: string;
@@ -176,6 +178,9 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<{ avatar_url?: string; full_name?: string } | null>(null);
+  const supabase = createClient();
 
   useEffect(() => {
     const getScrollY = () =>
@@ -189,6 +194,54 @@ export default function Navbar() {
       document.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    // Get initial user
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      
+      if (user) {
+        // Fetch user profile data
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('avatar_url, full_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setUserProfile(profile);
+        }
+      }
+    };
+
+    getUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        // Fetch user profile data
+        supabase
+          .from('profiles')
+          .select('avatar_url, full_name')
+          .eq('id', session.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            if (profile) {
+              setUserProfile(profile);
+            }
+          });
+      } else {
+        setUserProfile(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   return (
     <header
@@ -228,27 +281,50 @@ export default function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4 pt-2">
-            <a href="/auth">
-              <Button
-                id="nav-get-started"
-                className="rounded-full px-6 py-2.5 h-auto text-sm font-semibold border-0 transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]"
-                style={{ background: "transparent", border: "1px solid #3491ff", color: "#3491ff" }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLButtonElement;
-                  el.style.background = brandGradient;
-                  el.style.color = "#000000";
-                  el.style.borderColor = "transparent";
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLButtonElement;
-                  el.style.background = "transparent";
-                  el.style.color = "#3491ff";
-                  el.style.borderColor = "#3491ff";
-                }}
-              >
-                Get Started
-              </Button>
-            </a>
+            {user ? (
+              <a href="/profile" className="group">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-transparent hover:border-[#3491ff] transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]">
+                  {userProfile?.avatar_url ? (
+                    <img 
+                      src={userProfile.avatar_url} 
+                      alt={userProfile.full_name || "Profile"} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div 
+                      className="w-full h-full flex items-center justify-center text-sm font-bold text-white"
+                      style={{ background: brandGradient }}
+                    >
+                      {userProfile?.full_name 
+                        ? userProfile.full_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+                        : user.email?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                  )}
+                </div>
+              </a>
+            ) : (
+              <a href="/auth">
+                <Button
+                  id="nav-get-started"
+                  className="rounded-full px-6 py-2.5 h-auto text-sm font-semibold border-0 transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]"
+                  style={{ background: "transparent", border: "1px solid #3491ff", color: "#3491ff" }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget as HTMLButtonElement;
+                    el.style.background = brandGradient;
+                    el.style.color = "#000000";
+                    el.style.borderColor = "transparent";
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget as HTMLButtonElement;
+                    el.style.background = "transparent";
+                    el.style.color = "#3491ff";
+                    el.style.borderColor = "#3491ff";
+                  }}
+                >
+                  Get Started
+                </Button>
+              </a>
+            )}
           </div>
 
           {/* Mobile toggle */}
@@ -340,16 +416,47 @@ export default function Navbar() {
                   </div>
                 ))}
                 <div className="px-2 pt-1 pb-1">
-                  <a href="/auth" className="block">
-                    <Button
-                      id="mobile-get-started"
-                      className="mt-1 rounded-full px-6 py-3 h-auto text-sm font-semibold border-0 transition-all duration-300 w-full"
-                      style={{ background: brandGradient, color: "#000000" }}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Get Started
-                    </Button>
-                  </a>
+                  {user ? (
+                    <a href="/profile" className="block">
+                      <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200">
+                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#3491ff]">
+                          {userProfile?.avatar_url ? (
+                            <img 
+                              src={userProfile.avatar_url} 
+                              alt={userProfile.full_name || "Profile"} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div 
+                              className="w-full h-full flex items-center justify-center text-sm font-bold text-white"
+                              style={{ background: brandGradient }}
+                            >
+                              {userProfile?.full_name 
+                                ? userProfile.full_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+                                : user.email?.charAt(0).toUpperCase() || "U"}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-white">
+                            {userProfile?.full_name || user.email?.split("@")[0] || "My Profile"}
+                          </p>
+                          <p className="text-xs text-slate-400">View Profile</p>
+                        </div>
+                      </div>
+                    </a>
+                  ) : (
+                    <a href="/auth" className="block">
+                      <Button
+                        id="mobile-get-started"
+                        className="mt-1 rounded-full px-6 py-3 h-auto text-sm font-semibold border-0 transition-all duration-300 w-full"
+                        style={{ background: brandGradient, color: "#000000" }}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Get Started
+                      </Button>
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
