@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { gradientText, brandGradient } from "@/lib/styles";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { createClient } from "@/lib/supabase/client";
 
 // Mock user data
 const mockUser = {
@@ -149,12 +150,12 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    // Mock authentication check
-    const checkAuth = () => {
-      // Simulate checking for auth token
-      const mockAuth = localStorage.getItem("mockAuth");
+    // Check authentication with Supabase
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const { data: { session }, error } = await supabase.auth.getSession();
       
-      if (mockAuth === "true") {
+      if (session && !error) {
         setIsAuthenticated(true);
       } else {
         // Redirect to auth page if not logged in
@@ -166,8 +167,9 @@ export default function ProfilePage() {
     checkAuth();
   }, [router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("mockAuth");
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
     router.push("/");
   };
 
