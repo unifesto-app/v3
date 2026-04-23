@@ -391,19 +391,6 @@ export default function ProfilePage() {
               <p className="text-xs text-slate-500">Uni Coins</p>
             </div>
           </div>
-            <div className="p-5 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
-              <p className="text-2xl font-bold text-white mb-1">{mockUser.stats.eventsHosted}</p>
-              <p className="text-xs text-slate-500">Events Hosted</p>
-            </div>
-            <div className="p-5 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
-              <p className="text-2xl font-bold text-white mb-1">{mockUser.stats.ticketsBooked}</p>
-              <p className="text-xs text-slate-500">Tickets Booked</p>
-            </div>
-            <div className="p-5 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
-              <p className="text-2xl font-bold" style={gradientText}>{mockUser.wallet.balance}</p>
-              <p className="text-xs text-slate-500">Uni Coins</p>
-            </div>
-          </div>
         </div>
       </section>
 

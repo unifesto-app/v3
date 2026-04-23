@@ -1,0 +1,16 @@
+fix: Remove duplicate stats cards in profile page
+
+Fixed syntax error caused by duplicate stats card code that was preventing the build from completing successfully.
+
+Changes:
+- Removed duplicate stats card divs
+- Fixed JSX structure in profile page
+- Build now completes successfully
+
+The profile page now properly displays:
+- User avatar and info
+- Stats cards (events attended, hosted, tickets booked, uni coins)
+- Wallet section
+- Referral section
+- Contact info
+- Events section
