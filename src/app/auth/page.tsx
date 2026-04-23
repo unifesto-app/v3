@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { brandGradient, gradientText } from "@/lib/styles";
 import { getAllOrgs } from "@/lib/mockEvents";
+import { createClient } from "@/lib/supabase/client";
 
 type AuthMode = "login" | "signup" | "forgot";
 
 export default function AuthPage() {
+  const router = useRouter();
   const [mode, setMode] = useState<AuthMode>("login");
   const [formData, setFormData] = useState({
     email: "",
@@ -20,19 +23,28 @@ export default function AuthPage() {
     mobile: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [orgSearch, setOrgSearch] = useState("");
   const [showOrgDropdown, setShowOrgDropdown] = useState(false);
 
+  const supabase = createClient();
   const allOrgs = getAllOrgs();
   const filteredOrgs = allOrgs.filter(org => 
     org.name.toLowerCase().includes(orgSearch.toLowerCase())
   );
+
+  // Check if Supabase is configured
+  const isSupabaseConfigured = 
+    process.env.NEXT_PUBLIC_SUPABASE_URL && 
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+    setError(""); // Clear error on input change
   };
 
   const handleOrgSearch = (value: string) => {
@@ -49,50 +61,77 @@ export default function AuthPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured) {
+      setError("Authentication is not configured. Please set up Supabase environment variables.");
+      setLoading(false);
+      return;
+    }
     
-    // Mock authentication - no real API calls
-    // In production, this would call your backend API
-    
-    if (mode === "signup") {
-      // Mock registration
-      const mockUser = {
-        id: Math.random().toString(36).substr(2, 9),
-        name: formData.name,
-        email: formData.email,
-        phone: formData.mobile,
-        organization: formData.organization,
-      };
-      
-      // Store mock session
-      localStorage.setItem('auth_token', 'mock_token_' + Date.now());
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      
-      setSubmitted(true);
-      setTimeout(() => window.location.href = "/profile", 1500);
-      
-    } else if (mode === "login") {
-      // Mock login
-      const mockUser = {
-        id: 'mock_user_123',
-        name: 'Demo User',
-        email: formData.email,
-        organization: 'Malla Reddy University',
-      };
-      
-      // Store mock session
-      localStorage.setItem('auth_token', 'mock_token_' + Date.now());
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      
-      setSubmitted(true);
-      setTimeout(() => window.location.href = "/profile", 1500);
-      
-    } else {
-      // Forgot password flow (mock)
-      setSubmitted(true);
-      setTimeout(() => {
-        setSubmitted(false);
-        setMode("login");
-      }, 3000);
+    try {
+      if (mode === "signup") {
+        // Validate passwords match
+        if (formData.password !== formData.confirmPassword) {
+          setError("Passwords do not match");
+          setLoading(false);
+          return;
+        }
+
+        // Sign up with Supabase
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: {
+              name: formData.name,
+              organization: formData.organization,
+              mobile: formData.mobile,
+            },
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+
+        if (signUpError) throw signUpError;
+
+        setSubmitted(true);
+        // Redirect to success page or show email confirmation message
+        setTimeout(() => router.push("/auth/success"), 1500);
+        
+      } else if (mode === "login") {
+        // Sign in with Supabase
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (signInError) throw signInError;
+
+        setSubmitted(true);
+        setTimeout(() => router.push("/profile"), 1500);
+        
+      } else {
+        // Forgot password - send reset email
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+          formData.email,
+          {
+            redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
+          }
+        );
+
+        if (resetError) throw resetError;
+
+        setSubmitted(true);
+        setTimeout(() => {
+          setSubmitted(false);
+          setMode("login");
+        }, 3000);
+      }
+    } catch (err: any) {
+      setError(err.message || "An error occurred. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -107,6 +146,7 @@ export default function AuthPage() {
       mobile: "",
     });
     setOrgSearch("");
+    setError("");
   };
 
   const switchMode = (newMode: AuthMode) => {
@@ -116,21 +156,26 @@ export default function AuthPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    // Mock Google Sign-In
-    // In production, this would redirect to Google OAuth
-    const mockUser = {
-      id: 'google_user_' + Date.now(),
-      name: 'Google User',
-      email: 'user@gmail.com',
-      organization: 'Malla Reddy University',
-    };
-    
-    // Store mock session
-    localStorage.setItem('auth_token', 'mock_google_token_' + Date.now());
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    
-    setSubmitted(true);
-    setTimeout(() => window.location.href = "/profile", 1500);
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured) {
+      setError("Authentication is not configured. Please set up Supabase environment variables.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in with Google");
+      setLoading(false);
+    }
   };
 
   return (
@@ -364,6 +409,18 @@ export default function AuthPage() {
 
               {/* Form Card */}
               <div className="rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-sm p-6 md:p-8">
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 p-4">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-sm text-red-400">{error}</p>
+                    </div>
+                  </div>
+                )}
+
                 {submitted ? (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: brandGradient }}>
@@ -593,12 +650,25 @@ export default function AuthPage() {
                     {/* Submit Button */}
                     <button
                       type="submit"
-                      className="w-full rounded-full px-6 py-3.5 text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)] hover:-translate-y-0.5"
+                      disabled={loading}
+                      className="w-full rounded-full px-6 py-3.5 text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                       style={{ background: brandGradient }}
                     >
-                      {mode === "login" && "Sign In"}
-                      {mode === "signup" && "Create Account"}
-                      {mode === "forgot" && "Send Reset Link"}
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Processing...
+                        </span>
+                      ) : (
+                        <>
+                          {mode === "login" && "Sign In"}
+                          {mode === "signup" && "Create Account"}
+                          {mode === "forgot" && "Send Reset Link"}
+                        </>
+                      )}
                     </button>
 
                     {/* Mode Switch */}
