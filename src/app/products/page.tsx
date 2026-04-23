@@ -44,6 +44,27 @@ const products = [
     platforms: ["Web App"],
   },
   {
+    id: "face-checkin",
+    title: "MxA.ai — Face Check-in",
+    description: "AI-powered facial recognition for instant, contactless event entry without QR codes or tickets",
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+    ),
+    capabilities: [
+      { title: "Instant Recognition", desc: "Check-in in under 1 second with face scan" },
+      { title: "Fraud Prevention", desc: "No ticket sharing or duplicate entries" },
+      { title: "Contactless Entry", desc: "No apps, no QR codes, just walk in" },
+      { title: "Real-time Verification", desc: "Accurate face matching at entry points" },
+      { title: "Privacy First", desc: "Encrypted face signatures, not raw images" },
+      { title: "Large Event Ready", desc: "Handles high-volume entry efficiently" },
+    ],
+    status: "coming-soon",
+    platforms: ["Web App", "Android", "iOS"],
+    externalLink: "https://mxa.ai",
+  },
+  {
     id: "certificate",
     title: "Certificate Generation & Verification",
     description: "Automated certificate creation and secure verification system for event participants",
@@ -218,6 +239,66 @@ export default function ProductsPage() {
                   </div>
                 )}
 
+                {product.id === "face-checkin" && (
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-sm max-w-sm mx-auto">
+                    {/* Mock Face Check-in Interface */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="text-[10px] text-slate-500">Face Check-In</p>
+                        <p className="text-sm font-bold text-white">Tech Summit 2026</p>
+                      </div>
+                      <span
+                        className="text-[10px] font-semibold px-2.5 py-1 rounded-full text-black"
+                        style={{ background: brandGradient }}
+                      >
+                        Active
+                      </span>
+                    </div>
+                    {/* Face Scanner Area */}
+                    <div className="aspect-[4/3] bg-black rounded-xl mb-4 flex items-center justify-center border border-white/10 relative overflow-hidden">
+                      {/* Grid overlay */}
+                      <div className="absolute inset-0 opacity-10">
+                        <div className="absolute inset-0" style={{
+                          backgroundImage: "linear-gradient(rgba(52,145,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(52,145,255,0.5) 1px, transparent 1px)",
+                          backgroundSize: "20px 20px"
+                        }} />
+                      </div>
+                      {/* Face detection frame */}
+                      <div className="relative w-32 h-40">
+                        {/* Corner brackets */}
+                        <div className="absolute top-0 left-0 w-6 h-6 border-l-2 border-t-2 border-blue-400 rounded-tl-lg" />
+                        <div className="absolute top-0 right-0 w-6 h-6 border-r-2 border-t-2 border-blue-400 rounded-tr-lg" />
+                        <div className="absolute bottom-0 left-0 w-6 h-6 border-l-2 border-b-2 border-blue-400 rounded-bl-lg" />
+                        <div className="absolute bottom-0 right-0 w-6 h-6 border-r-2 border-b-2 border-blue-400 rounded-br-lg" />
+                        {/* Face icon */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg className="w-16 h-16 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                      </div>
+                      {/* Status indicator */}
+                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/70 backdrop-blur-md rounded-full px-4 py-2 border border-blue-500/20">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                        <span className="text-[10px] font-semibold text-white">Ready to Scan</span>
+                      </div>
+                    </div>
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { label: "Checked In", value: "156" },
+                        { label: "Match Rate", value: "98.7%" },
+                        { label: "Avg Time", value: "0.8s" },
+                      ].map((s) => (
+                        <div key={s.label} className="bg-white/5 rounded-lg p-2.5 text-center">
+                          <p className="text-base font-extrabold text-white">{s.value}</p>
+                          <p className="text-[9px] text-slate-500">{s.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {product.id === "certificate" && (
                   <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-sm">
                     {/* Mock Certificate Preview */}
@@ -246,7 +327,7 @@ export default function ProductsPage() {
                 )}
 
                 {product.id === "event-app" && (
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-sm">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-sm max-w-sm mx-auto">
                     {/* Mock Event App Interface */}
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-4">
@@ -355,11 +436,34 @@ export default function ProductsPage() {
                 {product.status === "active" && (
                   <div>
                     <a
-                      href="/host"
+                      href={product.externalLink || "/host"}
                       className="inline-flex items-center gap-2 rounded-full px-7 py-3 text-sm font-semibold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)] hover:-translate-y-0.5"
                       style={{ background: brandGradient }}
+                      {...(product.externalLink && { target: "_blank", rel: "noopener noreferrer" })}
                     >
-                      Get Started
+                      {product.externalLink ? "Learn More" : "Get Started"}
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </a>
+                  </div>
+                )}
+
+                {/* CTA for coming-soon products with external link */}
+                {product.status === "coming-soon" && product.externalLink && (
+                  <div>
+                    <a
+                      href={product.externalLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full px-7 py-3 text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5"
+                      style={{ 
+                        background: "rgba(52, 145, 255, 0.1)",
+                        color: "#3491ff",
+                        border: "1px solid rgba(52, 145, 255, 0.2)"
+                      }}
+                    >
+                      Preview Landing Page
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                       </svg>

@@ -42,6 +42,7 @@ const featureLinks = [
 
 const productLinks = [
   { label: "QR Check-in", href: "/products#qr-checkin" },
+  { label: "Face Check-in", href: "https://mxa.ai" },
   { label: "Certificates", href: "/products#certificate" },
   { label: "Event App", href: "/products#event-app" },
   { label: "Mobile Apps", href: "/products#mobile-apps" },

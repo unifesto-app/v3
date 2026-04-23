@@ -59,6 +59,7 @@ const navItems: NavItem[] = [
     label: "Products",
     dropdown: [
       { label: "QR Check-in App", href: "/products#qr-checkin", description: "Fast event entry management" },
+      { label: "Face Check-in (MxA.ai)", href: "https://mxa.ai", description: "AI-powered facial recognition entry" },
       { label: "Certificate Generation", href: "/products#certificate", description: "Automated certificates & verification" },
       { label: "Event App", href: "/products#event-app", description: "Companion app for attendees" },
       { label: "Mobile Apps", href: "/products#mobile-apps", description: "Android & iOS discovery apps" },
