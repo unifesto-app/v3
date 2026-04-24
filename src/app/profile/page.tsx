@@ -146,12 +146,21 @@ export default function ProfilePage() {
       const updated = await updateProfile({
         name: editedUser.name,
         bio: editedUser.bio,
-        phone: editedUser.phone,
+        phone: editedUser.phone.trim() === "" ? null : editedUser.phone.trim(),
         username: editedUser.username,
       });
 
       if (updated) {
+        // Update profile state
         setProfile(updated);
+        // Update edited user state to match
+        setEditedUser({
+          name: updated.name || "",
+          bio: updated.bio || "",
+          phone: updated.phone || "",
+          username: updated.username || "",
+        });
+        // Exit edit mode
         setIsEditing(false);
       } else {
         setSaveError("Failed to update profile");
@@ -331,8 +340,9 @@ export default function ProfilePage() {
                       value={editedUser.phone}
                       onChange={(e) => setEditedUser({ ...editedUser, phone: e.target.value })}
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-slate-600 outline-none focus:border-[#3491ff] transition-colors"
-                      placeholder="Your phone number"
+                      placeholder="+1234567890 or +911234567890 (optional)"
                     />
+                    <p className="text-[10px] text-slate-500 mt-1">Include country code (e.g., +1 for US, +91 for India)</p>
                   </div>
                 </div>
               ) : (
@@ -634,7 +644,9 @@ export default function ProfilePage() {
                         value={editedUser.phone}
                         onChange={(e) => setEditedUser({ ...editedUser, phone: e.target.value })}
                         className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#3491ff] transition-colors"
+                        placeholder="+1234567890 (optional)"
                       />
+                      <p className="text-[9px] text-slate-600 mt-1">Include country code</p>
                     </div>
                     <div>
                       <label className="block text-[10px] text-slate-500 mb-1">Member Since</label>
