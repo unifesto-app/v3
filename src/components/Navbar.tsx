@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { brandGradient } from "@/lib/styles";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { getProfile } from "@/lib/api/profile";
+import type { Profile } from "@/types/profile";
 
 type NavItem = {
   label: string;
@@ -179,7 +181,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<{ avatar_url?: string; full_name?: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<Profile | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -197,42 +199,31 @@ export default function Navbar() {
 
   useEffect(() => {
     // Get initial user
-    const getUser = async () => {
+    const getUserAndProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       
       if (user) {
-        // Fetch user profile data
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('avatar_url, full_name')
-          .eq('id', user.id)
-          .single();
-        
+        // Fetch user profile data from backend API
+        const profile = await getProfile();
         if (profile) {
           setUserProfile(profile);
         }
       }
     };
 
-    getUser();
+    getUserAndProfile();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        // Fetch user profile data
-        supabase
-          .from('profiles')
-          .select('avatar_url, full_name')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data: profile }) => {
-            if (profile) {
-              setUserProfile(profile);
-            }
-          });
+        // Fetch user profile data from backend API
+        const profile = await getProfile();
+        if (profile) {
+          setUserProfile(profile);
+        }
       } else {
         setUserProfile(null);
       }
@@ -287,7 +278,7 @@ export default function Navbar() {
                   {userProfile?.avatar_url ? (
                     <img 
                       src={userProfile.avatar_url} 
-                      alt={userProfile.full_name || "Profile"} 
+                      alt={userProfile.name || "Profile"} 
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -295,8 +286,8 @@ export default function Navbar() {
                       className="w-full h-full flex items-center justify-center text-sm font-bold text-white"
                       style={{ background: brandGradient }}
                     >
-                      {userProfile?.full_name 
-                        ? userProfile.full_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+                      {userProfile?.name 
+                        ? userProfile.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
                         : user.email?.charAt(0).toUpperCase() || "U"}
                     </div>
                   )}
@@ -423,7 +414,7 @@ export default function Navbar() {
                           {userProfile?.avatar_url ? (
                             <img 
                               src={userProfile.avatar_url} 
-                              alt={userProfile.full_name || "Profile"} 
+                              alt={userProfile.name || "Profile"} 
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -431,15 +422,15 @@ export default function Navbar() {
                               className="w-full h-full flex items-center justify-center text-sm font-bold text-white"
                               style={{ background: brandGradient }}
                             >
-                              {userProfile?.full_name 
-                                ? userProfile.full_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+                              {userProfile?.name 
+                                ? userProfile.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
                                 : user.email?.charAt(0).toUpperCase() || "U"}
                             </div>
                           )}
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-white">
-                            {userProfile?.full_name || user.email?.split("@")[0] || "My Profile"}
+                            {userProfile?.name || user.email?.split("@")[0] || "My Profile"}
                           </p>
                           <p className="text-xs text-slate-400">View Profile</p>
                         </div>
