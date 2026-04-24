@@ -8,7 +8,7 @@ export interface Profile {
   id: string;
   name?: string;
   username?: string;
-  avatar_url?: string;
+  avatar_url?: string | null;
   bio?: string;
   email?: string;
   phone?: string;
@@ -23,7 +23,7 @@ export interface Profile {
 export interface UpdateProfileDto {
   name?: string;
   username?: string;
-  avatar_url?: string;
+  avatar_url?: string | null;
   bio?: string;
   phone?: string;
 }

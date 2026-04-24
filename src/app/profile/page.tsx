@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { gradientText, brandGradient } from "@/lib/styles";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AvatarUpload from "@/components/AvatarUpload";
 import { createClient } from "@/lib/supabase/client";
 import { getProfile, updateProfile, createProfileIfNotExists } from "@/lib/api/profile";
 import type { Profile } from "@/types/profile";
@@ -248,19 +249,38 @@ export default function ProfilePage() {
           <div className="flex flex-col lg:flex-row items-start gap-8">
             {/* Avatar */}
             <div className="flex-shrink-0">
-              {profile?.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.name || "Profile"}
-                  className="w-28 h-28 rounded-full object-cover"
+              {isEditing ? (
+                <AvatarUpload
+                  currentAvatarUrl={profile?.avatar_url}
+                  userName={profile?.name}
+                  onUploadSuccess={(url) => {
+                    if (profile) {
+                      setProfile({ ...profile, avatar_url: url });
+                    }
+                  }}
+                  onDeleteSuccess={() => {
+                    if (profile) {
+                      setProfile({ ...profile, avatar_url: null });
+                    }
+                  }}
                 />
               ) : (
-                <div
-                  className="w-28 h-28 rounded-full flex items-center justify-center text-3xl font-bold text-white"
-                  style={{ background: brandGradient }}
-                >
-                  {profile?.name ? profile.name.split(" ").map(n => n[0]).join("") : profile?.email?.[0].toUpperCase() || "U"}
-                </div>
+                <>
+                  {profile?.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.name || "Profile"}
+                      className="w-28 h-28 rounded-full object-cover border-2 border-white/10"
+                    />
+                  ) : (
+                    <div
+                      className="w-28 h-28 rounded-full flex items-center justify-center text-3xl font-bold text-white border-2 border-white/10"
+                      style={{ background: brandGradient }}
+                    >
+                      {profile?.name ? profile.name.split(" ").map(n => n[0]).join("") : profile?.email?.[0].toUpperCase() || "U"}
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
