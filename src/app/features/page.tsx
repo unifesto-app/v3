@@ -294,7 +294,7 @@ export default function FeaturesPage() {
                       </div>
                       <div className="border-t border-slate-300 pt-3 mb-3">
                         <p className="text-xs text-slate-600 mb-1">Attendee</p>
-                        <p className="text-sm font-semibold text-slate-900">Rahul Verma</p>
+                        <p className="text-sm font-semibold text-slate-900">Tej Reddy</p>
                       </div>
                       <div className="flex items-center justify-center gap-2 pt-3 border-t border-slate-300">
                         <div className="w-16 h-16 bg-slate-200 rounded-lg" />

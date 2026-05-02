@@ -68,7 +68,7 @@ const blogPosts = [
     title: "Inside IIT Delhi's Largest Tech Fest: A Case Study",
     excerpt: "How one of India's premier institutions used Unifesto to manage 10,000+ attendees across 50+ events.",
     category: "Campus Stories",
-    author: "Rahul Verma",
+    author: "Tej Reddy",
     date: "April 2, 2026",
     readTime: "6 min read",
     image: "/placeholder-blog-4.jpg",
