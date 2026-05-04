@@ -97,7 +97,7 @@ export default function ProfilePage() {
       const updated = await updateProfile({
         name: editedUser.name,
         bio: editedUser.bio,
-        phone: editedUser.phone.trim() === "" ? null : editedUser.phone.trim(),
+        phone: editedUser.phone.trim() === "" ? undefined : editedUser.phone.trim(),
         username: editedUser.username,
       });
 
