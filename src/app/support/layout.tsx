@@ -1,20 +1,20 @@
-import type { Metadata } from "next";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Support Center — Unifesto",
-  description: "Get help with Unifesto. Browse FAQs, create support tickets, or chat with our team. Available 24/7 for all your campus event needs.",
-  keywords: ["unifesto support", "help center", "customer support", "live chat", "event support", "campus events help"],
+  title: "Support — Unifesto",
+  description: "Get help with Unifesto. Browse FAQs, submit support tickets, and contact our team for assistance.",
+  keywords: ["unifesto support", "help center", "customer support", "faq", "contact support", "help desk"],
   openGraph: {
-    title: "Support Center — Unifesto",
-    description: "Get help with Unifesto. Browse FAQs, create support tickets, or chat with our team.",
+    title: "Support — Unifesto",
+    description: "Get help with Unifesto. Browse FAQs, submit support tickets, and contact our team.",
     type: "website",
     url: "https://www.unifesto.app/support",
     siteName: "Unifesto",
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Support Center — Unifesto",
-    description: "Get help with Unifesto. Browse FAQs, create support tickets, or chat with our team.",
+    card: "summary",
+    title: "Support — Unifesto",
+    description: "Get help with Unifesto. Browse FAQs, submit support tickets, and contact our team.",
     site: "@unifestoapp",
   },
 };
