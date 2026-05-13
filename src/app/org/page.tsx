@@ -1,45 +1,48 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { getAllOrgs, getSubOrgs, ORG_TYPE_LABELS, type Org } from "@/lib/mockEvents";
+import { getOrganizations, getSubOrganizations, ORG_TYPE_LABELS, ORG_TYPES, type Organization } from "@/lib/api/organizations";
 import { brandGradient, gradientText } from "@/lib/styles";
 
-const TYPE_FILTERS = [
-  { key: "all", label: "All" },
-  { key: "university", label: "Universities" },
-  { key: "club", label: "Clubs" },
-  { key: "community", label: "Communities" },
-];
-
-function OrgCard({ org }: { org: Org }) {
-  const children = getSubOrgs(org.id);
+function OrgCard({ org }: { org: Organization }) {
+  const [subOrgsCount, setSubOrgsCount] = useState(org.sub_org_count || 0);
+  
   return (
     <Link
       href={`/org/${org.id}`}
       className="group flex flex-col rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.4)] transition-all duration-300 overflow-hidden"
     >
       {/* Poster */}
-      <div className="relative h-32 flex items-end p-3 overflow-hidden" style={{ background: brandGradient }}>
-        {/* Subtle sheen */}
+      <div 
+        className="relative h-32 flex items-end p-3 overflow-hidden" 
+        style={org.banner_url ? { backgroundImage: `url(${org.banner_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: brandGradient }}
+      >
+        {/* Overlay */}
         <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.07) 0%, transparent 60%)" }}
+          className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"
           aria-hidden="true"
         />
         
         {/* Badge */}
         <div className="absolute top-3 right-3">
           <span
-            className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full backdrop-blur-sm bg-white/10 text-black border border-white/10"
+            className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full backdrop-blur-sm bg-white/10 text-white border border-white/20"
           >
-            {ORG_TYPE_LABELS[org.type]}
+            {ORG_TYPE_LABELS[org.type] || org.type}
           </span>
         </div>
+        
+        {/* Logo if available */}
+        {org.logo_url && (
+          <div className="absolute bottom-3 left-3 w-12 h-12 rounded-lg bg-white/90 p-1 shadow-lg">
+            <img src={org.logo_url} alt={org.name} className="w-full h-full object-contain" />
+          </div>
+        )}
       </div>
 
       <div className="p-4 flex flex-col gap-3 flex-1">
@@ -51,21 +54,33 @@ function OrgCard({ org }: { org: Org }) {
         </div>
 
         {/* Description */}
-        <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{org.description}</p>
-
-        {/* Sub-orgs count */}
-        {children.length > 0 && (
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-600">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-            {children.length} sub-organisation{children.length !== 1 ? "s" : ""}
-          </div>
+        {org.description && (
+          <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{org.description}</p>
         )}
+
+        {/* Stats */}
+        <div className="flex items-center gap-3 text-[10px] text-slate-600">
+          {subOrgsCount > 0 && (
+            <div className="flex items-center gap-1.5">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              {subOrgsCount} sub-org{subOrgsCount !== 1 ? "s" : ""}
+            </div>
+          )}
+          {org.member_count && org.member_count > 0 && (
+            <div className="flex items-center gap-1.5">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              {org.member_count} member{org.member_count !== 1 ? "s" : ""}
+            </div>
+          )}
+        </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
-          <span className="text-[10px] text-slate-600">Malla Reddy University</span>
+          <span className="text-[10px] text-slate-600">{org.city || org.state || 'Organization'}</span>
           <span className="text-[10px] font-semibold group-hover:translate-x-0.5 transition-all duration-200" style={gradientText}>View →</span>
         </div>
       </div>
@@ -78,19 +93,39 @@ function OrgsContent() {
   const [typeFilter, setTypeFilter] = useState(searchParams.get("type") ?? "all");
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [allOrgs, setAllOrgs] = useState<Organization[]>([]);
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 12;
 
-  const allOrgs = getAllOrgs();
+  // Load organizations from API
+  useEffect(() => {
+    const loadOrgs = async () => {
+      setLoading(true);
+      try {
+        const filters: any = { is_active: true };
+        if (typeFilter !== "all") filters.type = typeFilter;
+        
+        const response = await getOrganizations(1, 100, filters);
+        setAllOrgs(response.organizations);
+      } catch (error) {
+        console.error("Error loading organizations:", error);
+        setAllOrgs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadOrgs();
+  }, [typeFilter]);
 
   const filtered = useMemo(() => {
     const lcQuery = query.toLowerCase();
     return allOrgs.filter((o) => {
-      const matchesType = typeFilter === "all" || o.type === typeFilter;
       const matchesQuery =
-        !query || o.name.toLowerCase().includes(lcQuery) || o.description.toLowerCase().includes(lcQuery);
-      return matchesType && matchesQuery;
+        !query || o.name.toLowerCase().includes(lcQuery) || o.description?.toLowerCase().includes(lcQuery);
+      return matchesQuery;
     });
-  }, [allOrgs, typeFilter, query]);
+  }, [allOrgs, query]);
 
   // Reset to page 1 when filters change
   useMemo(() => {
@@ -98,9 +133,9 @@ function OrgsContent() {
   }, [typeFilter, query]);
 
   // Top-level orgs for hierarchy view (no parent)
-  const topLevel = filtered.filter((o) => !o.parentOrgId);
+  const topLevel = filtered.filter((o) => !o.parent_org_id);
   // Child orgs separately
-  const childOrgs = filtered.filter((o) => !!o.parentOrgId);
+  const childOrgs = filtered.filter((o) => !!o.parent_org_id);
 
   const showHierarchy = typeFilter === "all" && !query;
 
@@ -147,7 +182,7 @@ function OrgsContent() {
             />
           </div>
           <div className="flex items-center gap-1 bg-white/5 rounded-full p-1 border border-white/5 overflow-x-auto">
-            {TYPE_FILTERS.map((t) => (
+            {ORG_TYPES.map((t) => (
               <button
                 key={t.key}
                 onClick={() => setTypeFilter(t.key)}
@@ -160,11 +195,18 @@ function OrgsContent() {
           </div>
         </div>
 
-        {/* Hierarchy view — all orgs, grouped by top level */}
-        {showHierarchy ? (
-          <div className="space-y-10">
+        {/* Loading state */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3491ff]"></div>
+          </div>
+        ) : (
+          <>
+            {/* Hierarchy view — all orgs, grouped by top level */}
+            {showHierarchy ? (
+              <div className="space-y-10">
             {topLevel.map((parent) => {
-              const children = allOrgs.filter((o) => o.parentOrgId === parent.id);
+              const children = allOrgs.filter((o) => o.parent_org_id === parent.id);
               return (
                 <div key={parent.id}>
                   {/* Parent and its children in same grid */}
@@ -176,14 +218,14 @@ function OrgsContent() {
                   </div>
                   
                   {/* Grandchildren if any */}
-                  {children.some((child) => allOrgs.some((o) => o.parentOrgId === child.id)) && (
+                  {children.some((child) => allOrgs.some((o) => o.parent_org_id === child.id)) && (
                     <div className="ml-6 pl-4 border-l border-white/5 mt-5">
                       <p className="text-[10px] font-semibold text-white uppercase tracking-widest mb-3">
                         Sub-organisations
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {children.map((child) => {
-                          const grandchildren = allOrgs.filter((o) => o.parentOrgId === child.id);
+                          const grandchildren = allOrgs.filter((o) => o.parent_org_id === child.id);
                           return grandchildren.map((gc) => <OrgCard key={gc.id} org={gc} />);
                         })}
                       </div>
@@ -257,14 +299,13 @@ function OrgsContent() {
                 )}
               </>
             ) : (
-              <div className="text-center py-20 border border-white/5 rounded-2xl">
-                <p className="text-sm text-slate-500">No organisations match your search.</p>
-                <button onClick={() => { setQuery(""); setTypeFilter("all"); }} className="mt-3 text-xs font-medium hover:text-white transition-colors" style={gradientText}>
-                  Clear filters
-                </button>
+              <div className="text-center py-20">
+                <p className="text-slate-500">No organizations found</p>
               </div>
             )}
           </div>
+        )}
+          </>
         )}
       </div>
 

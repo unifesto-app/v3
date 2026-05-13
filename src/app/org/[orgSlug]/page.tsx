@@ -1,41 +1,73 @@
+"use client";
+
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
-import { getOrgById, getEventsByOrgTree, getSubOrgs, getAllOrgs, getParentChain, ORG_TYPE_LABELS } from "@/lib/mockEvents";
+import { getOrganizationBySlug, getOrganizationEvents, getSubOrganizations, type Organization, ORG_TYPE_LABELS } from "@/lib/api/organizations";
+import type { Event } from "@/lib/api/events";
 import { brandGradient, gradientText } from "@/lib/styles";
 
 interface Props {
-  params: Promise<{ orgId: string }>;
+  params: Promise<{ orgSlug: string }>;
 }
 
-export async function generateStaticParams() {
-  return getAllOrgs().map((o) => ({ orgId: o.id }));
-}
+export default function OrgPage({ params }: Props) {
+  const [orgSlug, setOrgSlug] = useState<string>("");
+  const [org, setOrg] = useState<Organization | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [subOrgs, setSubOrgs] = useState<Organization[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export async function generateMetadata({ params }: Props) {
-  const { orgId } = await params;
-  const org = getOrgById(orgId);
-  if (!org) return { title: "Organisation Not Found — Unifesto" };
-  return {
-    title: `${org.name} — Unifesto`,
-    description: org.description,
-  };
-}
+  useEffect(() => {
+    const loadOrg = async () => {
+      const { orgSlug: slug } = await params;
+      setOrgSlug(slug);
+      setLoading(true);
 
+      const orgData = await getOrganizationBySlug(slug);
+      if (!orgData) {
+        notFound();
+      }
+      setOrg(orgData);
 
+      // Load events
+      const { events: orgEvents } = await getOrganizationEvents(orgData.id, 1, 50);
+      setEvents(orgEvents);
 
-export default async function OrgPage({ params }: Props) {
-  const { orgId } = await params;
-  const org = getOrgById(orgId);
-  if (!org) notFound();
+      // Load sub-organizations
+      const subOrgsData = await getSubOrganizations(orgData.id);
+      setSubOrgs(subOrgsData);
 
-  const events = getEventsByOrgTree(orgId);
-  const subOrgs = getSubOrgs(orgId);
-  const parentChain = getParentChain(orgId);
-  const upcomingCount = events.filter((e) => e.status.includes("upcoming")).length;
-  const totalAttendees = events.reduce((sum, e) => sum + e.attendees, 0);
+      setLoading(false);
+    };
+
+    loadOrg();
+  }, [params]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-black">
+        <Navbar />
+        <div className="flex items-center justify-center py-40">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3491ff]"></div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!org) {
+    return (
+      <main className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </main>
+    );
+  }
+
+  const upcomingCount = events.filter((e) => e.status === "published").length;
+  const totalAttendees = events.reduce((sum, e) => sum + (e.max_attendees || 0), 0);
 
   return (
     <main className="min-h-screen bg-black overflow-x-hidden">
@@ -44,31 +76,18 @@ export default async function OrgPage({ params }: Props) {
       {/* Org Hero */}
       <section 
         className="relative pt-20 min-h-[450px] md:min-h-[550px] flex items-end pb-8 px-6 overflow-hidden"
-        style={{ background: brandGradient }}
+        style={org.banner_url ? { backgroundImage: `url(${org.banner_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: brandGradient }}
       >
         {/* Gradient overlay to blend into page */}
         <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.9) 100%)" }}
-          aria-hidden="true"
-        />
-        {/* Sheen */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, transparent 50%)" }}
+          className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black via-black/60 to-transparent"
           aria-hidden="true"
         />
 
         <div className="relative z-10 max-w-5xl mx-auto w-full">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 mb-4 text-xs text-white/50">
-            <Link href="/orgs" className="hover:text-white transition-colors">Communities</Link>
-            {parentChain.map((p) => (
-              <span key={p.id} className="contents">
-                <span>/</span>
-                <Link href={`/org/${p.id}`} className="hover:text-white transition-colors">{p.name}</Link>
-              </span>
-            ))}
+            <Link href="/org" className="hover:text-white transition-colors">Communities</Link>
             <span>/</span>
             <span className="text-white/70">{org.name}</span>
           </div>
@@ -76,14 +95,21 @@ export default async function OrgPage({ params }: Props) {
           {/* Badge */}
           <div className="flex flex-wrap gap-2 mb-3">
             <span
-              className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm bg-white/10 text-black border border-white/10"
+              className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm bg-white/10 text-white border border-white/10"
             >
               {ORG_TYPE_LABELS[org.type] ?? org.type}
             </span>
+            {org.is_verified && (
+              <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                Verified
+              </span>
+            )}
           </div>
 
           <h1 className="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-3">{org.name}</h1>
-          <p className="text-sm text-white/60 max-w-2xl leading-relaxed">{org.description}</p>
+          {org.description && (
+            <p className="text-sm text-white/60 max-w-2xl leading-relaxed">{org.description}</p>
+          )}
         </div>
       </section>
 
@@ -92,8 +118,9 @@ export default async function OrgPage({ params }: Props) {
         <div className="max-w-5xl mx-auto px-6 py-4 flex flex-wrap items-center gap-6 text-xs">
           {[
             { label: "Events Hosted", value: events.length },
-            { label: "Upcoming", value: upcomingCount },
-            { label: "Total Attendees", value: totalAttendees.toLocaleString() },
+            { label: "Active Events", value: upcomingCount },
+            { label: "Members", value: (org.member_count || 0).toLocaleString() },
+            { label: "Sub-Organizations", value: org.sub_org_count || subOrgs.length },
           ].map((s) => (
             <div key={s.label} className="flex flex-col">
               <p className="text-lg md:text-xl font-extrabold text-white">{s.value}</p>
@@ -105,18 +132,18 @@ export default async function OrgPage({ params }: Props) {
 
       <div className="max-w-5xl mx-auto px-6 py-10">
 
-        {/* Sub-organisations (e.g., clubs under MRUH) */}
+        {/* Sub-organisations */}
         {subOrgs.length > 0 && (
           <section className="mb-12">
             <h2 className="text-base font-bold text-white mb-4">
-              Clubs
+              Sub-Organizations
               <span className="ml-2 text-xs font-normal text-slate-500">({subOrgs.length})</span>
             </h2>
             <div className="flex flex-wrap gap-3">
               {subOrgs.map((sub) => (
                 <Link
                   key={sub.id}
-                  href={`/org/${sub.id}`}
+                  href={`/org/${sub.slug}`}
                   className="flex items-center gap-2.5 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2.5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-200 group"
                 >
                   <div>
@@ -136,9 +163,6 @@ export default async function OrgPage({ params }: Props) {
               Events
               <span className="ml-2 text-xs font-normal text-slate-500">({events.length})</span>
             </h2>
-            <Link href={`/events?orgId=${org.id}`} className="text-xs font-medium" style={gradientText}>
-              View all →
-            </Link>
           </div>
 
           {events.length > 0 ? (

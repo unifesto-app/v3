@@ -31,10 +31,10 @@ const navItems: NavItem[] = [
       {
         title: "Organizations",
         items: [
-          { label: "Browse All", href: "/orgs", description: "Universities, clubs & more" },
-          { label: "Universities & Colleges", href: "/orgs?type=university", description: "Top-level institutions" },
-          { label: "Clubs", href: "/orgs?type=club", description: "Student clubs, cells & departments" },
-          { label: "Communities", href: "/orgs?type=community", description: "Independent groups" },
+          { label: "Browse All", href: "/org", description: "Universities, clubs & more" },
+          { label: "Universities & Colleges", href: "/org?type=university", description: "Top-level institutions" },
+          { label: "Clubs", href: "/org?type=club", description: "Student clubs, cells & departments" },
+          { label: "Communities", href: "/org?type=community", description: "Independent groups" },
         ],
       },
     ],

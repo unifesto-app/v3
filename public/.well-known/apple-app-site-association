@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "9AH3Z5C5DH.com.unifesto.app",
+        "paths": [
+          "/events/*",
+          "/org/*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "9AH3Z5C5DH.com.unifesto.app"
+    ]
+  }
+}

@@ -222,14 +222,6 @@ export default function RegisterPage({ params }: Props) {
 
   // Handle registration submission
   const handleSubmit = () => {
-    console.log("Registration submitted:", {
-      event: eventId,
-      ticket: selectedTicket,
-      quantity,
-      attendees,
-      total: calculateTotal(),
-    });
-    
     // Redirect to success page
     router.push(`/events/${eventId}/register/success`);
   };

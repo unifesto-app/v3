@@ -72,7 +72,7 @@ export default function NotFound() {
                 Events
               </a>
               <span className="text-slate-700">•</span>
-              <a href="/orgs" className="text-slate-400 hover:text-white transition-colors">
+              <a href="/org" className="text-slate-400 hover:text-white transition-colors">
                 Organizations
               </a>
               <span className="text-slate-700">•</span>

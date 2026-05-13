@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
 import EmptyState from "@/components/EmptyState";
-import { filterEvents, ALL_CATEGORIES, STATUS_TABS, DATE_FILTERS, PRICE_FILTERS } from "@/lib/mockEvents";
+import { getEvents, filterEvents, ALL_CATEGORIES, STATUS_TABS, DATE_FILTERS, PRICE_FILTERS, type Event } from "@/lib/api/events";
 import { brandGradient, gradientText } from "@/lib/styles";
 
 function EventsContent() {
@@ -18,11 +18,37 @@ function EventsContent() {
   const [price, setPrice] = useState<"all" | "free" | "paid">("all");
   const [dateRange, setDateRange] = useState<"all" | "today" | "week" | "upcoming">("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 12;
 
-  const allEvents = useMemo(
-    () => filterEvents({ query, category, status, price, dateRange }),
-    [query, category, status, price, dateRange]
+  // Load events from API
+  useEffect(() => {
+    const loadEvents = async () => {
+      setLoading(true);
+      try {
+        const filters: any = {};
+        if (category !== "All") filters.category = category;
+        if (price === "free") filters.is_free = true;
+        if (price === "paid") filters.is_free = false;
+        
+        const response = await getEvents(1, 100, filters);
+        setAllEvents(response.events);
+      } catch (error) {
+        console.error("Error loading events:", error);
+        setAllEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadEvents();
+  }, [category, price]);
+
+  // Filter events client-side
+  const filteredEvents = useMemo(
+    () => filterEvents(allEvents, { query, category, status, price, dateRange }),
+    [allEvents, query, category, status, price, dateRange]
   );
 
   // Reset to page 1 when filters change
@@ -30,10 +56,10 @@ function EventsContent() {
     setCurrentPage(1);
   }, [query, category, status, price, dateRange]);
 
-  const totalPages = Math.ceil(allEvents.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const events = allEvents.slice(startIndex, endIndex);
+  const events = filteredEvents.slice(startIndex, endIndex);
 
   const clearAll = () => {
     setQuery("");
@@ -169,17 +195,23 @@ function EventsContent() {
 
         {/* Results count */}
         <p className="text-xs text-slate-600 mb-5">
-          {allEvents.length === 0 ? "No events" : `${allEvents.length} event${allEvents.length !== 1 ? "s" : ""}`}{hasFilters ? " matching your filters" : " total"}
+          {loading ? "Loading events..." : filteredEvents.length === 0 ? "No events" : `${filteredEvents.length} event${filteredEvents.length !== 1 ? "s" : ""}`}{hasFilters ? " matching your filters" : " total"}
           {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
         </p>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
-          {events.length > 0
-            ? events.map((event, i) => <EventCard key={event.id} event={event} index={startIndex + i} />)
-            : <EmptyState onClear={clearAll} onCategory={(cat) => { setQuery(""); setStatus("all"); setPrice("all"); setDateRange("all"); setCategory(cat); }} />
-          }
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3491ff]"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+            {events.length > 0
+              ? events.map((event, i) => <EventCard key={event.id} event={event} index={startIndex + i} />)
+              : <EmptyState onClear={clearAll} onCategory={(cat) => { setQuery(""); setStatus("all"); setPrice("all"); setDateRange("all"); setCategory(cat); }} />
+            }
+          </div>
+        )}
 
         {/* Pagination */}
         {totalPages > 1 && (

@@ -168,8 +168,6 @@ export default function AuthPage() {
       // Get the current origin for redirect
       const redirectUrl = `${window.location.origin}/auth/callback`;
       
-      console.log("Initiating Google OAuth with redirect:", redirectUrl);
-      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -186,7 +184,6 @@ export default function AuthPage() {
         throw error;
       }
       
-      console.log("Google OAuth initiated successfully");
     } catch (err: any) {
       console.error("Failed to sign in with Google:", err);
       setError(err.message || "Failed to sign in with Google");

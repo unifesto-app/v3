@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     title: "Organizations — Unifesto",
     description: "Explore universities, clubs, and communities on Unifesto.",
     type: "website",
-    url: "https://www.unifesto.app/orgs",
+    url: "https://www.unifesto.app/org",
     siteName: "Unifesto",
   },
   twitter: {

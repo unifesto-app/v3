@@ -81,7 +81,7 @@ export default function EventsGrid() {
         {preview.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             {preview.map((event, index) => (
-              <EventCard key={event.id} event={event} index={index} />
+              <EventCard key={event.id} event={event as any} index={index} />
             ))}
           </div>
         ) : (
