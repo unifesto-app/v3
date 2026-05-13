@@ -6,6 +6,9 @@ import { NextResponse } from 'next/server';
  * This endpoint serves the assetlinks.json file required for Android App Links.
  * It verifies domain ownership for the Android app to handle deep links.
  * 
+ * IMPORTANT: This route handler ensures the file is served with HTTP 200
+ * instead of being redirected (HTTP 307) by Vercel domain settings.
+ * 
  * Learn more: https://developer.android.com/training/app-links/verify-android-applinks
  */
 export async function GET() {
@@ -13,7 +16,7 @@ export async function GET() {
     {
       relation: [
         'delegate_permission/common.handle_all_urls',
-        'delegate_permission/common.get_login_creds',
+        'delegate_permission/common.get_login_creds'
       ],
       target: {
         namespace: 'android_app',
@@ -26,6 +29,7 @@ export async function GET() {
   ];
 
   return NextResponse.json(assetLinks, {
+    status: 200,
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'public, max-age=3600, must-revalidate',
