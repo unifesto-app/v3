@@ -13,5 +13,18 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/((?!\\.well-known).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "unifesto.app"
+        }
+      ],
+      "destination": "https://www.unifesto.app/$1",
+      "permanent": true
+    }
   ]
 }
