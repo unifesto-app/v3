@@ -14,7 +14,7 @@ function OrgCard({ org }: { org: Organization }) {
   
   return (
     <Link
-      href={`/org/${org.id}`}
+      href={`/org/${org.slug || org.id}`}
       className="group flex flex-col rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.4)] transition-all duration-300 overflow-hidden"
     >
       {/* Poster */}

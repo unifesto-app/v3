@@ -1,12 +1,11 @@
 "use client";
 
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
-import { getOrganizationBySlug, getOrganizationEvents, getSubOrganizations, type Organization, ORG_TYPE_LABELS } from "@/lib/api/organizations";
+import { getOrganizationBySlug, getOrganizationById, getOrganizationEvents, getSubOrganizations, type Organization, ORG_TYPE_LABELS } from "@/lib/api/organizations";
 import type { Event } from "@/lib/api/events";
 import { brandGradient, gradientText } from "@/lib/styles";
 
@@ -17,31 +16,53 @@ interface Props {
 export default function OrgPage({ params }: Props) {
   const [orgSlug, setOrgSlug] = useState<string>("");
   const [org, setOrg] = useState<Organization | null>(null);
+  const [parentOrg, setParentOrg] = useState<Organization | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [subOrgs, setSubOrgs] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadOrg = async () => {
-      const { orgSlug: slug } = await params;
-      setOrgSlug(slug);
-      setLoading(true);
+      try {
+        const { orgSlug: slug } = await params;
+        setOrgSlug(slug);
+        setLoading(true);
 
-      const orgData = await getOrganizationBySlug(slug);
-      if (!orgData) {
-        notFound();
+        const orgData = await getOrganizationBySlug(slug);
+        if (!orgData) {
+          setOrg(null);
+          setLoading(false);
+          return;
+        }
+        setOrg(orgData);
+
+        // Load events, parent org (if sub-org), and sub-orgs in parallel
+        const promises: Promise<any>[] = [
+          getOrganizationEvents(orgData.id, 1, 50),
+        ];
+        
+        // If this org has a parent, load the parent
+        if (orgData.parent_org_id) {
+          promises.push(getOrganizationById(orgData.parent_org_id));
+        } else {
+          promises.push(Promise.resolve(null));
+        }
+        
+        // Load sub-organizations
+        promises.push(getSubOrganizations(orgData.id));
+        
+        const [eventsData, parentOrgData, subOrgsData] = await Promise.all(promises);
+        
+        setEvents(eventsData?.events || []);
+        setParentOrg(parentOrgData?.organization || null);
+        setSubOrgs(subOrgsData?.organizations || []);
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading organization:', error);
+        setOrg(null);
+        setLoading(false);
       }
-      setOrg(orgData);
-
-      // Load events
-      const { events: orgEvents } = await getOrganizationEvents(orgData.id, 1, 50);
-      setEvents(orgEvents);
-
-      // Load sub-organizations
-      const subOrgsData = await getSubOrganizations(orgData.id);
-      setSubOrgs(subOrgsData);
-
-      setLoading(false);
     };
 
     loadOrg();
@@ -61,7 +82,14 @@ export default function OrgPage({ params }: Props) {
   if (!org) {
     return (
       <main className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+        <Navbar />
+        <div className="text-center py-20">
+          <h1 className="text-2xl font-bold text-white mb-4">Organization Not Found</h1>
+          <p className="text-slate-400 mb-6">The organization you're looking for doesn't exist or has been removed.</p>
+          <Link href="/org" className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)]" style={{ background: brandGradient }}>
+            Browse Organizations
+          </Link>
+        </div>
       </main>
     );
   }
@@ -89,6 +117,14 @@ export default function OrgPage({ params }: Props) {
           <div className="flex items-center gap-2 mb-4 text-xs text-white/50">
             <Link href="/org" className="hover:text-white transition-colors">Communities</Link>
             <span>/</span>
+            {parentOrg && (
+              <>
+                <Link href={`/org/${parentOrg.slug || parentOrg.id}`} className="hover:text-white transition-colors">
+                  {parentOrg.name}
+                </Link>
+                <span>/</span>
+              </>
+            )}
             <span className="text-white/70">{org.name}</span>
           </div>
 
@@ -131,6 +167,45 @@ export default function OrgPage({ params }: Props) {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-10">
+
+        {/* Parent Organization (if this is a sub-org) */}
+        {parentOrg && (
+          <section className="mb-12">
+            <h2 className="text-base font-bold text-white mb-4">Part of</h2>
+            <Link
+              href={`/org/${parentOrg.slug || parentOrg.id}`}
+              className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-200 group"
+            >
+              <div className="flex items-center gap-4">
+                {parentOrg.logo_url ? (
+                  <img 
+                    src={parentOrg.logo_url} 
+                    alt={parentOrg.name}
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
+                ) : (
+                  <div
+                    className="w-12 h-12 rounded-lg flex items-center justify-center text-sm font-bold text-black"
+                    style={{ background: brandGradient }}
+                  >
+                    {parentOrg.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                  </div>
+                )}
+                <div>
+                  <p className="text-base font-semibold text-white group-hover:text-white/80 transition-colors">
+                    {parentOrg.name}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {ORG_TYPE_LABELS[parentOrg.type] || parentOrg.type}
+                  </p>
+                </div>
+              </div>
+              <svg className="w-5 h-5 text-slate-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </section>
+        )}
 
         {/* Sub-organisations */}
         {subOrgs.length > 0 && (

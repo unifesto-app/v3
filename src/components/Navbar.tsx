@@ -3,15 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { brandGradient } from "@/lib/styles";
-import { createClient } from "@/lib/supabase/client";
-import { User } from "@supabase/supabase-js";
-import { getProfile } from "@/lib/api/profile";
-import type { Profile } from "@/types/profile";
+import Image from "next/image";
+import GooglePlayBadge from "@/app/assets/svg/GetItOnGooglePlay_Badge_Web_color_English.svg";
+import AppStoreBadge from "@/app/assets/svg/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg";
 
 type NavItem = {
   label: string;
   href?: string;
-  dropdown?: { label: string; href: string; description?: string }[];
+  dropdown?: { label: string; href: string; description?: string; image?: any }[];
   twoColumn?: { title: string; items: { label: string; href: string; description?: string }[] }[];
 };
 
@@ -49,7 +48,6 @@ const navItems: NavItem[] = [
       { label: "Support", href: "/support", description: "Get help & contact us" },
     ],
   },
-  { label: "Host Event", href: "/host" },
   {
     label: "Features",
     dropdown: [
@@ -69,64 +67,96 @@ const navItems: NavItem[] = [
       { label: "Mobile Apps", href: "/products#mobile-apps", description: "Android & iOS discovery apps" },
     ],
   },
+  {
+    label: "Download",
+    dropdown: [
+      { label: "App Store", href: "https://apps.apple.com/app/unifesto/id6767165496", image: AppStoreBadge },
+      { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.unifesto.app", image: GooglePlayBadge },
+    ],
+  },
 ];
 
-function TwoColumnDropdown({ columns }: { columns: { title: string; items: { label: string; href: string; description?: string }[] }[] }) {
+function MegaMenu({ items }: { items: NavItem[] }) {
+  const mainItems = items.filter(item => item.label !== "Download");
+  const downloadItem = items.find(item => item.label === "Download");
+
   return (
-    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 rounded-2xl border border-white/10 bg-black/80 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden z-50 pointer-events-auto">
-      {/* Gradient top border accent */}
-      <div className="h-px w-full" style={{ background: brandGradient }} />
-      <div className="flex">
-        {columns.map((column, idx) => (
-          <div key={column.title} className={`p-1.5 w-56 ${idx > 0 ? 'border-l border-white/10' : ''}`}>
-            <div className="px-3 py-2 mb-1">
-              <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">{column.title}</span>
-            </div>
-            {column.items.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="flex flex-col px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all duration-200 group"
-              >
-                <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors">{item.label}</span>
-                {item.description && (
-                  <span className="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition-colors">{item.description}</span>
+    <div className="absolute top-full right-0 mt-4 w-[1000px] max-w-[90vw] rounded-3xl border border-white/10 bg-black/80 backdrop-blur-2xl shadow-[0_30px_100px_rgba(0,0,0,0.8)] overflow-hidden z-50 pointer-events-auto">
+      <div className="h-1 w-full" style={{ background: brandGradient }} />
+      <div className="p-8 flex flex-col">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {mainItems.map((item, index) => {
+            const isLastItem = index === mainItems.length - 1;
+            return (
+              <div key={item.label} className="flex flex-col h-full">
+                <div className="mb-auto">
+                  <h3 className="text-sm font-bold text-white/90 uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
+                    {item.label}
+                  </h3>
+                  <div className="space-y-4">
+                    {item.twoColumn ? (
+                      item.twoColumn.map(col => (
+                        <div key={col.title} className="mb-4">
+                          <h4
+                            className="text-xs font-semibold uppercase tracking-wider mb-2"
+                            style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundImage: brandGradient }}
+                          >
+                            {col.title}
+                          </h4>
+                          <div className="space-y-1">
+                            {col.items.map(sub => (
+                              <a key={sub.label} href={sub.href} className="block px-3 py-2 -mx-3 rounded-xl hover:bg-white/5 transition-all group">
+                                <div className="text-sm font-medium text-white/90 group-hover:text-white">{sub.label}</div>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    ) : item.dropdown ? (
+                      <div className="space-y-1">
+                        {item.dropdown.map(sub => (
+                          <a key={sub.label} href={sub.href} className="block px-3 py-2 -mx-3 rounded-xl hover:bg-white/5 transition-all group">
+                            <div className="text-sm font-medium text-white/90 group-hover:text-white">{sub.label}</div>
+                          </a>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+
+                {isLastItem && downloadItem && (
+                  <div className="mt-8 flex flex-col items-end gap-4">
+                    <div className="flex flex-row items-center gap-4">
+                      {downloadItem.dropdown?.map(sub => (
+                        <a key={sub.label} href={sub.href} className="block hover:opacity-80 transition-opacity">
+                          <Image src={sub.image} alt={sub.label} className="h-12 w-auto object-contain" />
+                        </a>
+                      ))}
+                    </div>
+                    <div
+                      className="font-black tracking-[0.2em] text-sm opacity-80"
+                      style={{
+                        background: brandGradient,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                      }}
+                    >
+                      #UNIFESTO
+                    </div>
+                  </div>
                 )}
-              </a>
-            ))}
-          </div>
-        ))}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 }
 
-function DropdownMenu({ items }: { items: { label: string; href: string; description?: string }[] }) {
-  return (
-    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-56 rounded-2xl border border-white/10 bg-black/80 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden z-50 pointer-events-auto">
-      {/* Gradient top border accent */}
-      <div className="h-px w-full" style={{ background: brandGradient }} />
-      <div className="p-1.5">
-        {items.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            className="flex flex-col px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all duration-200 group"
-          >
-            <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors">{item.label}</span>
-            {item.description && (
-              <span className="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition-colors">{item.description}</span>
-            )}
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function NavLink({ item }: { item: NavItem }) {
+function DesktopMenuTrigger({ items }: { items: NavItem[] }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLLIElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleMouseEnter = () => {
@@ -135,44 +165,32 @@ function NavLink({ item }: { item: NavItem }) {
   };
 
   const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => setOpen(false), 150);
+    timeoutRef.current = setTimeout(() => setOpen(false), 200);
   };
 
   useEffect(() => () => clearTimeout(timeoutRef.current), []);
 
-  if (!item.dropdown && !item.twoColumn) {
-    return (
-      <li>
-        <a
-          href={item.href}
-          className="text-base text-slate-300/80 hover:text-white font-medium tracking-wide transition-colors duration-200 relative group"
-        >
-          {item.label}
-          <span className="absolute -bottom-0.5 left-0 w-0 h-px group-hover:w-full transition-all duration-300" style={{ background: brandGradient }} />
-        </a>
-      </li>
-    );
-  }
-
   return (
-    <li ref={ref} className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <div
+      className="hidden md:flex relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
-        className="flex items-center gap-1 text-base text-slate-300/80 hover:text-white font-medium tracking-wide transition-colors duration-200 relative group"
+        className="flex items-center gap-2 text-base text-slate-300/80 hover:text-white font-medium tracking-wide transition-colors duration-200 group px-4 py-2 rounded-full hover:bg-white/5"
         aria-expanded={open}
       >
-        {item.label}
-        {/* Chevron */}
+        <span>Menu</span>
         <svg
-          className={`w-3.5 h-3.5 mt-0.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`w-4 h-4 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
           fill="none" stroke="currentColor" viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
-        <span className="absolute -bottom-0.5 left-0 w-0 h-px group-hover:w-full transition-all duration-300" style={{ background: brandGradient }} />
       </button>
-      {open && item.twoColumn && <TwoColumnDropdown columns={item.twoColumn} />}
-      {open && item.dropdown && <DropdownMenu items={item.dropdown} />}
-    </li>
+
+      {open && <MegaMenu items={items} />}
+    </div>
   );
 }
 
@@ -180,9 +198,6 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<Profile | null>(null);
-  const supabase = createClient();
 
   useEffect(() => {
     const getScrollY = () =>
@@ -196,43 +211,6 @@ export default function Navbar() {
       document.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
-  useEffect(() => {
-    // Get initial user
-    const getUserAndProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      
-      if (user) {
-        // Fetch user profile data from backend API
-        const profile = await getProfile();
-        if (profile) {
-          setUserProfile(profile);
-        }
-      }
-    };
-
-    getUserAndProfile();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        // Fetch user profile data from backend API
-        const profile = await getProfile();
-        if (profile) {
-          setUserProfile(profile);
-        }
-      } else {
-        setUserProfile(null);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
 
   return (
     <header
@@ -264,59 +242,11 @@ export default function Navbar() {
           </a>
 
           {/* Desktop nav */}
-          <ul className="hidden md:flex items-center gap-8 list-none m-0 p-0 pt-2" aria-label="Main links">
-            {navItems.map((item) => (
-              <NavLink key={item.label} item={item} />
-            ))}
-          </ul>
-
-          {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-4 pt-2">
-            {user ? (
-              <a href="/profile" className="group">
-                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-transparent hover:border-[#3491ff] transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]">
-                  {userProfile?.avatar_url ? (
-                    <img 
-                      src={userProfile.avatar_url} 
-                      alt={userProfile.name || "Profile"} 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div 
-                      className="w-full h-full flex items-center justify-center text-sm font-bold text-white"
-                      style={{ background: brandGradient }}
-                    >
-                      {userProfile?.name 
-                        ? userProfile.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
-                        : user.email?.charAt(0).toUpperCase() || "U"}
-                    </div>
-                  )}
-                </div>
-              </a>
-            ) : (
-              <a href="/auth">
-                <Button
-                  id="nav-get-started"
-                  className="rounded-full px-6 py-2.5 h-auto text-sm font-semibold border-0 transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]"
-                  style={{ background: "transparent", border: "1px solid #3491ff", color: "#3491ff" }}
-                  onMouseEnter={(e) => {
-                    const el = e.currentTarget as HTMLButtonElement;
-                    el.style.background = brandGradient;
-                    el.style.color = "#000000";
-                    el.style.borderColor = "transparent";
-                  }}
-                  onMouseLeave={(e) => {
-                    const el = e.currentTarget as HTMLButtonElement;
-                    el.style.background = "transparent";
-                    el.style.color = "#3491ff";
-                    el.style.borderColor = "#3491ff";
-                  }}
-                >
-                  Get Started
-                </Button>
-              </a>
-            )}
+          <div className="hidden md:flex flex-1 justify-end pt-2">
+            <DesktopMenuTrigger items={navItems} />
           </div>
+
+          {/* Desktop CTA removed to convert to standard menu item */}
 
           {/* Mobile toggle */}
           <button
@@ -342,7 +272,7 @@ export default function Navbar() {
               {/* Gradient top accent */}
               <div className="h-px w-full" style={{ background: brandGradient }} />
               <div className="p-2">
-                {navItems.map((item) => (
+                {navItems.filter(i => i.label !== "Download").map((item) => (
                   <div key={item.label}>
                     {item.dropdown || item.twoColumn ? (
                       <>
@@ -350,7 +280,7 @@ export default function Navbar() {
                           className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-base text-slate-300/80 hover:text-white font-medium hover:bg-white/5 transition-all duration-200"
                           onClick={() => setMobileExpanded(mobileExpanded === item.label ? null : item.label)}
                         >
-                          {item.label}
+                          <span>{item.label}</span>
                           <svg
                             className={`w-4 h-4 transition-transform duration-200 ${mobileExpanded === item.label ? "rotate-180" : ""}`}
                             fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -362,9 +292,14 @@ export default function Navbar() {
                           <div className="pl-4 pb-1">
                             {item.twoColumn ? (
                               item.twoColumn.map((column) => (
-                                <div key={column.title} className="mb-2">
+                                <div key={column.title} className="mb-4">
                                   <div className="px-3 py-1.5">
-                                    <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">{column.title}</span>
+                                    <span
+                                      className="text-xs font-bold uppercase tracking-wider"
+                                      style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundImage: brandGradient }}
+                                    >
+                                      {column.title}
+                                    </span>
                                   </div>
                                   {column.items.map((sub) => (
                                     <a
@@ -374,7 +309,6 @@ export default function Navbar() {
                                       onClick={() => setMenuOpen(false)}
                                     >
                                       <span className="text-sm font-medium text-white/80">{sub.label}</span>
-                                      {sub.description && <span className="text-[11px] text-slate-500">{sub.description}</span>}
                                     </a>
                                   ))}
                                 </div>
@@ -388,7 +322,6 @@ export default function Navbar() {
                                   onClick={() => setMenuOpen(false)}
                                 >
                                   <span className="text-sm font-medium text-white/80">{sub.label}</span>
-                                  {sub.description && <span className="text-[11px] text-slate-500">{sub.description}</span>}
                                 </a>
                               ))
                             )}
@@ -406,48 +339,31 @@ export default function Navbar() {
                     )}
                   </div>
                 ))}
+
+                {navItems.find(i => i.label === "Download") && (
+                  <div className="mt-4 px-3 flex flex-col items-end gap-4 pb-6">
+                    <div className="flex flex-row items-center justify-end gap-4">
+                      {navItems.find(i => i.label === "Download")?.dropdown?.map(sub => (
+                        <a key={sub.label} href={sub.href} className="hover:opacity-80 transition-opacity">
+                          <Image src={sub.image} alt={sub.label} className="h-12 w-auto object-contain" />
+                        </a>
+                      ))}
+                    </div>
+                    <div
+                      className="font-black tracking-[0.2em] text-sm opacity-80"
+                      style={{
+                        background: brandGradient,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                      }}
+                    >
+                      #UNIFESTO
+                    </div>
+                  </div>
+                )}
                 <div className="px-2 pt-1 pb-1">
-                  {user ? (
-                    <a href="/profile" className="block">
-                      <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200">
-                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#3491ff]">
-                          {userProfile?.avatar_url ? (
-                            <img 
-                              src={userProfile.avatar_url} 
-                              alt={userProfile.name || "Profile"} 
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div 
-                              className="w-full h-full flex items-center justify-center text-sm font-bold text-white"
-                              style={{ background: brandGradient }}
-                            >
-                              {userProfile?.name 
-                                ? userProfile.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
-                                : user.email?.charAt(0).toUpperCase() || "U"}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-semibold text-white">
-                            {userProfile?.name || user.email?.split("@")[0] || "My Profile"}
-                          </p>
-                          <p className="text-xs text-slate-400">View Profile</p>
-                        </div>
-                      </div>
-                    </a>
-                  ) : (
-                    <a href="/auth" className="block">
-                      <Button
-                        id="mobile-get-started"
-                        className="mt-1 rounded-full px-6 py-3 h-auto text-sm font-semibold border-0 transition-all duration-300 w-full"
-                        style={{ background: brandGradient, color: "#000000" }}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        Get Started
-                      </Button>
-                    </a>
-                  )}
+                  {/* Mobile CTA removed to convert to standard menu item */}
                 </div>
               </div>
             </div>

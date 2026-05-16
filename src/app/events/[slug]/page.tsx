@@ -1,6 +1,5 @@
 "use client";
 
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
@@ -8,6 +7,7 @@ import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
 import { getEventBySlug, type Event } from "@/lib/api/events";
 import { getOrganizationEvents } from "@/lib/api/organizations";
+import { getEventAdditionalInfo, type AgendaItem, type Speaker, type Prize, type Faq } from "@/lib/api/additional-info";
 import { brandGradient, gradientText } from "@/lib/styles";
 
 interface Props {
@@ -24,27 +24,53 @@ export default function EventDetailPage({ params }: Props) {
   const [loading, setLoading] = useState(true);
   const [isDiscussionOpen, setIsDiscussionOpen] = useState(false);
   
+  // Additional info state
+  const [agenda, setAgenda] = useState<AgendaItem[]>([]);
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [prizes, setPrizes] = useState<Prize[]>([]);
+  const [faqs, setFaqs] = useState<Faq[]>([]);
+  
   // Load event data
   useEffect(() => {
     const loadEvent = async () => {
-      const { slug } = await params;
-      setEventSlug(slug);
-      setLoading(true);
-      
-      const eventData = await getEventBySlug(slug);
-      if (!eventData) {
-        notFound();
+      try {
+        const { slug } = await params;
+        setEventSlug(slug);
+        setLoading(true);
+        
+        const eventData = await getEventBySlug(slug);
+        if (!eventData) {
+          setEvent(null);
+          setLoading(false);
+          return;
+        }
+        setEvent(eventData);
+        
+        // Load additional info
+        try {
+          const additionalInfo = await getEventAdditionalInfo(eventData.id);
+          setAgenda(additionalInfo.agenda);
+          setSpeakers(additionalInfo.speakers);
+          setPrizes(additionalInfo.prizes);
+          setFaqs(additionalInfo.faqs);
+        } catch (error) {
+          console.error('Error loading additional info:', error);
+          // Continue without additional info
+        }
+        
+        // Load other events from the same organization
+        if (eventData.organization_id) {
+          const { events } = await getOrganizationEvents(eventData.organization_id, 1, 6);
+          // Filter out current event
+          setOrgEvents(events.filter((e: Event) => e.slug !== slug));
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading event:', error);
+        setEvent(null);
+        setLoading(false);
       }
-      setEvent(eventData);
-      
-      // Load other events from the same organization
-      if (eventData.organization_id) {
-        const { events } = await getOrganizationEvents(eventData.organization_id, 1, 6);
-        // Filter out current event
-        setOrgEvents(events.filter((e: Event) => e.slug !== slug));
-      }
-      
-      setLoading(false);
     };
     
     loadEvent();
@@ -78,7 +104,14 @@ export default function EventDetailPage({ params }: Props) {
   if (!event) {
     return (
       <main className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+        <Navbar />
+        <div className="text-center py-20">
+          <h1 className="text-2xl font-bold text-white mb-4">Event Not Found</h1>
+          <p className="text-slate-400 mb-6">The event you're looking for doesn't exist or has been removed.</p>
+          <Link href="/events" className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)]" style={{ background: brandGradient }}>
+            Browse Events
+          </Link>
+        </div>
       </main>
     );
   }
@@ -165,7 +198,10 @@ export default function EventDetailPage({ params }: Props) {
               <div className="flex gap-1 overflow-x-auto">
                 {[
                   { id: "overview", label: "Overview" },
-                  { id: "faq", label: "FAQs" },
+                  ...(agenda.length > 0 ? [{ id: "agenda", label: "Agenda" }] : []),
+                  ...(speakers.length > 0 ? [{ id: "speakers", label: "Speakers" }] : []),
+                  ...(prizes.length > 0 ? [{ id: "rewards", label: "Prizes" }] : []),
+                  ...(faqs.length > 0 ? [{ id: "faq", label: "FAQ" }] : []),
                   { id: "contact", label: "Contact" },
                 ].map((tab) => (
                   <button
@@ -289,34 +325,178 @@ export default function EventDetailPage({ params }: Props) {
                 </div>
               )}
 
+              {/* Agenda Tab */}
+              {activeTab === "agenda" && (
+                <div className="space-y-4">
+                  <h2 className="text-lg font-bold text-white mb-4">Event Agenda</h2>
+                  <div className="space-y-3">
+                    {agenda.map((item) => (
+                      <div key={item.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-5">
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
+                              <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="text-xs font-semibold text-blue-400 mb-2">
+                              {new Date(item.start_time).toLocaleString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                              })}
+                              {item.end_time && ` - ${new Date(item.end_time).toLocaleTimeString('en-US', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                              })}`}
+                            </div>
+                            <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
+                            {item.description && (
+                              <p className="text-sm text-slate-400 leading-relaxed mb-2">{item.description}</p>
+                            )}
+                            {item.location && (
+                              <div className="flex items-center gap-2 text-xs text-slate-500">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <span>{item.location}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Speakers Tab */}
+              {activeTab === "speakers" && (
+                <div className="space-y-4">
+                  <h2 className="text-lg font-bold text-white mb-4">Speakers & Guests</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {speakers.map((speaker) => (
+                      <div key={speaker.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-5">
+                        <div className="flex items-start gap-4">
+                          {speaker.profile_image_url ? (
+                            <img
+                              src={speaker.profile_image_url}
+                              alt={speaker.name}
+                              className="w-16 h-16 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                              <span className="text-2xl font-bold text-white">
+                                {speaker.name.charAt(0)}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <h3 className="text-base font-bold text-white mb-1">{speaker.name}</h3>
+                            {speaker.title && (
+                              <p className="text-xs text-slate-400 mb-2">{speaker.title}</p>
+                            )}
+                            {speaker.bio && (
+                              <p className="text-sm text-slate-500 leading-relaxed line-clamp-3">{speaker.bio}</p>
+                            )}
+                            {speaker.is_featured && (
+                              <span className="inline-block mt-2 px-2 py-1 bg-yellow-500/10 text-yellow-400 text-xs font-semibold rounded">
+                                Featured Speaker
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Prizes Tab */}
+              {activeTab === "rewards" && (
+                <div className="space-y-4">
+                  <h2 className="text-lg font-bold text-white mb-4">Prizes & Rewards</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {prizes.map((prize) => (
+                      <div key={prize.id} className="rounded-xl border border-yellow-500/20 bg-gradient-to-br from-yellow-500/5 to-orange-500/5 p-5">
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0">
+                            <div className="w-14 h-14 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                              <svg className="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            {prize.position && (
+                              <span className="inline-block px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded mb-2">
+                                {prize.position === 1 ? '🥇 1st Place' : 
+                                 prize.position === 2 ? '🥈 2nd Place' : 
+                                 prize.position === 3 ? '🥉 3rd Place' : 
+                                 `#${prize.position}`}
+                              </span>
+                            )}
+                            <h3 className="text-base font-bold text-white mb-2">{prize.name}</h3>
+                            {prize.description && (
+                              <p className="text-sm text-slate-400 leading-relaxed mb-2">{prize.description}</p>
+                            )}
+                            {prize.value && (
+                              <p className="text-base font-semibold text-yellow-400">{prize.value}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* FAQ Tab */}
               {activeTab === "faq" && (
                 <div className="space-y-4">
                   <h2 className="text-lg font-bold text-white mb-4">Frequently Asked Questions</h2>
                   <div className="space-y-3">
-                    {[
-                      {
-                        q: "What should I bring to the event?",
-                        a: "Please bring a valid ID and your registration confirmation. Additional requirements will be mentioned in your registration email."
-                      },
-                      {
-                        q: "How do I register for this event?",
-                        a: "Download the Unifesto mobile app from the App Store or Play Store to register for events."
-                      },
-                      {
-                        q: "Can I get a refund if I can't attend?",
-                        a: "Refund policies vary by event. Please check the event details or contact the organizers."
-                      },
-                      {
-                        q: "Will certificates be provided?",
-                        a: "Certificate availability depends on the event. Check the event description or contact organizers for details."
-                      },
-                    ].map((faq, i) => (
-                      <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                        <h3 className="text-sm font-semibold text-white mb-2">{faq.q}</h3>
-                        <p className="text-sm text-slate-400 leading-relaxed">{faq.a}</p>
-                      </div>
-                    ))}
+                    {faqs.length > 0 ? (
+                      faqs.map((faq) => (
+                        <div key={faq.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                          <h3 className="text-sm font-semibold text-white mb-2">{faq.question}</h3>
+                          <p className="text-sm text-slate-400 leading-relaxed">{faq.answer}</p>
+                          {faq.category && (
+                            <span className="inline-block mt-2 px-2 py-1 bg-white/5 text-slate-500 text-xs rounded">
+                              {faq.category}
+                            </span>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      [
+                        {
+                          q: "What should I bring to the event?",
+                          a: "Please bring a valid ID and your registration confirmation. Additional requirements will be mentioned in your registration email."
+                        },
+                        {
+                          q: "How do I register for this event?",
+                          a: "Download the Unifesto mobile app from the App Store or Play Store to register for events."
+                        },
+                        {
+                          q: "Can I get a refund if I can't attend?",
+                          a: "Refund policies vary by event. Please check the event details or contact the organizers."
+                        },
+                        {
+                          q: "Will certificates be provided?",
+                          a: "Certificate availability depends on the event. Check the event description or contact organizers for details."
+                        },
+                      ].map((faq, i) => (
+                        <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                          <h3 className="text-sm font-semibold text-white mb-2">{faq.q}</h3>
+                          <p className="text-sm text-slate-400 leading-relaxed">{faq.a}</p>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               )}

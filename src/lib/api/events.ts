@@ -149,8 +149,7 @@ export async function getEventById(id: string): Promise<Event | null> {
  */
 export async function getEventBySlug(slug: string): Promise<Event | null> {
   try {
-    // Fetch all events and find by slug (since backend doesn't have slug endpoint yet)
-    const response = await fetchWithTimeout(`${API_URL}/public/events?search=${encodeURIComponent(slug)}&limit=100`, {
+    const response = await fetchWithTimeout(`${API_URL}/public/events/slug/${slug}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -163,11 +162,7 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
     }
 
     const data = await response.json();
-    const events = data.events || [];
-    
-    // Find exact slug match
-    const event = events.find((e: Event) => e.slug === slug);
-    return event || null;
+    return data.event || null;
   } catch (error) {
     console.error('[API] Error fetching event by slug:', error);
     return null;
