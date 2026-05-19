@@ -15,7 +15,7 @@ export default function DownloadPage() {
   const APP_PACKAGE = 'com.unifesto.app';
   const IOS_APP_ID = '6767165496';
 
-  const APP_STORE_URL = `https://apps.apple.com/app/unifesto/id${IOS_APP_ID}`;
+  const APP_STORE_URL = `https://apps.apple.com/in/app/unifesto-discover-events/id${IOS_APP_ID}`;
   const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${APP_PACKAGE}`;
 
   useEffect(() => {

@@ -70,7 +70,7 @@ const navItems: NavItem[] = [
   {
     label: "Download",
     dropdown: [
-      { label: "App Store", href: "https://apps.apple.com/app/unifesto/id6767165496", image: AppStoreBadge },
+      { label: "App Store", href: "https://apps.apple.com/in/app/unifesto-discover-events/id6767165496", image: AppStoreBadge },
       { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.unifesto.app", image: GooglePlayBadge },
     ],
   },
