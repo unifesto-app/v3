@@ -6,12 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: [
-          '/api/',
-          '/auth/callback',
-          '/profile',
-          '/wallet',
-        ],
+        disallow: ['/_next/', '/api/'],
       },
     ],
     sitemap: 'https://unifesto.app/sitemap.xml',

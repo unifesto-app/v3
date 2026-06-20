@@ -3,9 +3,9 @@ import { BackgroundBeams } from "@/components/ui/background-beams";
 import { gradientText, brandGradient } from "@/lib/styles";
 
 const stats = [
-  { value: "10K+", label: "Active Students" },
-  { value: "25+", label: "Events Hosted" },
-  { value: "10+", label: "Collaborations" },
+  { value: "10K+", label: "Students" },
+  { value: "25+", label: "Events" },
+  { value: "93%", label: "Check-in Rate" },
 ];
 
 export default function Hero() {
@@ -24,7 +24,7 @@ export default function Hero() {
         {/* Badge */}
         <div className="animate-fade-in-up animate-delay-100 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-1.5 mb-6 md:mb-8">
           <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: brandGradient }} />
-          <span className="text-xs font-medium text-slate-300 tracking-wide">Now live at Hyderabad</span>
+          <span className="text-xs font-medium text-slate-300 tracking-wide">Now live at MRUH · AI-Powered · Hyderabad</span>
         </div>
 
         {/* Heading */}
@@ -41,20 +41,20 @@ export default function Hero() {
               backgroundClip: "text",
             }}
           >
-            Organize. Optimize.
+            The AI Brain Behind
           </span>
           <span
             className="block text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-agrandir font-bold mt-2 md:mt-3"
             style={gradientText}
           >
-            Elevate. Events
+            Every Student-Led Event.
           </span>
         </h1>
 
         {/* Subtitle */}
         <p className="animate-fade-in-up animate-delay-200 text-slate-400 text-sm md:text-lg max-w-xl md:max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed px-2 md:px-0">
-          The all-in-one platform for campus event discovery, hosting, and management.{" "}
-          <span className="text-slate-300">Built for students, by students.</span>
+          AI face check-in. Smart event recommendations. WhatsApp-first updates. AI post-event debrief. Three dedicated apps.{" "}
+          <span className="text-slate-300">Built by struggled event organisers — for every campus in India.</span>
         </p>
 
         {/* CTA Buttons */}
@@ -65,7 +65,7 @@ export default function Hero() {
             className="rounded-full px-6 py-2.5 md:px-7 md:py-3 text-sm md:text-base font-semibold shadow-[0_0_24px_rgba(37,99,235,0.5)] hover:shadow-[0_0_40px_rgba(52,145,255,0.65)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
             style={{ background: brandGradient, color: "#000000" }}
           >
-            Discover Events
+            Explore AI-Matched Events
           </Link>
           <div
             style={{ background: brandGradient, borderRadius: "9999px", padding: "1px" }}
@@ -76,7 +76,7 @@ export default function Hero() {
               href="/#host"
               className="block rounded-full px-6 py-2.5 md:px-7 md:py-3 text-sm md:text-base font-semibold bg-black transition-all duration-300"
             >
-              <span style={gradientText}>Host an Event</span>
+              <span style={gradientText}>Try AI Event Builder</span>
             </Link>
           </div>
         </div>
