@@ -6,7 +6,8 @@
         "appID": "9AH3Z5C5DH.com.unifesto.app",
         "paths": [
           "/event/*",
-          "/space/*"
+          "/space/*",
+          "/signup"
         ]
       }
     ]

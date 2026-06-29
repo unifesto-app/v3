@@ -29,7 +29,11 @@ export async function GET() {
             {
               '/': '/space/*',
               comment: 'Matches all space detail pages'
-            }
+            },
+            {
+              '/': '/signup',
+              comment: 'Matches referral signup links'
+            },
           ]
         }
       ]
