@@ -23,12 +23,12 @@ export async function GET() {
           ],
           components: [
             {
-              '/': '/events/*',
+              '/': '/event/*',
               comment: 'Matches all event detail pages'
             },
             {
-              '/': '/org/*',
-              comment: 'Matches all organization pages'
+              '/': '/space/*',
+              comment: 'Matches all space detail pages'
             }
           ]
         }
