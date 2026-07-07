@@ -172,7 +172,7 @@ export default function RegistrationSuccessPage({ params }: Props) {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
-              href={`/events/${eventId}`}
+              href={`/event/${eventId}`}
               className="flex-1 text-center rounded-full px-6 py-3 text-sm font-semibold border border-white/10 text-white hover:bg-white/5 transition-all"
             >
               Back to Event

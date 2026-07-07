@@ -565,7 +565,7 @@ export default function EventDetailPage({ params }: Props) {
               {eventSpace && (
                 <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
                   <h3 className="text-sm font-bold text-white mb-4">Organized By</h3>
-                  <Link href={`/spaces/${eventSpace.slug || eventSpace.id}`} className="block group">
+                  <Link href={`/space/${eventSpace.slug || eventSpace.id}`} className="block group">
                     <div className="flex items-center gap-3">
                       {eventSpace.logo_url ? (
                         <img src={eventSpace.logo_url} alt={organizerName} className="w-12 h-12 rounded-lg object-cover" />
@@ -592,7 +592,7 @@ export default function EventDetailPage({ params }: Props) {
                   <h3 className="text-sm font-bold text-white mb-4">More from {organizerName}</h3>
                   <div className="space-y-3">
                     {spaceEvents.slice(0, 3).map((e) => (
-                      <Link key={e.id} href={`/events/${e.slug || e.id}`} className="block group">
+                      <Link key={e.id} href={`/event/${e.slug || e.id}`} className="block group">
                         <div className="flex gap-3">
                           <div
                             className="w-16 h-16 rounded-lg flex-shrink-0"

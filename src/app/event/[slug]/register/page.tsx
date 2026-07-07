@@ -223,7 +223,7 @@ export default function RegisterPage({ params }: Props) {
   // Handle registration submission
   const handleSubmit = () => {
     // Redirect to success page
-    router.push(`/events/${eventId}/register/success`);
+    router.push(`/event/${eventId}/register/success`);
   };
 
   if (!event) {
@@ -250,7 +250,7 @@ export default function RegisterPage({ params }: Props) {
               Your registration session has expired. Please start a new registration.
             </p>
             <button
-              onClick={() => router.push(`/events/${eventId}`)}
+              onClick={() => router.push(`/event/${eventId}`)}
               className="rounded-full px-6 py-3 text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)]"
               style={{ background: brandGradient }}
             >

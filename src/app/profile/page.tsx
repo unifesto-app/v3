@@ -651,7 +651,7 @@ export default function ProfilePage() {
                               </div>
                             </div>
                             <a
-                              href={`/events/${event.id}/register/success`}
+                              href={`/event/${event.id}/register/success`}
                               className="rounded-full px-6 py-2.5 text-sm font-semibold text-black transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)] text-center"
                               style={{ background: brandGradient }}
                             >

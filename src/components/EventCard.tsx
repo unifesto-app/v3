@@ -63,9 +63,9 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
     ? "Free"
     : `${currency}${(event.price ?? 0).toLocaleString("en-IN")}`;
   const imageUrl = event.banner_url || event.thumbnail_url || event.image_url;
-  const eventHref = `/events/${event.slug || event.id}`;
+  const eventHref = `/event/${event.slug || event.id}`;
   const spaceHref =
-    space?.slug || space?.id ? `/spaces/${space?.slug || space?.id}` : null;
+    space?.slug || space?.id ? `/space/${space?.slug || space?.id}` : null;
 
   return (
     // Outer div: NOT an <a>, avoids nested <a> violation

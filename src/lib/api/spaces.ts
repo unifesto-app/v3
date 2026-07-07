@@ -30,6 +30,23 @@ export interface Space {
   updated_at: string;
   member_count?: number;
   sub_space_count?: number;
+  organisers?: SpaceMember[];
+}
+
+export interface SpaceMember {
+  id: string;
+  user: {
+    id: string;
+    fullName: string | null;
+    username: string | null;
+    avatarUrl: string | null;
+  };
+  role: {
+    id: string;
+    code: string;
+    name: string;
+    scope: string;
+  };
 }
 
 export interface SpaceListResponse {
@@ -89,6 +106,7 @@ function mapSpace(raw: Record<string, unknown> | null | undefined): Space | null
     updated_at: (r.updatedAt ?? r.updated_at) as string,
     member_count: (count.userRoles ?? count.members) as number | undefined,
     sub_space_count: (count.childSpaces ?? count.children) as number | undefined,
+    organisers: (r.organisers as SpaceMember[] | undefined) ?? undefined,
   };
 }
 
