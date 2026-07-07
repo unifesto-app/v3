@@ -2,19 +2,33 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import {
+  CalendarBlank,
+  Clock,
+  MapPin,
+  Tag,
+  UsersThree,
+  DeviceMobile,
+  AppStoreLogo,
+  GooglePlayLogo,
+  Trophy,
+  Medal,
+  CaretRight,
+  ArrowUpRight,
+  Star,
+} from "@phosphor-icons/react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import EventCard from "@/components/EventCard";
 import { getEventBySlug, type Event } from "@/lib/api/events";
 import { getSpaceEvents } from "@/lib/api/spaces";
 import { getEventAdditionalInfo, type AgendaItem, type Speaker, type Prize, type Faq } from "@/lib/api/additional-info";
-import { brandGradient, gradientText } from "@/lib/styles";
+import { brandGradient } from "@/lib/styles";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-type TabType = "overview" | "agenda" | "speakers" | "rewards" | "sponsors" | "faq" | "contact";
+type TabType = "overview" | "agenda" | "speakers" | "rewards" | "faq" | "contact";
 
 export default function EventDetailPage({ params }: Props) {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
@@ -95,8 +109,21 @@ export default function EventDetailPage({ params }: Props) {
     return (
       <main className="min-h-screen bg-black">
         <Navbar />
-        <div className="flex items-center justify-center py-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3491ff]"></div>
+        {/* Hero skeleton mirrors the real layout so nothing jumps on load */}
+        <div className="relative min-h-[420px] animate-pulse bg-white/[0.03] pt-20 md:min-h-[520px]" />
+        <div className="mx-auto max-w-5xl px-6 py-10">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div className="space-y-6 lg:col-span-2">
+              <div className="h-10 w-full animate-pulse rounded-lg bg-white/[0.04]" />
+              <div className="h-4 w-3/4 animate-pulse rounded bg-white/[0.04]" />
+              <div className="h-4 w-2/3 animate-pulse rounded bg-white/[0.04]" />
+              <div className="h-4 w-1/2 animate-pulse rounded bg-white/[0.04]" />
+            </div>
+            <div className="space-y-4 lg:col-span-1">
+              <div className="h-48 w-full animate-pulse rounded-2xl bg-white/[0.04]" />
+              <div className="h-28 w-full animate-pulse rounded-2xl bg-white/[0.04]" />
+            </div>
+          </div>
         </div>
       </main>
     );
@@ -104,15 +131,25 @@ export default function EventDetailPage({ params }: Props) {
 
   if (!event) {
     return (
-      <main className="min-h-screen bg-black flex items-center justify-center">
+      <main className="flex min-h-screen flex-col bg-black">
         <Navbar />
-        <div className="text-center py-20">
-          <h1 className="text-2xl font-bold text-white mb-4">Event Not Found</h1>
-          <p className="text-slate-400 mb-6">The event you're looking for doesn't exist or has been removed.</p>
-          <Link href="/events" className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)]" style={{ background: brandGradient }}>
-            Browse Events
-          </Link>
+        <div className="flex flex-1 items-center justify-center px-6 py-20 text-center">
+          <div>
+            <h1 className="mb-3 text-2xl font-bold text-white">Event not found</h1>
+            <p className="mb-6 text-sm text-slate-300">
+              This event doesn&apos;t exist or has been removed.
+            </p>
+            <Link
+              href="/events"
+              className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-black transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(52,145,255,0.4)]"
+              style={{ background: brandGradient }}
+            >
+              Browse events
+              <CaretRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
         </div>
+        <Footer />
       </main>
     );
   }
@@ -130,23 +167,10 @@ export default function EventDetailPage({ params }: Props) {
   const currencySymbol = event.currency && event.currency !== 'INR' ? event.currency : '₹';
   const priceLabel = isFree ? 'Free' : `${currencySymbol}${(event.price ?? 0).toLocaleString('en-IN')}`;
 
-  // Generate poster gradient
-  const generatePosterGradient = (id: string) => {
-    const gradients = [
-      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-      'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    ];
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-      hash = ((hash << 5) - hash) + id.charCodeAt(i);
-    }
-    return gradients[Math.abs(hash) % gradients.length];
-  };
-  
-  const posterGradient = generatePosterGradient(event.id);
+  // On-brand fallback for missing artwork — the same blue radial the event
+  // cards use, so a poster-less event still reads as part of the system.
+  const posterFallback =
+    "radial-gradient(120% 120% at 80% 0%, rgba(52,145,255,0.22), transparent 60%), #0a0a0d";
 
   return (
     <main className="min-h-screen bg-black overflow-x-hidden pb-24 md:pb-0">
@@ -154,41 +178,71 @@ export default function EventDetailPage({ params }: Props) {
 
       {/* Hero */}
       <section
-        className="relative pt-20 min-h-[450px] md:min-h-[550px] flex items-end pb-8 px-6 overflow-hidden"
-        style={imageUrl ? { backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: posterGradient }}
+        className="relative flex min-h-[440px] items-end overflow-hidden px-6 pb-10 pt-24 md:min-h-[540px]"
+        style={
+          imageUrl
+            ? { backgroundImage: `url(${imageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+            : { background: posterFallback }
+        }
       >
-        {/* Gradient overlay to blend into page */}
+        {/* Overlay to guarantee legible text over any artwork */}
         <div
-          className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black via-black/60 to-transparent"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"
           aria-hidden="true"
         />
-        <div className="relative z-10 max-w-5xl mx-auto w-full">
+        <div className="relative z-10 mx-auto w-full max-w-5xl">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 mb-4 text-xs text-white/50">
-            <Link href="/events" className="hover:text-white transition-colors">Events</Link>
-            <span>/</span>
-            <span className="text-white/70">{event.category || 'Event'}</span>
-          </div>
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-3">
-            {event.tags?.map((tag: string) => (
-              <span key={tag} className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-white/10 text-white/70 backdrop-blur-sm border border-white/10">
-                {tag}
-              </span>
-            ))}
+          <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 text-xs text-white/60">
+            <Link href="/events" className="transition-colors hover:text-white">
+              Events
+            </Link>
+            <CaretRight className="h-3 w-3" aria-hidden="true" />
+            <span className="text-white/80">{event.category || "Event"}</span>
+          </nav>
+
+          {/* Badges + tags */}
+          <div className="mb-4 flex flex-wrap items-center gap-2">
             {event.is_trending && (
-              <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/15 px-2.5 py-1 text-[11px] font-semibold text-amber-200">
+                <Star weight="fill" className="h-3 w-3" aria-hidden="true" />
                 Trending
               </span>
             )}
             {event.is_featured && (
-              <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              <span className="rounded-full border border-primary/40 bg-primary/15 px-2.5 py-1 text-[11px] font-semibold text-primary">
                 Featured
               </span>
             )}
+            {event.tags?.slice(0, 3).map((tag: string) => (
+              <span
+                key={tag}
+                className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/80 backdrop-blur-sm"
+              >
+                {tag}
+              </span>
+            ))}
           </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-3">{event.title}</h1>
-          <p className="text-sm text-white/60">{organizerName}</p>
+
+          <h1 className="mb-3 max-w-3xl text-3xl font-extrabold leading-tight text-white md:text-5xl">
+            {event.title}
+          </h1>
+          <p className="mb-5 text-sm text-white/70">by {organizerName}</p>
+
+          {/* Fact row: the three things a student decides on at a glance */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/85">
+            <span className="inline-flex items-center gap-2">
+              <CalendarBlank className="h-4 w-4 flex-shrink-0 text-primary" aria-hidden="true" />
+              {formattedDate}
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <MapPin className="h-4 w-4 flex-shrink-0 text-primary" aria-hidden="true" />
+              {location}
+            </span>
+            <span className="inline-flex items-center gap-2 font-semibold text-white">
+              <Tag className="h-4 w-4 flex-shrink-0 text-primary" aria-hidden="true" />
+              {priceLabel}
+            </span>
+          </div>
         </div>
       </section>
 
@@ -199,7 +253,7 @@ export default function EventDetailPage({ params }: Props) {
           <div className="lg:col-span-2 space-y-8">
             {/* Tabs */}
             <div className="border-b border-white/10">
-              <div className="flex gap-1 overflow-x-auto">
+              <div className="flex gap-1 overflow-x-auto" role="tablist" aria-label="Event sections">
                 {[
                   { id: "overview", label: "Overview" },
                   ...(agenda.length > 0 ? [{ id: "agenda", label: "Agenda" }] : []),
@@ -207,20 +261,24 @@ export default function EventDetailPage({ params }: Props) {
                   ...(prizes.length > 0 ? [{ id: "rewards", label: "Prizes" }] : []),
                   ...(faqs.length > 0 ? [{ id: "faq", label: "FAQ" }] : []),
                   { id: "contact", label: "Contact" },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as TabType)}
-                    className={`px-4 py-3 text-sm font-semibold whitespace-nowrap transition-all ${
-                      activeTab === tab.id
-                        ? "text-white border-b-2"
-                        : "text-slate-500 hover:text-slate-300"
-                    }`}
-                    style={activeTab === tab.id ? { borderColor: "#3491ff" } : {}}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+                ].map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => setActiveTab(tab.id as TabType)}
+                      className={`-mb-px whitespace-nowrap border-b-2 px-4 py-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        isActive
+                          ? "border-primary text-white"
+                          : "border-transparent text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -231,185 +289,138 @@ export default function EventDetailPage({ params }: Props) {
                 <div className="space-y-10">
                   {/* About */}
                   <section>
-                    <h2 className="text-lg font-bold text-white mb-3">About This Event</h2>
-                    <div className="text-sm text-slate-400 leading-relaxed space-y-3">
+                    <h2 className="mb-3 text-lg font-bold text-white">About this event</h2>
+                    <div className="space-y-3 text-sm leading-relaxed text-slate-300">
                       {event.description ? (
                         event.description.split("\n\n").map((para: string, i: number) => (
                           <p key={i}>{para}</p>
                         ))
                       ) : (
-                        <p>No description available.</p>
+                        <p className="text-slate-400">No description available for this event yet.</p>
                       )}
                     </div>
                   </section>
 
                   {/* Event Details */}
                   <section>
-                    <h2 className="text-lg font-bold text-white mb-4">Event Details</h2>
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <svg className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+                    <h2 className="mb-4 text-lg font-bold text-white">Event details</h2>
+                    <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/5 sm:grid-cols-2">
+                      <div className="flex items-start gap-3 bg-black/40 p-4">
+                        <CalendarBlank className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" aria-hidden="true" />
                         <div>
-                          <p className="text-sm font-semibold text-white">Date & Time</p>
-                          <p className="text-sm text-slate-400">{formattedDate}</p>
-                          <p className="text-sm text-slate-400">{formattedTime}</p>
+                          <dt className="text-xs font-medium text-slate-400">Date &amp; time</dt>
+                          <dd className="mt-0.5 text-sm font-semibold text-white">{formattedDate}</dd>
+                          <dd className="text-sm text-slate-300">{formattedTime}</dd>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <svg className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                      <div className="flex items-start gap-3 bg-black/40 p-4">
+                        <MapPin className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" aria-hidden="true" />
                         <div>
-                          <p className="text-sm font-semibold text-white">Location</p>
-                          <p className="text-sm text-slate-400">{location}</p>
+                          <dt className="text-xs font-medium text-slate-400">Location</dt>
+                          <dd className="mt-0.5 text-sm font-semibold text-white">{location}</dd>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <svg className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                      <div className="flex items-start gap-3 bg-black/40 p-4">
+                        <Tag className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" aria-hidden="true" />
                         <div>
-                          <p className="text-sm font-semibold text-white">Price</p>
-                          <p className="text-sm text-slate-400">{priceLabel}</p>
+                          <dt className="text-xs font-medium text-slate-400">Price</dt>
+                          <dd className="mt-0.5 text-sm font-semibold text-white">{priceLabel}</dd>
                         </div>
                       </div>
                       {event.max_attendees && (
-                        <div className="flex items-start gap-3">
-                          <svg className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                          </svg>
+                        <div className="flex items-start gap-3 bg-black/40 p-4">
+                          <UsersThree className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" aria-hidden="true" />
                           <div>
-                            <p className="text-sm font-semibold text-white">Capacity</p>
-                            <p className="text-sm text-slate-400">{event.max_attendees} attendees</p>
+                            <dt className="text-xs font-medium text-slate-400">Capacity</dt>
+                            <dd className="mt-0.5 text-sm font-semibold text-white">
+                              {event.max_attendees} attendees
+                            </dd>
                           </div>
                         </div>
                       )}
-                    </div>
-                  </section>
-
-                  {/* Download App CTA */}
-                  <section>
-                    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6 text-center">
-                      <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: brandGradient }}>
-                        <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <h3 className="text-lg font-bold text-white mb-2">Register for this Event</h3>
-                      <p className="text-sm text-slate-500 mb-4 max-w-md mx-auto">
-                        Download the Unifesto mobile app to register for events, connect with attendees, and get real-time updates.
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <a
-                          href="#"
-                          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)] hover:-translate-y-0.5"
-                          style={{ background: brandGradient }}
-                        >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                          </svg>
-                          App Store
-                        </a>
-                        <a
-                          href="#"
-                          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)] hover:-translate-y-0.5"
-                          style={{ background: brandGradient }}
-                        >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
-                          </svg>
-                          Play Store
-                        </a>
-                      </div>
-                    </div>
+                    </dl>
                   </section>
                 </div>
               )}
 
-              {/* Agenda Tab */}
+              {/* Agenda Tab — timeline */}
               {activeTab === "agenda" && (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-bold text-white mb-4">Event Agenda</h2>
-                  <div className="space-y-3">
+                <div>
+                  <h2 className="mb-5 text-lg font-bold text-white">Event agenda</h2>
+                  <ol className="relative space-y-5 border-l border-white/10 pl-6">
                     {agenda.map((item) => (
-                      <div key={item.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-5">
-                        <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
-                            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                              <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            </div>
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-xs font-semibold text-blue-400 mb-2">
-                              {new Date(item.start_time).toLocaleString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                                hour: 'numeric',
-                                minute: '2-digit',
-                              })}
-                              {item.end_time && ` - ${new Date(item.end_time).toLocaleTimeString('en-US', {
-                                hour: 'numeric',
-                                minute: '2-digit',
+                      <li key={item.id} className="relative">
+                        <span
+                          className="absolute -left-[27px] top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-primary bg-black"
+                          aria-hidden="true"
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                        </span>
+                        <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+                          <div className="mb-2 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
+                            <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                            {new Date(item.start_time).toLocaleString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              hour: "numeric",
+                              minute: "2-digit",
+                            })}
+                            {item.end_time &&
+                              ` – ${new Date(item.end_time).toLocaleTimeString("en-US", {
+                                hour: "numeric",
+                                minute: "2-digit",
                               })}`}
-                            </div>
-                            <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                            {item.description && (
-                              <p className="text-sm text-slate-400 leading-relaxed mb-2">{item.description}</p>
-                            )}
-                            {item.location && (
-                              <div className="flex items-center gap-2 text-xs text-slate-500">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <span>{item.location}</span>
-                              </div>
-                            )}
                           </div>
+                          <h3 className="mb-1.5 text-base font-bold text-white">{item.title}</h3>
+                          {item.description && (
+                            <p className="mb-2 text-sm leading-relaxed text-slate-300">{item.description}</p>
+                          )}
+                          {item.location && (
+                            <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                              <MapPin className="h-4 w-4" aria-hidden="true" />
+                              <span>{item.location}</span>
+                            </div>
+                          )}
                         </div>
-                      </div>
+                      </li>
                     ))}
-                  </div>
+                  </ol>
                 </div>
               )}
 
               {/* Speakers Tab */}
               {activeTab === "speakers" && (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-bold text-white mb-4">Speakers & Guests</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h2 className="mb-5 text-lg font-bold text-white">Speakers &amp; guests</h2>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {speakers.map((speaker) => (
-                      <div key={speaker.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-5">
+                      <div key={speaker.id} className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
                         <div className="flex items-start gap-4">
                           {speaker.profile_image_url ? (
                             <img
                               src={speaker.profile_image_url}
                               alt={speaker.name}
-                              className="w-16 h-16 rounded-full object-cover"
+                              className="h-16 w-16 flex-shrink-0 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                              <span className="text-2xl font-bold text-white">
-                                {speaker.name.charAt(0)}
-                              </span>
+                            <div
+                              className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full text-2xl font-bold text-black"
+                              style={{ background: brandGradient }}
+                              aria-hidden="true"
+                            >
+                              {speaker.name.charAt(0)}
                             </div>
                           )}
                           <div className="flex-1">
-                            <h3 className="text-base font-bold text-white mb-1">{speaker.name}</h3>
-                            {speaker.title && (
-                              <p className="text-xs text-slate-400 mb-2">{speaker.title}</p>
-                            )}
+                            <h3 className="mb-0.5 text-base font-bold text-white">{speaker.name}</h3>
+                            {speaker.title && <p className="mb-2 text-xs text-slate-400">{speaker.title}</p>}
                             {speaker.bio && (
-                              <p className="text-sm text-slate-500 leading-relaxed line-clamp-3">{speaker.bio}</p>
+                              <p className="line-clamp-3 text-sm leading-relaxed text-slate-300">{speaker.bio}</p>
                             )}
                             {speaker.is_featured && (
-                              <span className="inline-block mt-2 px-2 py-1 bg-yellow-500/10 text-yellow-400 text-xs font-semibold rounded">
-                                Featured Speaker
+                              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-1 text-xs font-semibold text-primary">
+                                <Star weight="fill" className="h-3 w-3" aria-hidden="true" />
+                                Featured speaker
                               </span>
                             )}
                           </div>
@@ -422,34 +433,40 @@ export default function EventDetailPage({ params }: Props) {
 
               {/* Prizes Tab */}
               {activeTab === "rewards" && (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-bold text-white mb-4">Prizes & Rewards</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h2 className="mb-5 text-lg font-bold text-white">Prizes &amp; rewards</h2>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {prizes.map((prize) => (
-                      <div key={prize.id} className="rounded-xl border border-yellow-500/20 bg-gradient-to-br from-yellow-500/5 to-orange-500/5 p-5">
+                      <div
+                        key={prize.id}
+                        className="rounded-2xl border border-amber-400/25 bg-amber-400/[0.06] p-5"
+                      >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
-                            <div className="w-14 h-14 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                              <svg className="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                              </svg>
-                            </div>
+                          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-amber-400/20">
+                            {prize.position && prize.position <= 3 ? (
+                              <Medal weight="fill" className="h-7 w-7 text-amber-300" aria-hidden="true" />
+                            ) : (
+                              <Trophy weight="fill" className="h-7 w-7 text-amber-300" aria-hidden="true" />
+                            )}
                           </div>
                           <div className="flex-1">
                             {prize.position && (
-                              <span className="inline-block px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded mb-2">
-                                {prize.position === 1 ? '🥇 1st Place' : 
-                                 prize.position === 2 ? '🥈 2nd Place' : 
-                                 prize.position === 3 ? '🥉 3rd Place' : 
-                                 `#${prize.position}`}
+                              <span className="mb-2 inline-block rounded-full bg-amber-400/20 px-2.5 py-1 text-xs font-bold text-amber-200">
+                                {prize.position === 1
+                                  ? "1st place"
+                                  : prize.position === 2
+                                    ? "2nd place"
+                                    : prize.position === 3
+                                      ? "3rd place"
+                                      : `#${prize.position}`}
                               </span>
                             )}
-                            <h3 className="text-base font-bold text-white mb-2">{prize.name}</h3>
+                            <h3 className="mb-1.5 text-base font-bold text-white">{prize.name}</h3>
                             {prize.description && (
-                              <p className="text-sm text-slate-400 leading-relaxed mb-2">{prize.description}</p>
+                              <p className="mb-2 text-sm leading-relaxed text-slate-300">{prize.description}</p>
                             )}
                             {prize.value && (
-                              <p className="text-base font-semibold text-yellow-400">{prize.value}</p>
+                              <p className="text-base font-semibold text-amber-300">{prize.value}</p>
                             )}
                           </div>
                         </div>
@@ -459,127 +476,136 @@ export default function EventDetailPage({ params }: Props) {
                 </div>
               )}
 
-              {/* FAQ Tab */}
+              {/* FAQ Tab — only rendered when faqs exist, so no fabricated fallback */}
               {activeTab === "faq" && (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-bold text-white mb-4">Frequently Asked Questions</h2>
+                <div>
+                  <h2 className="mb-5 text-lg font-bold text-white">Frequently asked questions</h2>
                   <div className="space-y-3">
-                    {faqs.length > 0 ? (
-                      faqs.map((faq) => (
-                        <div key={faq.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                          <h3 className="text-sm font-semibold text-white mb-2">{faq.question}</h3>
-                          <p className="text-sm text-slate-400 leading-relaxed">{faq.answer}</p>
-                          {faq.category && (
-                            <span className="inline-block mt-2 px-2 py-1 bg-white/5 text-slate-500 text-xs rounded">
-                              {faq.category}
-                            </span>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      [
-                        {
-                          q: "What should I bring to the event?",
-                          a: "Please bring a valid ID and your registration confirmation. Additional requirements will be mentioned in your registration email."
-                        },
-                        {
-                          q: "How do I register for this event?",
-                          a: "Download the Unifesto mobile app from the App Store or Play Store to register for events."
-                        },
-                        {
-                          q: "Can I get a refund if I can't attend?",
-                          a: "Refund policies vary by event. Please check the event details or contact the organizers."
-                        },
-                        {
-                          q: "Will certificates be provided?",
-                          a: "Certificate availability depends on the event. Check the event description or contact organizers for details."
-                        },
-                      ].map((faq, i) => (
-                        <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                          <h3 className="text-sm font-semibold text-white mb-2">{faq.q}</h3>
-                          <p className="text-sm text-slate-400 leading-relaxed">{faq.a}</p>
-                        </div>
-                      ))
-                    )}
+                    {faqs.map((faq) => (
+                      <div key={faq.id} className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+                        <h3 className="mb-1.5 text-sm font-semibold text-white">{faq.question}</h3>
+                        <p className="text-sm leading-relaxed text-slate-300">{faq.answer}</p>
+                        {faq.category && (
+                          <span className="mt-2 inline-block rounded bg-white/5 px-2 py-1 text-xs text-slate-400">
+                            {faq.category}
+                          </span>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
 
               {/* Contact Tab */}
               {activeTab === "contact" && (
-                <div className="space-y-6">
-                  <section>
-                    <h2 className="text-lg font-bold text-white mb-4">Contact Organizers</h2>
-                    <div className="space-y-4">
-                      <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-                        <h3 className="text-base font-bold text-white mb-3">{organizerName}</h3>
-                        <p className="text-sm text-slate-400 mb-4">
-                          For questions about this event, please contact the organizers through the Unifesto mobile app.
-                        </p>
-                        <a
-                          href="#"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]"
-                          style={{ background: brandGradient }}
-                        >
-                          Open in App
-                        </a>
-                      </div>
-                    </div>
-                  </section>
-                </div>
+                <section>
+                  <h2 className="mb-4 text-lg font-bold text-white">Contact organizers</h2>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+                    <h3 className="mb-2 text-base font-bold text-white">{organizerName}</h3>
+                    <p className="mb-4 text-sm text-slate-300">
+                      For questions about this event, reach the organizers through the Unifesto mobile app.
+                    </p>
+                    <a
+                      href="https://unifesto.com/download"
+                      className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-black transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)]"
+                      style={{ background: brandGradient }}
+                    >
+                      <DeviceMobile className="h-4 w-4" aria-hidden="true" />
+                      Open in app
+                    </a>
+                  </div>
+                </section>
               )}
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-6">
-              {/* Event Info Card */}
-              <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
-                <h3 className="text-sm font-bold text-white mb-4">Event Information</h3>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <p className="text-slate-500 mb-1">Date</p>
-                    <p className="text-white font-semibold">{formattedDate}</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-500 mb-1">Time</p>
-                    <p className="text-white font-semibold">{formattedTime}</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-500 mb-1">Location</p>
-                    <p className="text-white font-semibold">{location}</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-500 mb-1">Price</p>
-                    <p className="text-white font-semibold">{priceLabel}</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-500 mb-1">Status</p>
-                    <p className="text-white font-semibold capitalize">{event.status}</p>
-                  </div>
+            <div className="sticky top-24 space-y-5">
+              {/* Register CTA — primary action, top of hierarchy */}
+              <div className="rounded-2xl border border-primary/30 bg-primary/[0.06] p-5">
+                <div className="mb-1 flex items-baseline gap-2">
+                  <span className="text-2xl font-extrabold text-white">{priceLabel}</span>
+                  {!isFree && (
+                    <span className="text-xs text-slate-400">per ticket</span>
+                  )}
                 </div>
+                <p className="mb-4 text-xs text-slate-300">
+                  {isCompleted
+                    ? "This event has ended."
+                    : "Register in the Unifesto app to save your spot."}
+                </p>
+                <div className="space-y-2.5">
+                  <a
+                    href="https://apps.apple.com/app/unifesto"
+                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-black transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(52,145,255,0.4)]"
+                    style={{ background: brandGradient }}
+                  >
+                    <AppStoreLogo weight="fill" className="h-5 w-5" aria-hidden="true" />
+                    Get it on App Store
+                  </a>
+                  <a
+                    href="https://play.google.com/store/apps/details?id=com.unifesto"
+                    className="flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-white/10"
+                  >
+                    <GooglePlayLogo weight="fill" className="h-5 w-5" aria-hidden="true" />
+                    Get it on Google Play
+                  </a>
+                </div>
+              </div>
+
+              {/* Event Info Card */}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+                <h3 className="mb-4 text-sm font-bold text-white">Event information</h3>
+                <dl className="space-y-3 text-sm">
+                  <div>
+                    <dt className="mb-0.5 text-xs text-slate-400">Date</dt>
+                    <dd className="font-semibold text-white">{formattedDate}</dd>
+                  </div>
+                  <div>
+                    <dt className="mb-0.5 text-xs text-slate-400">Time</dt>
+                    <dd className="font-semibold text-white">{formattedTime}</dd>
+                  </div>
+                  <div>
+                    <dt className="mb-0.5 text-xs text-slate-400">Location</dt>
+                    <dd className="font-semibold text-white">{location}</dd>
+                  </div>
+                  <div>
+                    <dt className="mb-0.5 text-xs text-slate-400">Status</dt>
+                    <dd className="font-semibold capitalize text-white">{event.status}</dd>
+                  </div>
+                </dl>
               </div>
 
               {/* Organizer Card */}
               {eventSpace && (
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
-                  <h3 className="text-sm font-bold text-white mb-4">Organized By</h3>
-                  <Link href={`/space/${eventSpace.slug || eventSpace.id}`} className="block group">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+                  <h3 className="mb-4 text-sm font-bold text-white">Organized by</h3>
+                  <Link href={`/space/${eventSpace.slug || eventSpace.id}`} className="group block">
                     <div className="flex items-center gap-3">
                       {eventSpace.logo_url ? (
-                        <img src={eventSpace.logo_url} alt={organizerName} className="w-12 h-12 rounded-lg object-cover" />
+                        <img
+                          src={eventSpace.logo_url}
+                          alt={organizerName}
+                          className="h-12 w-12 rounded-lg object-cover"
+                        />
                       ) : (
                         <div
-                          className="w-12 h-12 rounded-lg flex items-center justify-center text-sm font-bold text-black"
+                          className="flex h-12 w-12 items-center justify-center rounded-lg text-sm font-bold text-black"
                           style={{ background: brandGradient }}
+                          aria-hidden="true"
                         >
-                          {organizerName.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                          {organizerName.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                         </div>
                       )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white group-hover:text-white/80 transition-colors truncate">{organizerName}</p>
-                        <p className="text-xs text-slate-500">View Profile →</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-white transition-colors group-hover:text-primary">
+                          {organizerName}
+                        </p>
+                        <p className="inline-flex items-center gap-1 text-xs text-slate-400">
+                          View profile
+                          <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                        </p>
                       </div>
                     </div>
                   </Link>
@@ -588,19 +614,35 @@ export default function EventDetailPage({ params }: Props) {
 
               {/* More Events */}
               {spaceEvents.length > 0 && (
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
-                  <h3 className="text-sm font-bold text-white mb-4">More from {organizerName}</h3>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+                  <h3 className="mb-4 text-sm font-bold text-white">More from {organizerName}</h3>
                   <div className="space-y-3">
                     {spaceEvents.slice(0, 3).map((e) => (
-                      <Link key={e.id} href={`/event/${e.slug || e.id}`} className="block group">
+                      <Link key={e.id} href={`/event/${e.slug || e.id}`} className="group block">
                         <div className="flex gap-3">
                           <div
-                            className="w-16 h-16 rounded-lg flex-shrink-0"
-                            style={e.banner_url || e.thumbnail_url || e.image_url ? { backgroundImage: `url(${e.banner_url || e.thumbnail_url || e.image_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: generatePosterGradient(e.id) }}
+                            className="h-16 w-16 flex-shrink-0 rounded-lg"
+                            style={
+                              e.banner_url || e.thumbnail_url || e.image_url
+                                ? {
+                                    backgroundImage: `url(${e.banner_url || e.thumbnail_url || e.image_url})`,
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center",
+                                  }
+                                : { background: posterFallback }
+                            }
+                            aria-hidden="true"
                           />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-white group-hover:text-white/80 transition-colors line-clamp-2 mb-1">{e.title}</p>
-                            <p className="text-xs text-slate-500">{new Date(e.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="mb-1 line-clamp-2 text-sm font-semibold text-white transition-colors group-hover:text-primary">
+                              {e.title}
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              {new Date(e.start_date).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </p>
                           </div>
                         </div>
                       </Link>

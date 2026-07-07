@@ -9,6 +9,7 @@ export default function EventsGrid() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
   const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const [city, setCity] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -19,6 +20,38 @@ export default function EventsGrid() {
       .catch(() => {
         if (active) setAllEvents([]);
       });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Detect device location → reverse-geocode to a city name (mirrors mobile app)
+  useEffect(() => {
+    let active = true;
+
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const res = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+          );
+          const data = await res.json();
+          const detected: string | null =
+            data?.city || data?.locality || data?.principalSubdivision || null;
+          if (active && detected) setCity(detected);
+        } catch {
+          /* keep fallback heading */
+        }
+      },
+      () => {
+        /* permission denied or unavailable — keep fallback heading */
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
+    );
+
     return () => {
       active = false;
     };
@@ -46,7 +79,7 @@ export default function EventsGrid() {
             <h2 id="events-heading" className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
               Explore Events{" "}
               <span className="text-lg md:text-xl font-medium text-primary">
-                at Malla Reddy University
+                {city ? `in ${city}` : "at Malla Reddy University"}
               </span>
             </h2>
           </div>

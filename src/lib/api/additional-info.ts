@@ -5,9 +5,8 @@
 
 "use client";
 
-// Use the same-origin Next.js API proxy (src/app/api/public/*) instead of
-// hitting the external backend directly. This avoids CORS/preflight failures.
-const API_URL = "/api";
+// Call the NestJS backend directly, mirroring src/lib/api/events.ts.
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 // ==========================================
 // TYPES
@@ -104,7 +103,7 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout 
 
 export async function getEventAgenda(eventId: string): Promise<AgendaItem[]> {
   try {
-    const response = await fetchWithTimeout(`${API_URL}/public/events/${eventId}/agenda`, {
+    const response = await fetchWithTimeout(`${API_URL}/events/${eventId}/agenda`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -112,19 +111,19 @@ export async function getEventAgenda(eventId: string): Promise<AgendaItem[]> {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch agenda');
+      // No agenda endpoint/data for this event — treat as empty.
+      return [];
     }
 
     return await response.json();
-  } catch (error) {
-    console.error('Error fetching agenda:', error);
+  } catch {
     return [];
   }
 }
 
 export async function getEventSpeakers(eventId: string): Promise<Speaker[]> {
   try {
-    const response = await fetchWithTimeout(`${API_URL}/public/events/${eventId}/speakers`, {
+    const response = await fetchWithTimeout(`${API_URL}/events/${eventId}/speakers`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -132,19 +131,19 @@ export async function getEventSpeakers(eventId: string): Promise<Speaker[]> {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch speakers');
+      // No speakers endpoint/data for this event — treat as empty.
+      return [];
     }
 
     return await response.json();
-  } catch (error) {
-    console.error('Error fetching speakers:', error);
+  } catch {
     return [];
   }
 }
 
 export async function getEventPrizes(eventId: string): Promise<Prize[]> {
   try {
-    const response = await fetchWithTimeout(`${API_URL}/public/events/${eventId}/prizes`, {
+    const response = await fetchWithTimeout(`${API_URL}/events/${eventId}/prizes`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -152,19 +151,19 @@ export async function getEventPrizes(eventId: string): Promise<Prize[]> {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch prizes');
+      // No prizes endpoint/data for this event — treat as empty.
+      return [];
     }
 
     return await response.json();
-  } catch (error) {
-    console.error('Error fetching prizes:', error);
+  } catch {
     return [];
   }
 }
 
 export async function getEventFaqs(eventId: string): Promise<Faq[]> {
   try {
-    const response = await fetchWithTimeout(`${API_URL}/public/events/${eventId}/faq`, {
+    const response = await fetchWithTimeout(`${API_URL}/events/${eventId}/faq`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -172,12 +171,12 @@ export async function getEventFaqs(eventId: string): Promise<Faq[]> {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch FAQs');
+      // No FAQ endpoint/data for this event — treat as empty.
+      return [];
     }
 
     return await response.json();
-  } catch (error) {
-    console.error('Error fetching FAQs:', error);
+  } catch {
     return [];
   }
 }
