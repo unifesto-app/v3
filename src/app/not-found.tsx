@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "404 - Page Not Found — Unifesto",
+  title: "404 - Page Not Found | Unifesto",
   description: "The page you're looking for doesn't exist.",
 };
 
@@ -72,8 +72,8 @@ export default function NotFound() {
                 Events
               </a>
               <span className="text-slate-700">•</span>
-              <a href="/org" className="text-slate-400 hover:text-white transition-colors">
-                Organizations
+              <a href="/spaces" className="text-slate-400 hover:text-white transition-colors">
+                Spaces
               </a>
               <span className="text-slate-700">•</span>
               <a href="/host" className="text-slate-400 hover:text-white transition-colors">

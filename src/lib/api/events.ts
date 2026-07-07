@@ -1,5 +1,7 @@
 "use client";
 
+// Call the NestJS backend directly. The backend exposes events under `/events`.
+// See backends/unifesto-backend/src/events/events.controller.ts.
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 export interface Event {
@@ -19,17 +21,27 @@ export interface Event {
   city?: string;
   state?: string;
   country?: string;
-  event_type: 'online' | 'offline' | 'hybrid';
+  event_type: string;
   category?: string;
   tags?: string[];
   max_attendees?: number;
   is_free: boolean;
   price?: number;
   currency?: string;
-  status: 'draft' | 'published' | 'cancelled' | 'completed';
+  status: string;
   is_featured: boolean;
   is_trending: boolean;
-  organization_id: string;
+  // Backend still sends the legacy "organization" wire keys; the frontend
+  // treats the hosting entity as a Space. Both are kept for compatibility.
+  space_id?: string;
+  space?: {
+    id: string;
+    name: string;
+    logo_url?: string;
+    slug?: string;
+    type?: string;
+  };
+  organization_id?: string;
   organization?: {
     id: string;
     name: string;
@@ -69,6 +81,63 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout:
 }
 
 /**
+ * Normalize a raw backend Event (Prisma camelCase) into the frontend Event
+ * shape (snake_case). The backend response shape is defined in
+ * backends/unifesto-backend/src/events/events.service.ts.
+ */
+export function mapEvent(raw: Record<string, unknown> | null | undefined): Event | null {
+  if (!raw) return null;
+  const r = raw as Record<string, unknown>;
+
+  const rawSpace = (r.space ?? null) as Record<string, unknown> | null;
+  const space = rawSpace
+    ? {
+        id: rawSpace.id as string,
+        name: rawSpace.name as string,
+        logo_url: (rawSpace.logoUrl ?? rawSpace.logo_url) as string | undefined,
+        slug: rawSpace.slug as string | undefined,
+        type: rawSpace.type as string | undefined,
+      }
+    : undefined;
+
+  // Pricing is derived from ticket types; treat as free when none are paid.
+  const ticketTypes = (r.ticketTypes ?? []) as Array<Record<string, unknown>>;
+  const firstTicket = ticketTypes[0];
+  const isFree = (r.isFree ?? r.is_free ?? (ticketTypes.length === 0)) as boolean;
+
+  return {
+    id: r.id as string,
+    title: r.title as string,
+    slug: r.slug as string,
+    description: r.description as string | undefined,
+    banner_url: (r.coverImageUrl ?? r.banner_url ?? r.image_url) as string | undefined,
+    image_url: (r.coverImageUrl ?? r.image_url) as string | undefined,
+    start_date: (r.startDateTime ?? r.start_date) as string,
+    end_date: (r.endDateTime ?? r.end_date) as string,
+    venue: (r.venueName ?? r.venue) as string | undefined,
+    city: r.city as string | undefined,
+    state: r.state as string | undefined,
+    country: r.country as string | undefined,
+    event_type: (r.type ?? r.event_type) as string,
+    category: r.category as string | undefined,
+    tags: (r.tags ?? []) as string[],
+    max_attendees: (r.capacity ?? r.max_attendees) as number | undefined,
+    is_free: isFree,
+    price: firstTicket ? (firstTicket.price as number | undefined) : undefined,
+    currency: firstTicket ? (firstTicket.currency as string | undefined) : undefined,
+    status: r.status as string,
+    is_featured: (r.isFeatured ?? r.is_featured ?? false) as boolean,
+    is_trending: (r.isTrending ?? r.is_trending ?? false) as boolean,
+    space_id: (r.spaceId ?? r.space_id) as string | undefined,
+    space,
+    organization_id: (r.spaceId ?? r.space_id) as string | undefined,
+    organization: space,
+    created_at: (r.createdAt ?? r.created_at) as string,
+    updated_at: (r.updatedAt ?? r.updated_at) as string,
+  };
+}
+
+/**
  * Get all events with pagination and filters
  */
 export async function getEvents(
@@ -91,15 +160,14 @@ export async function getEvents(
       limit: limit.toString(),
     });
 
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          params.append(key, value.toString());
-        }
-      });
-    }
+    // Map frontend filter names to the backend EventFilterDto (camelCase).
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.category) params.append('category', filters.category);
+    if (filters?.event_type) params.append('type', filters.event_type);
+    if (filters?.city) params.append('city', filters.city);
+    if (filters?.organization_id) params.append('spaceId', filters.organization_id);
 
-    const response = await fetchWithTimeout(`${API_URL}/public/events?${params.toString()}`, {
+    const response = await fetchWithTimeout(`${API_URL}/events?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -112,7 +180,13 @@ export async function getEvents(
     }
 
     const data = await response.json();
-    return data || { events: [], total: 0, page: 1, limit: 20 };
+    const list = (data?.data ?? []) as Record<string, unknown>[];
+    return {
+      events: list.map((e) => mapEvent(e)!).filter(Boolean),
+      total: (data?.total as number) ?? list.length,
+      page: (data?.page as number) ?? page,
+      limit: (data?.limit as number) ?? limit,
+    };
   } catch (error) {
     console.error('[API] Error fetching events:', error);
     return { events: [], total: 0, page: 1, limit: 20 };
@@ -124,7 +198,8 @@ export async function getEvents(
  */
 export async function getEventById(id: string): Promise<Event | null> {
   try {
-    const response = await fetchWithTimeout(`${API_URL}/public/events/${id}`, {
+    // The backend `/events/:slug` route resolves both slugs and UUID ids.
+    const response = await fetchWithTimeout(`${API_URL}/events/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -137,7 +212,7 @@ export async function getEventById(id: string): Promise<Event | null> {
     }
 
     const data = await response.json();
-    return data.event || null;
+    return mapEvent(data?.id ? data : null);
   } catch (error) {
     console.error('[API] Error fetching event:', error);
     return null;
@@ -149,7 +224,7 @@ export async function getEventById(id: string): Promise<Event | null> {
  */
 export async function getEventBySlug(slug: string): Promise<Event | null> {
   try {
-    const response = await fetchWithTimeout(`${API_URL}/public/events/slug/${slug}`, {
+    const response = await fetchWithTimeout(`${API_URL}/events/${slug}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -162,7 +237,7 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
     }
 
     const data = await response.json();
-    return data.event || null;
+    return mapEvent(data?.id ? data : null);
   } catch (error) {
     console.error('[API] Error fetching event by slug:', error);
     return null;
@@ -173,50 +248,20 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
  * Get featured events
  */
 export async function getFeaturedEvents(limit: number = 10): Promise<Event[]> {
-  try {
-    const response = await fetchWithTimeout(`${API_URL}/public/events/featured?limit=${limit}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }, 10000);
-
-    if (!response.ok) {
-      console.error('[API] Error fetching featured events:', response.status, response.statusText);
-      return [];
-    }
-
-    const data = await response.json();
-    return data.events || [];
-  } catch (error) {
-    console.error('[API] Error fetching featured events:', error);
-    return [];
-  }
+  // The backend has no dedicated featured endpoint; fall back to the most
+  // recent published events.
+  const { events } = await getEvents(1, limit);
+  return events;
 }
 
 /**
  * Get trending events
  */
 export async function getTrendingEvents(limit: number = 10): Promise<Event[]> {
-  try {
-    const response = await fetchWithTimeout(`${API_URL}/public/events/trending?limit=${limit}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }, 10000);
-
-    if (!response.ok) {
-      console.error('[API] Error fetching trending events:', response.status, response.statusText);
-      return [];
-    }
-
-    const data = await response.json();
-    return data.events || [];
-  } catch (error) {
-    console.error('[API] Error fetching trending events:', error);
-    return [];
-  }
+  // The backend has no dedicated trending endpoint; fall back to the most
+  // recent published events.
+  const { events } = await getEvents(1, limit);
+  return events;
 }
 
 /**

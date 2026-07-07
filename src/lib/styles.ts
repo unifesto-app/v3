@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-/** Brand gradient applied as text fill — use as style={gradientText} */
+/** Brand gradient applied as text fill: use as style={gradientText} */
 export const gradientText: CSSProperties = {
   background: "linear-gradient(135deg, #3491ff, #0062ff)",
   WebkitBackgroundClip: "text",

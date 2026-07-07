@@ -5,67 +5,67 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
-import { getOrganizationBySlug, getOrganizationById, getOrganizationEvents, getSubOrganizations, type Organization, ORG_TYPE_LABELS } from "@/lib/api/organizations";
+import { getSpaceBySlug, getSpaceById, getSpaceEvents, getSubSpaces, type Space, SPACE_TYPE_LABELS } from "@/lib/api/spaces";
 import type { Event } from "@/lib/api/events";
 import { brandGradient, gradientText } from "@/lib/styles";
 
 interface Props {
-  params: Promise<{ orgSlug: string }>;
+  params: Promise<{ spaceSlug: string }>;
 }
 
-export default function OrgPage({ params }: Props) {
-  const [orgSlug, setOrgSlug] = useState<string>("");
-  const [org, setOrg] = useState<Organization | null>(null);
-  const [parentOrg, setParentOrg] = useState<Organization | null>(null);
+export default function SpacePage({ params }: Props) {
+  const [spaceSlug, setSpaceSlug] = useState<string>("");
+  const [space, setSpace] = useState<Space | null>(null);
+  const [parentSpace, setParentSpace] = useState<Space | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
-  const [subOrgs, setSubOrgs] = useState<Organization[]>([]);
+  const [subSpaces, setSubSpaces] = useState<Space[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadOrg = async () => {
+    const loadSpace = async () => {
       try {
-        const { orgSlug: slug } = await params;
-        setOrgSlug(slug);
+        const { spaceSlug: slug } = await params;
+        setSpaceSlug(slug);
         setLoading(true);
 
-        const orgData = await getOrganizationBySlug(slug);
-        if (!orgData) {
-          setOrg(null);
+        const spaceData = await getSpaceBySlug(slug);
+        if (!spaceData) {
+          setSpace(null);
           setLoading(false);
           return;
         }
-        setOrg(orgData);
+        setSpace(spaceData);
 
-        // Load events, parent org (if sub-org), and sub-orgs in parallel
+        // Load events, parent space (if sub-space), and sub-spaces in parallel
         const promises: Promise<any>[] = [
-          getOrganizationEvents(orgData.id, 1, 50),
+          getSpaceEvents(spaceData.id, 1, 50),
         ];
         
-        // If this org has a parent, load the parent
-        if (orgData.parent_org_id) {
-          promises.push(getOrganizationById(orgData.parent_org_id));
+        // If this space has a parent, load the parent
+        if (spaceData.parent_space_id) {
+          promises.push(getSpaceById(spaceData.parent_space_id));
         } else {
           promises.push(Promise.resolve(null));
         }
         
-        // Load sub-organizations
-        promises.push(getSubOrganizations(orgData.id));
+        // Load sub-spaces
+        promises.push(getSubSpaces(spaceData.id));
         
-        const [eventsData, parentOrgData, subOrgsData] = await Promise.all(promises);
+        const [eventsData, parentSpaceData, subSpacesData] = await Promise.all(promises);
         
         setEvents(eventsData?.events || []);
-        setParentOrg(parentOrgData?.organization || null);
-        setSubOrgs(subOrgsData?.organizations || []);
+        setParentSpace(parentSpaceData || null);
+        setSubSpaces(subSpacesData || []);
 
         setLoading(false);
       } catch (error) {
-        console.error('Error loading organization:', error);
-        setOrg(null);
+        console.error('Error loading space:', error);
+        setSpace(null);
         setLoading(false);
       }
     };
 
-    loadOrg();
+    loadSpace();
   }, [params]);
 
   if (loading) {
@@ -79,15 +79,15 @@ export default function OrgPage({ params }: Props) {
     );
   }
 
-  if (!org) {
+  if (!space) {
     return (
       <main className="min-h-screen bg-black flex items-center justify-center">
         <Navbar />
         <div className="text-center py-20">
-          <h1 className="text-2xl font-bold text-white mb-4">Organization Not Found</h1>
-          <p className="text-slate-400 mb-6">The organization you're looking for doesn't exist or has been removed.</p>
-          <Link href="/org" className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)]" style={{ background: brandGradient }}>
-            Browse Organizations
+          <h1 className="text-2xl font-bold text-white mb-4">Space Not Found</h1>
+          <p className="text-slate-400 mb-6">The space you're looking for doesn't exist or has been removed.</p>
+          <Link href="/spaces" className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)]" style={{ background: brandGradient }}>
+            Browse Spaces
           </Link>
         </div>
       </main>
@@ -95,16 +95,15 @@ export default function OrgPage({ params }: Props) {
   }
 
   const upcomingCount = events.filter((e) => e.status === "published").length;
-  const totalAttendees = events.reduce((sum, e) => sum + (e.max_attendees || 0), 0);
 
   return (
     <main className="min-h-screen bg-black overflow-x-hidden">
       <Navbar />
 
-      {/* Org Hero */}
+      {/* Space Hero */}
       <section 
         className="relative pt-20 min-h-[450px] md:min-h-[550px] flex items-end pb-8 px-6 overflow-hidden"
-        style={org.banner_url ? { backgroundImage: `url(${org.banner_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: brandGradient }}
+        style={space.banner_url ? { backgroundImage: `url(${space.banner_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: brandGradient }}
       >
         {/* Gradient overlay to blend into page */}
         <div
@@ -115,17 +114,17 @@ export default function OrgPage({ params }: Props) {
         <div className="relative z-10 max-w-5xl mx-auto w-full">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 mb-4 text-xs text-white/50">
-            <Link href="/org" className="hover:text-white transition-colors">Communities</Link>
+            <Link href="/spaces" className="hover:text-white transition-colors">Communities</Link>
             <span>/</span>
-            {parentOrg && (
+            {parentSpace && (
               <>
-                <Link href={`/org/${parentOrg.slug || parentOrg.id}`} className="hover:text-white transition-colors">
-                  {parentOrg.name}
+                <Link href={`/spaces/${parentSpace.slug || parentSpace.id}`} className="hover:text-white transition-colors">
+                  {parentSpace.name}
                 </Link>
                 <span>/</span>
               </>
             )}
-            <span className="text-white/70">{org.name}</span>
+            <span className="text-white/70">{space.name}</span>
           </div>
 
           {/* Badge */}
@@ -133,18 +132,18 @@ export default function OrgPage({ params }: Props) {
             <span
               className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm bg-white/10 text-white border border-white/10"
             >
-              {ORG_TYPE_LABELS[org.type] ?? org.type}
+              {SPACE_TYPE_LABELS[space.type] ?? space.type}
             </span>
-            {org.is_verified && (
+            {space.is_verified && (
               <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
                 Verified
               </span>
             )}
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-3">{org.name}</h1>
-          {org.description && (
-            <p className="text-sm text-white/60 max-w-2xl leading-relaxed">{org.description}</p>
+          <h1 className="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-3">{space.name}</h1>
+          {space.description && (
+            <p className="text-sm text-white/60 max-w-2xl leading-relaxed">{space.description}</p>
           )}
         </div>
       </section>
@@ -155,8 +154,8 @@ export default function OrgPage({ params }: Props) {
           {[
             { label: "Events Hosted", value: events.length },
             { label: "Active Events", value: upcomingCount },
-            { label: "Members", value: (org.member_count || 0).toLocaleString() },
-            { label: "Sub-Organizations", value: org.sub_org_count || subOrgs.length },
+            { label: "Members", value: (space.member_count || 0).toLocaleString() },
+            { label: "Sub-Spaces", value: space.sub_space_count || subSpaces.length },
           ].map((s) => (
             <div key={s.label} className="flex flex-col">
               <p className="text-lg md:text-xl font-extrabold text-white">{s.value}</p>
@@ -168,19 +167,19 @@ export default function OrgPage({ params }: Props) {
 
       <div className="max-w-5xl mx-auto px-6 py-10">
 
-        {/* Parent Organization (if this is a sub-org) */}
-        {parentOrg && (
+        {/* Parent Space (if this is a sub-space) */}
+        {parentSpace && (
           <section className="mb-12">
             <h2 className="text-base font-bold text-white mb-4">Part of</h2>
             <Link
-              href={`/org/${parentOrg.slug || parentOrg.id}`}
+              href={`/spaces/${parentSpace.slug || parentSpace.id}`}
               className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-200 group"
             >
               <div className="flex items-center gap-4">
-                {parentOrg.logo_url ? (
+                {parentSpace.logo_url ? (
                   <img 
-                    src={parentOrg.logo_url} 
-                    alt={parentOrg.name}
+                    src={parentSpace.logo_url} 
+                    alt={parentSpace.name}
                     className="w-12 h-12 rounded-lg object-cover"
                   />
                 ) : (
@@ -188,15 +187,15 @@ export default function OrgPage({ params }: Props) {
                     className="w-12 h-12 rounded-lg flex items-center justify-center text-sm font-bold text-black"
                     style={{ background: brandGradient }}
                   >
-                    {parentOrg.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                    {parentSpace.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
                   </div>
                 )}
                 <div>
                   <p className="text-base font-semibold text-white group-hover:text-white/80 transition-colors">
-                    {parentOrg.name}
+                    {parentSpace.name}
                   </p>
                   <p className="text-xs text-slate-500">
-                    {ORG_TYPE_LABELS[parentOrg.type] || parentOrg.type}
+                    {SPACE_TYPE_LABELS[parentSpace.type] || parentSpace.type}
                   </p>
                 </div>
               </div>
@@ -207,23 +206,23 @@ export default function OrgPage({ params }: Props) {
           </section>
         )}
 
-        {/* Sub-organisations */}
-        {subOrgs.length > 0 && (
+        {/* Sub-spaces */}
+        {subSpaces.length > 0 && (
           <section className="mb-12">
             <h2 className="text-base font-bold text-white mb-4">
-              Sub-Organizations
-              <span className="ml-2 text-xs font-normal text-slate-500">({subOrgs.length})</span>
+              Sub-Spaces
+              <span className="ml-2 text-xs font-normal text-slate-500">({subSpaces.length})</span>
             </h2>
             <div className="flex flex-wrap gap-3">
-              {subOrgs.map((sub) => (
+              {subSpaces.map((sub) => (
                 <Link
                   key={sub.id}
-                  href={`/org/${sub.slug}`}
+                  href={`/spaces/${sub.slug || sub.id}`}
                   className="flex items-center gap-2.5 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2.5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-200 group"
                 >
                   <div>
                     <p className="text-sm font-semibold text-white transition-colors">{sub.name}</p>
-                    <p className="text-[10px] text-slate-500">{ORG_TYPE_LABELS[sub.type]}</p>
+                    <p className="text-[10px] text-slate-500">{SPACE_TYPE_LABELS[sub.type]}</p>
                   </div>
                 </Link>
               ))}
@@ -246,7 +245,7 @@ export default function OrgPage({ params }: Props) {
             </div>
           ) : (
             <div className="text-center py-16 border border-white/5 rounded-2xl">
-              <p className="text-sm text-slate-500">No events from this organisation yet.</p>
+              <p className="text-sm text-slate-500">No events from this space yet.</p>
             </div>
           )}
         </section>

@@ -3,8 +3,8 @@ import { gradientText } from "@/lib/styles";
 const stats = [
   {
     value: "10,000+",
-    label: "Students",
-    description: "Active users on campus",
+    label: "Members",
+    description: "Active users",
   },
   {
     value: "500+",
@@ -13,7 +13,7 @@ const stats = [
   },
   {
     value: "50+",
-    label: "Organizations",
+    label: "Spaces",
     description: "Clubs & communities",
   },
   {
@@ -40,7 +40,7 @@ export default function StatsSection() {
           </p>
           <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight">
             Trusted by the<br />
-            <span style={gradientText}>campus community.</span>
+            <span style={gradientText}>Unifesto community.</span>
           </h2>
         </div>
 

@@ -1,10 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { brandGradient } from '@/lib/styles';
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import {
+  MapPin,
+  Briefcase,
+  Clock,
+  ChartBar,
+  X,
+  ArrowRight,
+  CaretRight,
+  CurrencyInr,
+} from "@phosphor-icons/react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 interface Career {
   id: string;
@@ -22,233 +31,297 @@ interface Career {
   created_at: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+const CTA =
+  "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-[#050507] transition-colors duration-200 hover:bg-[#1f83ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+
+const SELECT =
+  "rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors duration-200 focus:border-primary [&>option]:bg-[#0a0a0d]";
 
 export default function CareersPage() {
+  const reduce = useReducedMotion();
   const [careers, setCareers] = useState<Career[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
-  const [filter, setFilter] = useState({ department: '', type: '' });
+  const [filter, setFilter] = useState({ department: "", type: "" });
 
   useEffect(() => {
+    const loadCareers = async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({ status: "active" });
+        if (filter.department) params.append("department", filter.department);
+        if (filter.type) params.append("type", filter.type);
+
+        const res = await fetch(`${API_BASE}/api/careers?${params}`);
+        const json = await res.json();
+        setCareers(json.data || []);
+      } catch (error) {
+        console.error("Failed to load careers:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     loadCareers();
   }, [filter]);
-
-  const loadCareers = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ status: 'active' });
-      if (filter.department) params.append('department', filter.department);
-      if (filter.type) params.append('type', filter.type);
-
-      const res = await fetch(`${API_BASE}/api/careers?${params}`);
-      const json = await res.json();
-      setCareers(json.data || []);
-    } catch (error) {
-      console.error('Failed to load careers:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const departments = [...new Set(careers.map((c) => c.department))];
   const types = [...new Set(careers.map((c) => c.type))];
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <main className="min-h-screen overflow-x-hidden bg-[#050507] text-white">
       <Navbar />
-      
-      {/* Hero Section */}
-      <section className="pt-32 pb-16 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 
-            className="text-5xl md:text-6xl font-bold mb-6"
-            style={{
-              background: brandGradient,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            Join Our Team
+
+      {/* Hero */}
+      <section className="relative px-6 pt-36 pb-12">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-0 h-[380px] w-[680px] -translate-x-1/2 rounded-full bg-primary/15 blur-[130px]"
+        />
+        <div className="relative mx-auto max-w-3xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-xs font-medium text-slate-300">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            We&apos;re hiring across the team
+          </span>
+          <h1 className="mt-6 text-balance text-4xl font-bold tracking-[-0.03em] sm:text-5xl md:text-6xl">
+            Build the <span className="text-primary">events</span> everyone shows up for.
           </h1>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            Help us build the future of campus events. We're looking for passionate individuals to join our mission.
+          <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-slate-300 md:text-lg">
+            We&apos;re a small, product-obsessed team turning scattered events into one place institutions, clubs, communities, and startups trust. Come help us get there.
           </p>
         </div>
       </section>
 
-      {/* Filters */}
-      <section className="px-6 pb-8">
-        <div className="max-w-6xl mx-auto flex gap-4 flex-wrap">
-          <select
-            value={filter.department}
-            onChange={(e) => setFilter({ ...filter, department: e.target.value })}
-            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500 transition-colors"
-          >
-            <option value="">All Departments</option>
-            {departments.map((dept) => (
-              <option key={dept} value={dept}>{dept}</option>
-            ))}
-          </select>
-          <select
-            value={filter.type}
-            onChange={(e) => setFilter({ ...filter, type: e.target.value })}
-            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500 transition-colors"
-          >
-            <option value="">All Types</option>
-            {types.map((type) => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
-        </div>
-      </section>
-
-      {/* Careers List */}
-      <section className="px-6 pb-20">
-        <div className="max-w-6xl mx-auto">
-          {loading ? (
-            <div className="text-center py-20">
-              <div className="inline-block w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-slate-400 mt-4">Loading opportunities...</p>
-            </div>
-          ) : careers.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-slate-400 text-lg">No open positions at the moment. Check back soon!</p>
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              {careers.map((career) => (
-                <div
-                  key={career.id}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all cursor-pointer"
-                  onClick={() => setSelectedCareer(career)}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-white mb-2">{career.title}</h3>
-                      <div className="flex flex-wrap gap-3 text-sm text-slate-400">
-                        <span className="flex items-center gap-1">
-                          📍 {career.location}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          💼 {career.department}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          ⏰ {career.type}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          📊 {career.experience_level}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      className="rounded-full px-6 py-2 h-auto text-sm font-semibold"
-                      style={{ background: brandGradient, color: '#000' }}
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                </div>
+      {/* Filters + list */}
+      <section className="px-6 pb-24">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              value={filter.department}
+              onChange={(e) => setFilter({ ...filter, department: e.target.value })}
+              aria-label="Filter by department"
+              className={SELECT}
+            >
+              <option value="">All departments</option>
+              {departments.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
               ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Career Detail Modal */}
-      {selectedCareer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedCareer(null)}>
-          <div className="bg-zinc-900 border border-white/10 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-8" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h2 className="text-3xl font-bold text-white mb-2">{selectedCareer.title}</h2>
-                <div className="flex flex-wrap gap-3 text-sm text-slate-400">
-                  <span>📍 {selectedCareer.location}</span>
-                  <span>💼 {selectedCareer.department}</span>
-                  <span>⏰ {selectedCareer.type}</span>
-                  <span>📊 {selectedCareer.experience_level}</span>
-                </div>
-              </div>
-              <button onClick={() => setSelectedCareer(null)} className="text-slate-400 hover:text-white text-2xl">×</button>
-            </div>
-
-            {selectedCareer.salary_range && (
-              <div className="mb-6 p-4 bg-white/5 rounded-xl">
-                <p className="text-sm text-slate-400">Salary Range</p>
-                <p className="text-lg font-semibold text-white">{selectedCareer.salary_range}</p>
-              </div>
+            </select>
+            <select
+              value={filter.type}
+              onChange={(e) => setFilter({ ...filter, type: e.target.value })}
+              aria-label="Filter by employment type"
+              className={SELECT}
+            >
+              <option value="">All types</option>
+              {types.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+            {careers.length > 0 && (
+              <span className="ml-auto text-sm text-slate-400">
+                {careers.length} open {careers.length === 1 ? "role" : "roles"}
+              </span>
             )}
+          </div>
 
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-3">About the Role</h3>
-                <p className="text-slate-300 leading-relaxed">{selectedCareer.description}</p>
+          <div className="mt-8">
+            {loading ? (
+              <div className="flex flex-col items-center py-24 text-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <p className="mt-4 text-sm text-slate-400">Loading opportunities…</p>
               </div>
-
-              {selectedCareer.responsibilities.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Responsibilities</h3>
-                  <ul className="space-y-2">
-                    {selectedCareer.responsibilities.map((item, idx) => (
-                      <li key={idx} className="text-slate-300 flex gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {selectedCareer.requirements.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Requirements</h3>
-                  <ul className="space-y-2">
-                    {selectedCareer.requirements.map((item, idx) => (
-                      <li key={idx} className="text-slate-300 flex gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {selectedCareer.benefits.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Benefits</h3>
-                  <ul className="space-y-2">
-                    {selectedCareer.benefits.map((item, idx) => (
-                      <li key={idx} className="text-slate-300 flex gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-8 flex gap-3">
-              <Button
-                className="flex-1 rounded-full px-6 py-3 h-auto text-base font-semibold"
-                style={{ background: brandGradient, color: '#000' }}
-                onClick={() => window.location.href = `mailto:careers@unifesto.com?subject=Application for ${selectedCareer.title}`}
-              >
-                Apply Now
-              </Button>
-              <Button
-                className="rounded-full px-6 py-3 h-auto text-base font-semibold bg-white/5 border border-white/10 text-white hover:bg-white/10"
-                onClick={() => setSelectedCareer(null)}
-              >
-                Close
-              </Button>
-            </div>
+            ) : careers.length === 0 ? (
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] py-20 text-center">
+                <p className="text-lg font-medium text-slate-200">No open positions right now</p>
+                <p className="mt-2 text-sm text-slate-400">
+                  Check back soon, or email us at{" "}
+                  <a href="mailto:careers@unifesto.app" className="text-primary hover:underline">
+                    careers@unifesto.app
+                  </a>
+                  .
+                </p>
+              </div>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {careers.map((career, i) => (
+                  <motion.li
+                    key={career.id}
+                    initial={reduce ? false : { opacity: 0, y: 16 }}
+                    whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.5, ease: EASE, delay: Math.min(i * 0.05, 0.3) }}
+                  >
+                    <button
+                      onClick={() => setSelectedCareer(career)}
+                      className="group flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-left transition-colors duration-200 hover:border-white/20 hover:bg-white/[0.05] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-lg font-semibold text-white">{career.title}</h3>
+                        <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-300">
+                          <span className="inline-flex items-center gap-1.5">
+                            <MapPin size={16} weight="bold" className="text-slate-400" />
+                            {career.location}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Briefcase size={16} weight="bold" className="text-slate-400" />
+                            {career.department}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Clock size={16} weight="bold" className="text-slate-400" />
+                            {career.type}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <ChartBar size={16} weight="bold" className="text-slate-400" />
+                            {career.experience_level}
+                          </span>
+                        </div>
+                      </div>
+                      <CaretRight
+                        size={20}
+                        weight="bold"
+                        className="shrink-0 text-slate-500 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-primary"
+                      />
+                    </button>
+                  </motion.li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
-      )}
+      </section>
+
+      {/* Detail modal */}
+      <AnimatePresence>
+        {selectedCareer && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+            initial={reduce ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setSelectedCareer(null)}
+          >
+            <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" aria-hidden />
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${selectedCareer.title} details`}
+              initial={reduce ? false : { opacity: 0, scale: 0.97, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97, y: 12 }}
+              transition={{ duration: 0.25, ease: EASE }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/10 bg-[#0a0a0d] p-6 sm:p-8"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <h2 className="text-2xl font-bold tracking-[-0.02em] text-white sm:text-3xl">
+                    {selectedCareer.title}
+                  </h2>
+                  <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-300">
+                    <span className="inline-flex items-center gap-1.5">
+                      <MapPin size={16} weight="bold" className="text-slate-400" />
+                      {selectedCareer.location}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Briefcase size={16} weight="bold" className="text-slate-400" />
+                      {selectedCareer.department}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock size={16} weight="bold" className="text-slate-400" />
+                      {selectedCareer.type}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <ChartBar size={16} weight="bold" className="text-slate-400" />
+                      {selectedCareer.experience_level}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedCareer(null)}
+                  aria-label="Close"
+                  className="shrink-0 rounded-full p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                >
+                  <X size={20} weight="bold" />
+                </button>
+              </div>
+
+              {selectedCareer.salary_range && (
+                <div className="mt-6 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary">
+                    <CurrencyInr size={18} weight="bold" />
+                  </span>
+                  <div>
+                    <p className="text-xs text-slate-400">Compensation</p>
+                    <p className="text-base font-semibold text-white">{selectedCareer.salary_range}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-6 space-y-7">
+                <div>
+                  <h3 className="text-base font-semibold text-white">About the role</h3>
+                  <p className="mt-2 leading-relaxed text-slate-300">{selectedCareer.description}</p>
+                </div>
+
+                {selectedCareer.responsibilities.length > 0 && (
+                  <DetailList title="What you’ll do" items={selectedCareer.responsibilities} />
+                )}
+                {selectedCareer.requirements.length > 0 && (
+                  <DetailList title="What we’re looking for" items={selectedCareer.requirements} />
+                )}
+                {selectedCareer.benefits.length > 0 && (
+                  <DetailList title="What you’ll get" items={selectedCareer.benefits} />
+                )}
+              </div>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href={`mailto:careers@unifesto.app?subject=Application for ${encodeURIComponent(
+                    selectedCareer.title
+                  )}`}
+                  className={`${CTA} flex-1`}
+                >
+                  Apply now
+                  <ArrowRight size={16} weight="bold" />
+                </a>
+                <button
+                  onClick={() => setSelectedCareer(null)}
+                  className="rounded-full border border-white/10 px-6 py-3 text-sm font-semibold text-slate-200 transition-colors hover:border-white/20 hover:text-white"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer />
+    </main>
+  );
+}
+
+function DetailList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div>
+      <h3 className="text-base font-semibold text-white">{title}</h3>
+      <ul className="mt-3 space-y-2.5">
+        {items.map((item, idx) => (
+          <li key={idx} className="flex gap-2.5 leading-relaxed text-slate-300">
+            <CaretRight size={16} weight="bold" className="mt-1 shrink-0 text-primary" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

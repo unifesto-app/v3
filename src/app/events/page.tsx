@@ -83,12 +83,12 @@ function EventsContent() {
           aria-hidden="true"
         />
         <div className="relative z-10 max-w-6xl mx-auto">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-2" style={gradientText}>Campus Events</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-2" style={gradientText}>Discover Events</p>
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-3">
             Discover Events
           </h1>
           <p className="text-slate-500 text-sm md:text-base max-w-lg">
-            All events at Malla Reddy University — search, filter, and register in seconds.
+            All events at Malla Reddy University. Search, filter, and register in seconds.
           </p>
         </div>
       </section>

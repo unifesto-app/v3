@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { gradientText, brandGradient } from "@/lib/styles";
+import { gradientText } from "@/lib/styles";
 
 const socials = [
   {
@@ -35,17 +35,10 @@ const socials = [
 
 const featureLinks = [
   { label: "Event Discovery", href: "/features#event-discovery" },
-  { label: "Event Hosting", href: "/features#event-hosting" },
+  { label: "Forge", href: "/features#forge" },
+  { label: "Gate", href: "/features#gate" },
   { label: "Ticketing & RSVP", href: "/features#ticketing-rsvp" },
   { label: "Analytics", href: "/features#analytics" },
-];
-
-const productLinks = [
-  { label: "QR Check-in", href: "/products#qr-checkin" },
-  { label: "Face Check-in", href: "https://mxa.ai" },
-  { label: "Certificates", href: "/products#certificate" },
-  { label: "Event App", href: "/products#event-app" },
-  { label: "Mobile Apps", href: "/products#mobile-apps" },
 ];
 
 const companyLinks = [
@@ -76,7 +69,7 @@ function LinkColumn({ title, links }: { title: string; links: { label: string; h
       <ul className="flex flex-col gap-2.5">
         {links.map((l) => (
           <li key={l.label}>
-            <a href={l.href} className="text-xs text-slate-500 hover:text-white transition-colors duration-200">
+            <a href={l.href} className="text-sm text-slate-400 hover:text-white transition-colors duration-200">
               {l.label}
             </a>
           </li>
@@ -97,7 +90,7 @@ export default function Footer() {
   };
 
   return (
-    <footer aria-label="Site footer" className="relative bg-black border-t border-white/5 px-6">
+    <footer aria-label="Site footer" className="relative bg-canvas border-t border-white/5 px-6">
       {/* Top gradient line */}
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-px pointer-events-none"
@@ -111,10 +104,10 @@ export default function Footer() {
         <div className="border-b border-white/5 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <p className="text-base font-semibold text-white">Stay in the loop</p>
-            <p className="text-xs text-slate-500 mt-0.5">Get campus event updates straight to your inbox.</p>
+            <p className="text-sm text-slate-400 mt-0.5">Get event updates straight to your inbox.</p>
           </div>
           {subscribed ? (
-            <p className="text-sm font-medium" style={gradientText}>You&apos;re subscribed!</p>
+            <p className="text-sm font-medium text-primary">You&apos;re subscribed!</p>
           ) : (
             <form onSubmit={handleSubscribe} className="flex items-center gap-2 w-full md:w-auto">
               <input
@@ -124,12 +117,11 @@ export default function Footer() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
-                className="flex-1 md:w-64 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white placeholder-slate-600 outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200"
+                className="flex-1 md:w-64 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white placeholder-slate-500 outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200"
               />
               <button
                 type="submit"
-                className="rounded-full px-5 py-2 text-sm font-semibold text-black transition-all duration-300 hover:shadow-[0_0_20px_rgba(52,145,255,0.4)] whitespace-nowrap"
-                style={{ background: brandGradient }}
+                className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-black transition-transform duration-200 hover:-translate-y-0.5 whitespace-nowrap"
               >
                 Subscribe
               </button>
@@ -140,7 +132,7 @@ export default function Footer() {
         {/* Main grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 py-12">
 
-          {/* Brand column — spans 2 on lg */}
+          {/* Brand column: spans 2 on lg */}
           <div className="col-span-2 flex flex-col gap-4">
             <a href="/" aria-label="Unifesto home">
               <span
@@ -156,8 +148,8 @@ export default function Footer() {
                 unifesto
               </span>
             </a>
-            <p className="text-xs text-slate-500 leading-relaxed max-w-[200px]">
-              The all-in-one campus event platform — discover, host, and elevate college events.
+            <p className="text-sm text-slate-400 leading-relaxed max-w-[220px]">
+              The all-in-one event platform to discover, host, and elevate events.
             </p>
             <div className="flex items-center gap-2 mt-1">
               {socials.map((s) => (
@@ -167,18 +159,17 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-white border border-white/5 hover:border-white/20 hover:bg-white/5 transition-all duration-200"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all duration-200"
                 >
                   {s.icon}
                 </a>
               ))}
             </div>
-            <a href="mailto:support@unifesto.app" className="text-xs text-slate-500 hover:text-white transition-colors duration-200 mt-1">
+            <a href="mailto:support@unifesto.app" className="text-sm text-slate-400 hover:text-white transition-colors duration-200 mt-1">
               support@unifesto.app
             </a>
           </div>
 
-          <LinkColumn title="Products" links={productLinks} />
           <LinkColumn title="Features" links={featureLinks} />
           <LinkColumn title="Company" links={companyLinks} />
           <LinkColumn title="Support" links={supportLinks} />
@@ -188,10 +179,10 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-white/5 py-6 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-[11px] tracking-[0.2em] font-semibold" style={gradientText}>
-            #UnifestoAtYourCampus
+          <p className="text-[11px] tracking-[0.2em] font-semibold text-primary">
+            #UnifestoEverywhere
           </p>
-          <p className="text-xs text-slate-600">
+          <p className="text-xs text-slate-400">
             © {currentYear} Unifesto Private Limited. All rights reserved.
           </p>
         </div>

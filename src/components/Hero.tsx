@@ -1,125 +1,319 @@
-import Link from "next/link";
-import { BackgroundBeams } from "@/components/ui/background-beams";
-import { gradientText, brandGradient } from "@/lib/styles";
+"use client";
 
-const stats = [
-  { value: "10K+", label: "Students" },
-  { value: "25+", label: "Events" },
-  { value: "93%", label: "Check-in Rate" },
-];
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { motion, useReducedMotion, type Variants } from "motion/react";
+import { ArrowRight, ScanSmiley, Sparkle, Check } from "@phosphor-icons/react";
+
+/* One orchestrated page-load. Reveals enhance already-visible content;
+   with prefers-reduced-motion the content simply appears. */
+const ease = [0.22, 1, 0.36, 1] as const;
 
 export default function Hero() {
+  const reduce = useReducedMotion();
+
+  /* Only run the entrance after mount. On the server and first client paint
+     the content renders visible (no injected hidden styles), so SSR and
+     hydration markup match, then the reveal plays. */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const container: Variants = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: reduce ? 0 : 0.08,
+        delayChildren: reduce ? 0 : 0.05,
+      },
+    },
+  };
+
+  const item: Variants = {
+    hidden: reduce ? { opacity: 1 } : { opacity: 0, y: 12, filter: "blur(4px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduce ? 0 : 0.55, ease },
+    },
+  };
+
+  const panel: Variants = {
+    hidden: reduce ? { opacity: 1 } : { opacity: 0, y: 24, scale: 0.98 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: reduce ? 0 : 0.7, ease, delay: reduce ? 0 : 0.15 },
+    },
+  };
+
+  /* The device runs its own sequence after the panel settles: the scan boots,
+     then the match confirms, then the recommendation reveals. Purpose:
+     explanation. Reduced motion collapses it to a plain appearance. */
+  const strip: Variants = {
+    hidden: reduce ? { opacity: 1 } : { opacity: 0, y: 8, filter: "blur(4px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduce ? 0 : 0.45, ease, delay: reduce ? 0 : 1.35 },
+    },
+  };
+
+  const reco: Variants = {
+    hidden: reduce ? { opacity: 1 } : { opacity: 0, y: 8, filter: "blur(4px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduce ? 0 : 0.45, ease, delay: reduce ? 0 : 1.6 },
+    },
+  };
+
   return (
     <section
       id="hero"
       aria-labelledby="hero-heading"
-      className="relative min-h-screen flex flex-col items-center justify-center bg-black overflow-hidden"
+      className="relative min-h-[100dvh] flex items-center bg-canvas overflow-hidden"
     >
-      {/* Background Beams */}
-      <BackgroundBeams className="fixed inset-0 w-full h-full z-0 pointer-events-none" />
-
-      {/* Content */}
-      <div className="relative z-10 text-center w-full max-w-5xl mx-auto px-5 md:px-6 pt-24 md:pt-0 pb-32 md:pb-24">
-
-        {/* Badge */}
-        <div className="animate-fade-in-up animate-delay-100 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-1.5 mb-6 md:mb-8">
-          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: brandGradient }} />
-          <span className="text-xs font-medium text-slate-300 tracking-wide">Now live at MRUH · AI-Powered · Hyderabad</span>
-        </div>
-
-        {/* Heading */}
-        <h1
-          id="hero-heading"
-          className="animate-fade-in-up animate-delay-100 m-0 mb-4 md:mb-6 leading-none tracking-tight"
-        >
-          <span
-            className="block text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-agrandir font-bold"
-            style={{
-              background: "linear-gradient(180deg, #ffffff 0%, #ffffff 60%, #595959 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            The AI Brain Behind
-          </span>
-          <span
-            className="block text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-agrandir font-bold mt-2 md:mt-3"
-            style={gradientText}
-          >
-            Every Student-Led Event.
-          </span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="animate-fade-in-up animate-delay-200 text-slate-400 text-sm md:text-lg max-w-xl md:max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed px-2 md:px-0">
-          AI face check-in. Smart event recommendations. WhatsApp-first updates. AI post-event debrief. Three dedicated apps.{" "}
-          <span className="text-slate-300">Built by struggled event organisers — for every campus in India.</span>
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="animate-fade-in-up animate-delay-300 flex flex-wrap items-center justify-center gap-3 md:gap-4">
-          <Link
-            id="hero-discover-events"
-            href="/events"
-            className="rounded-full px-6 py-2.5 md:px-7 md:py-3 text-sm md:text-base font-semibold shadow-[0_0_24px_rgba(37,99,235,0.5)] hover:shadow-[0_0_40px_rgba(52,145,255,0.65)] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
-            style={{ background: brandGradient, color: "#000000" }}
-          >
-            Explore AI-Matched Events
-          </Link>
-          <div
-            style={{ background: brandGradient, borderRadius: "9999px", padding: "1px" }}
-            className="transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 hover:shadow-[0_0_20px_rgba(52,145,255,0.35)]"
-          >
-            <Link
-              id="hero-host-event"
-              href="/#host"
-              className="block rounded-full px-6 py-2.5 md:px-7 md:py-3 text-sm md:text-base font-semibold bg-black transition-all duration-300"
-            >
-              <span style={gradientText}>Try AI Event Builder</span>
-            </Link>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Stats + Hashtag — pinned to bottom */}
-      <div className="animate-fade-in-up animate-delay-400 absolute bottom-8 md:bottom-8 left-0 right-0 z-10 w-full max-w-6xl mx-auto px-6 md:px-10">
-        <div className="flex flex-col md:flex-row items-center md:justify-between gap-4 md:gap-0">
-
-          {/* Hashtag */}
-          <p className="text-xs md:text-sm font-bold tracking-[0.15em]" style={gradientText}>
-            #UnifestoAtYourCampus
-          </p>
-
-          {/* Stats with dividers */}
-          <div className="flex items-center gap-0">
-            {stats.map((stat, i) => (
-              <div key={stat.label} className="flex items-center">
-                <div className="flex flex-col items-center px-4 md:px-6">
-                  <span className="text-base md:text-2xl font-extrabold leading-none text-white">
-                    {stat.value}
-                  </span>
-                  <span className="text-[10px] md:text-xs font-medium text-slate-500 mt-0.5 tracking-wide">
-                    {stat.label}
-                  </span>
-                </div>
-                {i < stats.length - 1 && (
-                  <div className="w-px h-6 bg-white/10" />
-                )}
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </div>
-
-      {/* Bottom fade
+      {/* Ambient depth: a single soft radial from the accent, low opacity.
+          Not a decorative grid/stripe; just gives the black canvas a light source. */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-32 md:h-40 pointer-events-none"
-        style={{ background: "linear-gradient(to bottom, transparent, #000000)" }}
         aria-hidden="true"
-      /> */}
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(60rem 40rem at 78% 18%, rgba(52,145,255,0.14), transparent 60%)",
+        }}
+      />
+
+      <motion.div
+        variants={container}
+        initial={mounted ? "hidden" : false}
+        animate={mounted ? "show" : false}
+        className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-8 pt-28 pb-20 md:py-0
+                   grid items-center gap-12 lg:gap-16 lg:grid-cols-[1.05fr_0.95fr]"
+      >
+        {/* ── Left: message ─────────────────────────────────────────── */}
+        <div className="max-w-2xl">
+          {/* Live badge: real proof (named organisation), not a stat cliche */}
+          <motion.div
+            variants={item}
+            className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3.5 py-1.5"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/70" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+            </span>
+            <span className="text-xs font-medium tracking-wide text-slate-300">
+              Live at Hyderabad
+            </span>
+          </motion.div>
+
+          {/* Heading: solid white, one word in solid electric blue.
+              Emphasis by color + weight, never gradient text. */}
+          <motion.h1
+            id="hero-heading"
+            variants={item}
+            className="mt-6 font-agrandir font-bold text-white
+                       text-[clamp(2.5rem,6.5vw,5rem)] leading-[0.98]
+                       [text-wrap:balance]"
+            style={{ letterSpacing: "-0.045em" }}
+          >
+            The AI brain behind every event.
+          </motion.h1>
+
+          <motion.p
+            variants={item}
+            className="mt-6 max-w-xl text-base md:text-lg leading-relaxed text-slate-400"
+          >
+            Face check-in, smart event matching, WhatsApp-first updates and
+            post-event intelligence. One platform that actually{" "}
+            <span className="font-semibold text-white">runs the event with you</span>,
+            not just a page to list it on.
+          </motion.p>
+
+          {/* CTAs: solid primary, real bordered secondary. No glow pill, no gradient text. */}
+          <motion.div
+            variants={item}
+            className="mt-9 flex flex-col sm:flex-row sm:items-center gap-3"
+          >
+            {/* Press feedback: scale(0.97) on tap, snappy. Buttons must feel
+                like they hear the user. Color still transitions on hover. */}
+            <motion.div whileTap={reduce ? undefined : { scale: 0.97 }}>
+              <Link
+                id="hero-discover-events"
+                href="/events"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary
+                           px-6 py-3.5 text-base font-semibold text-black
+                           transition-colors duration-200 hover:bg-[#1f83ff]
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              >
+                Discover events
+                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" weight="bold" />
+              </Link>
+            </motion.div>
+            <motion.div whileTap={reduce ? undefined : { scale: 0.97 }}>
+              <Link
+                id="hero-host-event"
+                href="/#host"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-white/15
+                           bg-white/[0.02] px-6 py-3.5 text-base font-semibold text-white
+                           transition-colors duration-200 hover:border-white/30 hover:bg-white/[0.06]
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+              >
+                Host an event
+              </Link>
+            </motion.div>
+          </motion.div>
+
+          {/* Inline proof: woven into a sentence, not a big-number bar */}
+          <motion.p
+            variants={item}
+            className="mt-8 text-sm text-slate-400"
+          >
+            Trusted by{" "}
+            <span className="font-semibold text-slate-300">10,000+ students</span>{" "}
+            across{" "}
+            <span className="font-semibold text-slate-300">25+ events</span>. Built by
+            organisers who lived the chaos.
+          </motion.p>
+        </div>
+
+        {/* Right: product proof, AI face check-in, shown running */}
+        <motion.div variants={panel} className="relative">
+          {/* The device / product surface */}
+          <div className="relative mx-auto w-full max-w-md rounded-2xl border border-white/10 bg-[#0e0e12] p-4 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.9)]">
+            {/* Window chrome */}
+            <div className="mb-4 flex items-center justify-between px-1">
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+                <ScanSmiley className="h-4 w-4 text-primary" aria-hidden="true" />
+                Check-in · Nav Nirman 4.0
+              </div>
+              <span className="rounded-full bg-primary/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                Live
+              </span>
+            </div>
+
+            {/* Face scan viewport */}
+            <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black">
+              <div className="aspect-[4/3] w-full bg-[radial-gradient(120%_120%_at_50%_0%,rgba(52,145,255,0.14),transparent_55%)]">
+                {/* Silhouette */}
+                <svg
+                  viewBox="0 0 200 150"
+                  className="h-full w-full"
+                  aria-hidden="true"
+                >
+                  <defs>
+                    <clipPath id="scanClip">
+                      <rect x="60" y="26" width="80" height="82" rx="8" />
+                    </clipPath>
+                  </defs>
+                  {/* Single clean head + shoulders silhouette */}
+                  <circle cx="100" cy="58" r="30" fill="rgba(255,255,255,0.10)" />
+                  <path
+                    d="M52 150 C52 116 72 96 100 96 C128 96 148 116 148 150 Z"
+                    fill="rgba(255,255,255,0.08)"
+                  />
+                  {/* Face bounding brackets */}
+                  <g stroke="#3491ff" strokeWidth="2" fill="none" strokeLinecap="round">
+                    <path d="M62 40 v-10 h10" />
+                    <path d="M138 40 v-10 h-10" />
+                    <path d="M62 96 v10 h10" />
+                    <path d="M138 96 v10 h-10" />
+                  </g>
+                  {/* Scan line */}
+                  <g clipPath="url(#scanClip)">
+                    <motion.rect
+                      x="60"
+                      width="80"
+                      height="2"
+                      fill="#3491ff"
+                      initial={false}
+                      animate={
+                        !mounted || reduce ? { y: 74 } : { y: [26, 122, 26] }
+                      }
+                      transition={
+                        !mounted || reduce
+                          ? { duration: 0 }
+                          : {
+                              duration: 2.4,
+                              /* Strong ease-in-out: the scan accelerates and
+                                 decelerates like a real sensor sweep. */
+                              ease: [0.77, 0, 0.175, 1],
+                              repeat: Infinity,
+                              /* Boot up after the panel has settled. */
+                              delay: 0.6,
+                            }
+                      }
+                      style={{ filter: "drop-shadow(0 0 6px rgba(52,145,255,0.9))" }}
+                    />
+                  </g>
+                </svg>
+              </div>
+
+              {/* Matched result strip: reveals after the scan completes. */}
+              <motion.div
+                variants={strip}
+                initial={mounted ? "hidden" : false}
+                animate={mounted ? "show" : false}
+                className="flex items-center gap-3 border-t border-white/10 bg-white/[0.03] px-4 py-3"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-black">
+                  <Check className="h-4 w-4" weight="bold" aria-hidden="true" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-white">
+                    Ananya R. checked in
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    Face matched in 0.4s · pass verified
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* AI recommendation card - "show the intelligence".
+               Reveals last, after the match confirms.
+               Body wraps to two lines, so it carries extra bottom spacing. */}
+            <motion.div
+              variants={reco}
+              initial={mounted ? "hidden" : false}
+              animate={mounted ? "show" : false}
+              className="mt-4 mb-2 rounded-xl border border-primary/25 bg-primary/[0.06] p-3.5"
+            >
+              <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
+                <Sparkle className="h-3.5 w-3.5" aria-hidden="true" />
+                Recommended for her
+              </div>
+              <p className="text-sm text-slate-300">
+                <span className="font-semibold text-white">ESummit&apos;26</span> next
+                Saturday. Matched to her past 3 events.
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Floating live tally: product chrome, not a hero-metric bar.
+              Springs into place last, giving the surface a sense of being
+              alive. Subtle bounce (0.25) reads as playful, not gimmicky. */}
+          <motion.div
+            initial={mounted && !reduce ? { opacity: 0, y: 12, scale: 0.9 } : false}
+            animate={mounted ? { opacity: 1, y: 0, scale: 1 } : false}
+            transition={
+              reduce
+                ? { duration: 0 }
+                : { type: "spring", duration: 0.6, bounce: 0.25, delay: 1.85 }
+            }
+            className="absolute -left-3 -bottom-4 hidden items-center gap-2 rounded-full border border-white/10 bg-[#0a0a0a] px-3.5 py-2 shadow-lg sm:flex"
+          >
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="text-xs text-slate-300">
+              <span className="font-semibold text-white">10,000+</span> students checked in
+            </span>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

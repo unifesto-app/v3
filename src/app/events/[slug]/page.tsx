@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
 import { getEventBySlug, type Event } from "@/lib/api/events";
-import { getOrganizationEvents } from "@/lib/api/organizations";
+import { getSpaceEvents } from "@/lib/api/spaces";
 import { getEventAdditionalInfo, type AgendaItem, type Speaker, type Prize, type Faq } from "@/lib/api/additional-info";
 import { brandGradient, gradientText } from "@/lib/styles";
 
@@ -20,7 +20,7 @@ export default function EventDetailPage({ params }: Props) {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [eventSlug, setEventSlug] = useState<string>("");
   const [event, setEvent] = useState<Event | null>(null);
-  const [orgEvents, setOrgEvents] = useState<Event[]>([]);
+  const [spaceEvents, setSpaceEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDiscussionOpen, setIsDiscussionOpen] = useState(false);
   
@@ -58,11 +58,12 @@ export default function EventDetailPage({ params }: Props) {
           // Continue without additional info
         }
         
-        // Load other events from the same organization
-        if (eventData.organization_id) {
-          const { events } = await getOrganizationEvents(eventData.organization_id, 1, 6);
+        // Load other events from the same space
+        const eventSpaceId = eventData.space_id ?? eventData.organization_id;
+        if (eventSpaceId) {
+          const { events } = await getSpaceEvents(eventSpaceId, 1, 6);
           // Filter out current event
-          setOrgEvents(events.filter((e: Event) => e.slug !== slug));
+          setSpaceEvents(events.filter((e: Event) => e.slug !== slug));
         }
         
         setLoading(false);
@@ -121,10 +122,13 @@ export default function EventDetailPage({ params }: Props) {
   const formattedDate = eventDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   const formattedTime = eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
   const location = event.venue || event.city || event.state || 'Online';
-  const organizerName = event.organization?.name || 'Organizer';
+  const eventSpace = event.space ?? event.organization;
+  const organizerName = eventSpace?.name || 'Organizer';
   const imageUrl = event.banner_url || event.thumbnail_url || event.image_url;
   const isCompleted = event.status === 'completed' || event.status === 'cancelled';
-  const isFree = event.is_free;
+  const isFree = event.is_free || !event.price;
+  const currencySymbol = event.currency && event.currency !== 'INR' ? event.currency : '₹';
+  const priceLabel = isFree ? 'Free' : `${currencySymbol}${(event.price ?? 0).toLocaleString('en-IN')}`;
 
   // Generate poster gradient
   const generatePosterGradient = (id: string) => {
@@ -269,7 +273,7 @@ export default function EventDetailPage({ params }: Props) {
                         </svg>
                         <div>
                           <p className="text-sm font-semibold text-white">Price</p>
-                          <p className="text-sm text-slate-400">{isFree ? "Free" : `${event.currency || '₹'}${event.price}`}</p>
+                          <p className="text-sm text-slate-400">{priceLabel}</p>
                         </div>
                       </div>
                       {event.max_attendees && (
@@ -548,7 +552,7 @@ export default function EventDetailPage({ params }: Props) {
                   </div>
                   <div>
                     <p className="text-slate-500 mb-1">Price</p>
-                    <p className="text-white font-semibold">{isFree ? "Free" : `${event.currency || '₹'}${event.price}`}</p>
+                    <p className="text-white font-semibold">{priceLabel}</p>
                   </div>
                   <div>
                     <p className="text-slate-500 mb-1">Status</p>
@@ -558,13 +562,13 @@ export default function EventDetailPage({ params }: Props) {
               </div>
 
               {/* Organizer Card */}
-              {event.organization && (
+              {eventSpace && (
                 <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
                   <h3 className="text-sm font-bold text-white mb-4">Organized By</h3>
-                  <Link href={`/org/${event.organization.slug || event.organization_id}`} className="block group">
+                  <Link href={`/spaces/${eventSpace.slug || eventSpace.id}`} className="block group">
                     <div className="flex items-center gap-3">
-                      {event.organization.logo_url ? (
-                        <img src={event.organization.logo_url} alt={organizerName} className="w-12 h-12 rounded-lg object-cover" />
+                      {eventSpace.logo_url ? (
+                        <img src={eventSpace.logo_url} alt={organizerName} className="w-12 h-12 rounded-lg object-cover" />
                       ) : (
                         <div
                           className="w-12 h-12 rounded-lg flex items-center justify-center text-sm font-bold text-black"
@@ -583,16 +587,16 @@ export default function EventDetailPage({ params }: Props) {
               )}
 
               {/* More Events */}
-              {orgEvents.length > 0 && (
+              {spaceEvents.length > 0 && (
                 <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
                   <h3 className="text-sm font-bold text-white mb-4">More from {organizerName}</h3>
                   <div className="space-y-3">
-                    {orgEvents.slice(0, 3).map((e) => (
-                      <Link key={e.id} href={`/events/${e.slug}`} className="block group">
+                    {spaceEvents.slice(0, 3).map((e) => (
+                      <Link key={e.id} href={`/events/${e.slug || e.id}`} className="block group">
                         <div className="flex gap-3">
                           <div
                             className="w-16 h-16 rounded-lg flex-shrink-0"
-                            style={e.thumbnail_url || e.image_url ? { backgroundImage: `url(${e.thumbnail_url || e.image_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: generatePosterGradient(e.id) }}
+                            style={e.banner_url || e.thumbnail_url || e.image_url ? { backgroundImage: `url(${e.banner_url || e.thumbnail_url || e.image_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: generatePosterGradient(e.id) }}
                           />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-white group-hover:text-white/80 transition-colors line-clamp-2 mb-1">{e.title}</p>

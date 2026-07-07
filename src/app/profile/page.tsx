@@ -480,7 +480,7 @@ export default function ProfilePage() {
 
                 <div className="space-y-2">
                   <a
-                    href={`https://wa.me/?text=Join Unifesto and discover amazing campus events! Use my referral code: ${profile?.username || profile?.id?.slice(0, 8).toUpperCase()} - https://unifesto.app/signup?ref=${profile?.username || profile?.id}`}
+                    href={`https://wa.me/?text=Join Unifesto and discover amazing events! Use my referral code: ${profile?.username || profile?.id?.slice(0, 8).toUpperCase()}. https://unifesto.app/signup?ref=${profile?.username || profile?.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 hover:bg-[#25D366]/20 transition-all duration-200"
@@ -493,7 +493,7 @@ export default function ProfilePage() {
 
                   <div className="flex gap-2">
                     <a
-                      href={`https://twitter.com/intent/tweet?text=Join Unifesto and discover amazing campus events! Use my referral code: ${profile?.username || profile?.id?.slice(0, 8).toUpperCase()}&url=https://unifesto.app/signup?ref=${profile?.username || profile?.id}`}
+                      href={`https://twitter.com/intent/tweet?text=Join Unifesto and discover amazing events! Use my referral code: ${profile?.username || profile?.id?.slice(0, 8).toUpperCase()}&url=https://unifesto.app/signup?ref=${profile?.username || profile?.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#1DA1F2]/10 border border-[#1DA1F2]/20 hover:bg-[#1DA1F2]/20 transition-all duration-200"

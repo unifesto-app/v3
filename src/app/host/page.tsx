@@ -92,7 +92,7 @@ export default function HostEventPage() {
             <span style={gradientText}>to Life</span>
           </h1>
           <p className="text-slate-400 text-sm md:text-lg leading-relaxed max-w-2xl mx-auto">
-            Fill out the form below and we'll help you create an amazing event experience on campus. Our team will review your request and get back to you within 24-48 hours.
+            Fill out the form below and we'll help you create an amazing event experience. Our team will review your request and get back to you within 24-48 hours.
           </p>
         </div>
       </section>
@@ -604,7 +604,7 @@ export default function HostEventPage() {
                 {/* Organizer Name */}
                 <div>
                   <label htmlFor="organizerName" className="block text-sm font-semibold text-white mb-2">
-                    Your Name / Organization <span className="text-red-400">*</span>
+                    Your Name / Space <span className="text-red-400">*</span>
                   </label>
                   <input
                     type="text"

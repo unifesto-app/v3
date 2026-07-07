@@ -10,19 +10,19 @@ import FinalCTASection from "@/components/FinalCTASection";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Unifesto — AI-Based Event Tech Management Platform for Campus India",
-  description: "Unifesto is the AI brain behind every student-led campus event. AI face check-in, smart event recommendations, WhatsApp-first updates, and post-event intelligence. 10,000+ students. Built by struggled event organisers.",
-  keywords: ["AI event management platform India", "AI face check-in events", "campus event AI", "event intelligence platform", "student event tech India", "event recommendation engine", "AI event analytics", "campus intelligence India", "event management AI"],
+  title: "Unifesto - AI-Based Event Tech Management Platform for India",
+  description: "Unifesto is the AI brain behind every event run by institutions, clubs, communities, and startups. AI face check-in, smart event recommendations, WhatsApp-first updates, and post-event intelligence. 10,000+ attendees. Built by struggled event organisers.",
+  keywords: ["AI event management platform India", "AI face check-in events", "community event AI", "event intelligence platform", "event tech India", "event recommendation engine", "AI event analytics", "institution event intelligence India", "event management AI"],
   openGraph: {
-    title: "Unifesto — AI Event Tech Platform for Campus India",
-    description: "AI-powered campus event management. Face check-in. Smart recommendations. WhatsApp-first updates. AI analytics. 10K+ students, 25+ events, built by struggled organisers.",
+    title: "Unifesto - AI Event Tech Platform for India",
+    description: "AI-powered event management for institutions, clubs, communities, and startups. Face check-in. Smart recommendations. WhatsApp-first updates. AI analytics. 10K+ attendees, 25+ events, built by struggled organisers.",
     type: "website",
     url: "https://www.unifesto.app",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Unifesto — AI Event Tech for Campus India",
-    description: "AI face check-in. Smart event recommendations. WhatsApp-first. AI analytics. 10K+ students. Built by struggled event organisers.",
+    title: "Unifesto - AI Event Tech for India",
+    description: "AI face check-in. Smart event recommendations. WhatsApp-first. AI analytics. 10K+ attendees. Built by struggled event organisers.",
   },
   alternates: {
     canonical: "/",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black overflow-x-hidden">
+    <main className="min-h-[100dvh] bg-canvas overflow-x-hidden">
       <Navbar />
       <Hero />
       <MarqueeBar />

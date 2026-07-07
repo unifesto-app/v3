@@ -1,13 +1,12 @@
-import { gradientText, brandGradient } from "@/lib/styles";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Terms & Conditions — Unifesto",
+  title: "Terms & Conditions | Unifesto",
   description: "Read the terms and conditions for using the Unifesto platform. Understand your rights and responsibilities.",
   keywords: ["terms and conditions", "terms of service", "user agreement", "unifesto terms", "platform rules"],
   openGraph: {
-    title: "Terms & Conditions — Unifesto",
+    title: "Terms & Conditions | Unifesto",
     description: "Read the terms and conditions for using the Unifesto platform.",
     type: "website",
     url: "https://www.unifesto.app/terms",
@@ -15,7 +14,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Terms & Conditions — Unifesto",
+    title: "Terms & Conditions | Unifesto",
     description: "Read the terms and conditions for using the Unifesto platform.",
     site: "@unifestoapp",
   },
@@ -23,19 +22,17 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-black overflow-x-hidden">
+    <main className="min-h-screen bg-[#050507] overflow-x-hidden text-white">
       <Navbar />
 
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="relative pt-36 pb-20 px-6 text-center overflow-hidden">
         <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(52,145,255,0.1) 0%, transparent 70%)" }}
-          aria-hidden="true"
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-72 w-[36rem] rounded-full bg-primary/12 blur-[130px]"
         />
         <div className="relative z-10 max-w-4xl mx-auto">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-4" style={gradientText}>Legal</p>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-5">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-[-0.02em] leading-tight mb-5">
             Terms & Conditions
           </h1>
           <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
@@ -44,11 +41,10 @@ export default function TermsPage() {
         </div>
       </section>
 
-      {/* Content Section */}
+      {/* Content */}
       <section className="relative px-6 pb-20">
         <div className="max-w-4xl mx-auto">
           <div className="prose prose-invert prose-slate max-w-none">
-            
             {/* Introduction */}
             <div className="mb-12">
               <p className="text-slate-300 leading-relaxed mb-4">
@@ -78,7 +74,7 @@ export default function TermsPage() {
             {/* Section 3 */}
             <div className="mb-12">
               <h2 className="text-2xl font-bold text-white mb-4">3. User Accounts</h2>
-              
+
               <h3 className="text-xl font-semibold text-white mb-3 mt-6">3.1 Account Creation</h3>
               <p className="text-slate-300 leading-relaxed mb-4">
                 To access certain features, you must create an account. You agree to:
@@ -99,15 +95,15 @@ export default function TermsPage() {
             {/* Section 4 */}
             <div className="mb-12">
               <h2 className="text-2xl font-bold text-white mb-4">4. Use of Services</h2>
-              
+
               <h3 className="text-xl font-semibold text-white mb-3 mt-6">4.1 Permitted Use</h3>
               <p className="text-slate-300 leading-relaxed mb-4">
                 You may use our Services for lawful purposes only, including:
               </p>
               <ul className="list-disc list-inside text-slate-300 space-y-2 mb-4 ml-4">
-                <li>Discovering and registering for campus events</li>
+                <li>Discovering and registering for events</li>
                 <li>Creating and managing events (if you're an organizer)</li>
-                <li>Connecting with other students and organizations</li>
+                <li>Connecting with other members and spaces</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-white mb-3 mt-6">4.2 Prohibited Activities</h3>
@@ -145,7 +141,7 @@ export default function TermsPage() {
             {/* Section 6 */}
             <div className="mb-12">
               <h2 className="text-2xl font-bold text-white mb-4">6. Content and Intellectual Property</h2>
-              
+
               <h3 className="text-xl font-semibold text-white mb-3 mt-6">6.1 Your Content</h3>
               <p className="text-slate-300 leading-relaxed mb-4">
                 You retain ownership of content you post on Unifesto. By posting content, you grant us a worldwide, non-exclusive, royalty-free license to use, display, and distribute your content in connection with our Services.
@@ -175,7 +171,7 @@ export default function TermsPage() {
             {/* Section 8 */}
             <div className="mb-12">
               <h2 className="text-2xl font-bold text-white mb-4">8. Disclaimers and Limitations of Liability</h2>
-              
+
               <h3 className="text-xl font-semibold text-white mb-3 mt-6">8.1 Service Availability</h3>
               <p className="text-slate-300 leading-relaxed mb-4">
                 Our Services are provided "as is" and "as available." We do not guarantee uninterrupted, secure, or error-free service. We may modify, suspend, or discontinue any part of our Services at any time.
@@ -250,13 +246,12 @@ export default function TermsPage() {
               <p className="text-slate-300 leading-relaxed mb-4">
                 If you have questions about these Terms:
               </p>
-              <div className="bg-white/[0.02] border border-white/10 rounded-xl p-6">
-                <p className="text-slate-300 mb-2"><strong className="text-white">Legal:</strong> <a href="mailto:legal@unifesto.app" className="text-blue-400 hover:text-blue-300">legal@unifesto.app</a></p>
-                <p className="text-slate-300 mb-2"><strong className="text-white">Support:</strong> <a href="mailto:support@unifesto.app" className="text-blue-400 hover:text-blue-300">support@unifesto.app</a></p>
+              <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6">
+                <p className="text-slate-300 mb-2"><strong className="text-white">Legal:</strong> <a href="mailto:legal@unifesto.app" className="text-primary hover:underline">legal@unifesto.app</a></p>
+                <p className="text-slate-300 mb-2"><strong className="text-white">Support:</strong> <a href="mailto:support@unifesto.app" className="text-primary hover:underline">support@unifesto.app</a></p>
                 <p className="text-slate-300"><strong className="text-white">Company:</strong> Unifesto Private Limited</p>
               </div>
             </div>
-
           </div>
         </div>
       </section>

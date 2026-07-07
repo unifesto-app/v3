@@ -5,7 +5,9 @@
 
 "use client";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+// Use the same-origin Next.js API proxy (src/app/api/public/*) instead of
+// hitting the external backend directly. This avoids CORS/preflight failures.
+const API_URL = "/api";
 
 // ==========================================
 // TYPES

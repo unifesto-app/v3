@@ -1,81 +1,150 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { gradientText } from "@/lib/styles";
+import { motion, useReducedMotion } from "motion/react";
 
-const stats = [
-  { value: 10000, suffix: "+", label: "Active Students", duration: 2000 },
-  { value: 25, suffix: "+", label: "Events Hosted", duration: 1200 },
-  { value: 10, suffix: "+", label: "Collaborations", duration: 1000 },
-  { value: 3, suffix: "", label: "Campus Clubs", duration: 800 },
+const ease = [0.22, 1, 0.36, 1] as const;
+
+/* Supporting proof, stated as facts inline \u2014 not four identical big-number
+   cards. One dominant living figure carries the weight; the rest read as
+   evidence in a sentence. */
+const proof = [
+  { value: "25+", label: "events run end-to-end" },
+  { value: "10+", label: "clubs & societies onboard" },
+  { value: "0", label: "printed tickets, ever" },
 ];
 
-function useCountUp(target: number, duration: number, active: boolean) {
-  const [count, setCount] = useState(0);
+function useCountUp(target: number, duration: number, active: boolean, reduce: boolean) {
+  const [count, setCount] = useState(reduce ? target : 0);
   useEffect(() => {
-    if (!active) return;
+    if (!active || reduce) {
+      setCount(target);
+      return;
+    }
     let start = 0;
     const step = target / (duration / 16);
     const timer = setInterval(() => {
       start += step;
-      if (start >= target) { setCount(target); clearInterval(timer); }
-      else setCount(Math.floor(start));
+      if (start >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else setCount(Math.floor(start));
     }, 16);
     return () => clearInterval(timer);
-  }, [active, target, duration]);
+  }, [active, target, duration, reduce]);
   return count;
-}
-
-function StatCard({ value, suffix, label, duration, active }: typeof stats[0] & { active: boolean }) {
-  const count = useCountUp(value, duration, active);
-  return (
-    <div className="flex flex-col items-center text-center p-6 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-300">
-      <span className="text-4xl md:text-5xl font-black text-white mb-1">
-        {count.toLocaleString()}{suffix}
-      </span>
-      <span className="text-sm text-slate-500 font-medium">{label}</span>
-    </div>
-  );
 }
 
 export default function SocialProofSection() {
   const [active, setActive] = useState(false);
   const ref = useRef<HTMLElement>(null);
+  const reduce = !!useReducedMotion();
+  const students = useCountUp(10000, 1800, active, reduce);
 
   useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setActive(true); observer.disconnect(); } },
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setActive(true);
+          observer.disconnect();
+        }
+      },
       { threshold: 0.3 }
     );
-    if (ref.current) observer.observe(ref.current);
+    observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section ref={ref} id="social-proof" aria-labelledby="proof-heading" className="relative bg-black py-20 md:py-24 px-6">
-      {/* Gradient top line */}
+    <section
+      ref={ref}
+      id="social-proof"
+      aria-labelledby="proof-heading"
+      className="relative overflow-hidden bg-canvas px-6 py-24 md:py-32"
+    >
       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px pointer-events-none"
-        style={{ background: "linear-gradient(90deg, transparent, #3491ff, transparent)" }}
         aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(46rem 30rem at 78% 40%, rgba(52,145,255,0.09), transparent 62%)",
+        }}
       />
 
-      <div className="max-w-5xl mx-auto text-center">
-        <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-3" style={gradientText}>
-          By the numbers
-        </p>
-        <h2 id="proof-heading" className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
-          Trusted by students across campus
-        </h2>
-        <p className="text-slate-500 text-sm md:text-base max-w-md mx-auto mb-12">
-          Real events. Real attendees. Real impact.
-        </p>
+      <div className="relative z-10 mx-auto grid max-w-5xl items-center gap-14 md:grid-cols-[1.1fr_0.9fr] md:gap-20">
+        {/* Left: the dominant, living figure + narrative. */}
+        <div>
+          <p className="text-sm font-medium text-primary">
+            Malla Reddy University runs on it
+          </p>
+          <div className="mt-4 flex items-baseline gap-3">
+            <span
+              className="font-agrandir text-[clamp(3.5rem,9vw,6.5rem)] font-bold leading-none text-white"
+              style={{ letterSpacing: "-0.05em" }}
+            >
+              {students.toLocaleString()}
+              <span className="text-primary">+</span>
+            </span>
+          </div>
+          <p className="mt-3 max-w-md text-lg leading-relaxed text-slate-300">
+            attendees discover, register and check into events through
+            Unifesto, without a single form printed or a queue at the gate.
+          </p>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {stats.map((s) => (
-            <StatCard key={s.label} {...s} active={active} />
-          ))}
+          {/* Evidence line \u2014 inline, not carded. */}
+          <dl className="mt-10 flex flex-wrap gap-x-10 gap-y-6">
+            {proof.map((p, i) => (
+              <motion.div
+                key={p.label}
+                initial={reduce ? false : { opacity: 0, y: 12 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 + i * 0.08, duration: 0.5, ease }}
+              >
+                <dt className="text-3xl font-bold text-white">{p.value}</dt>
+                <dd className="mt-0.5 max-w-[9rem] text-sm text-slate-400">
+                  {p.label}
+                </dd>
+              </motion.div>
+            ))}
+          </dl>
         </div>
+
+        {/* Right: a real voice, not a testimonial slider. */}
+        <motion.figure
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.6, ease }}
+          className="relative rounded-3xl border border-white/10 bg-white/[0.03] p-8"
+        >
+          <span
+            aria-hidden="true"
+            className="font-agrandir absolute -top-4 left-6 text-6xl leading-none text-primary/30"
+          >
+            &ldquo;
+          </span>
+          <blockquote
+            id="proof-heading"
+            className="relative text-xl font-medium leading-snug text-white md:text-2xl"
+          >
+            We check in 2,000 people at the gate in minutes now. Last year that
+            was three volunteers and a spreadsheet.
+          </blockquote>
+          <figcaption className="mt-6 flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
+              IE
+            </span>
+            <span className="text-sm">
+              <span className="block font-semibold text-white">
+                I&amp;E Cell, MRUH
+              </span>
+              <span className="block text-slate-400">Event operations lead</span>
+            </span>
+          </figcaption>
+        </motion.figure>
       </div>
     </section>
   );

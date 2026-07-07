@@ -1,93 +1,86 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { brandGradient, gradientText } from "@/lib/styles";
+import {
+  Lightning,
+  BookOpen,
+  Lock,
+  CalendarDots,
+  WebhooksLogo,
+  Package,
+  MagnifyingGlass,
+  WarningCircle,
+} from "@phosphor-icons/react";
 
 type DocSection = "getting-started" | "api" | "authentication" | "events" | "webhooks" | "sdks";
+
+const SECTIONS: { id: DocSection; label: string; Icon: typeof Lightning }[] = [
+  { id: "getting-started", label: "Getting Started", Icon: Lightning },
+  { id: "api", label: "API Reference", Icon: BookOpen },
+  { id: "authentication", label: "Authentication", Icon: Lock },
+  { id: "events", label: "Events API", Icon: CalendarDots },
+  { id: "webhooks", label: "Webhooks", Icon: WebhooksLogo },
+  { id: "sdks", label: "SDKs & Libraries", Icon: Package },
+];
+
+const CODE_PANEL = "rounded-xl border border-white/10 bg-[#050507] p-4";
+
+function CodeBlock({ children }: { children: React.ReactNode }) {
+  return (
+    <div className={CODE_PANEL}>
+      <pre className="text-sm text-slate-200 overflow-x-auto">{children}</pre>
+    </div>
+  );
+}
+
+function Step({ n, title, desc }: { n: number; title: string; desc: string }) {
+  return (
+    <div className="flex items-start gap-4">
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-primary bg-primary/12 border border-primary/25 flex-shrink-0">
+        {n}
+      </div>
+      <div>
+        <h4 className="text-base font-semibold text-white mb-1">{title}</h4>
+        <p className="text-sm text-slate-300">{desc}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function DocsPage() {
   const [activeSection, setActiveSection] = useState<DocSection>("getting-started");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const sections = [
-    { 
-      id: "getting-started", 
-      label: "Getting Started", 
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      )
-    },
-    { 
-      id: "api", 
-      label: "API Reference", 
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-        </svg>
-      )
-    },
-    { 
-      id: "authentication", 
-      label: "Authentication", 
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-      )
-    },
-    { 
-      id: "events", 
-      label: "Events API", 
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-        </svg>
-      )
-    },
-    { 
-      id: "webhooks", 
-      label: "Webhooks", 
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-        </svg>
-      )
-    },
-    { 
-      id: "sdks", 
-      label: "SDKs & Libraries", 
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-        </svg>
-      )
-    },
-  ];
+  const filteredSections = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return SECTIONS;
+    const matches = SECTIONS.filter((s) => s.label.toLowerCase().includes(q));
+    return matches.length > 0 ? matches : SECTIONS;
+  }, [searchQuery]);
 
   return (
-    <main className="min-h-screen bg-black overflow-x-hidden">
+    <main className="min-h-screen bg-[#050507] overflow-x-hidden text-white">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative bg-black pt-28 pb-12 px-6 border-b border-white/5">
-        <div className="max-w-6xl mx-auto">
+      {/* Hero */}
+      <section className="relative overflow-hidden pt-28 pb-12 px-6 border-b border-white/5">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-72 w-[36rem] rounded-full bg-primary/12 blur-[130px]"
+        />
+        <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-8">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-3" style={gradientText}>
-              Developer Documentation
-            </p>
-            <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-4">
-              Build with <span style={gradientText}>Unifesto</span>
+            <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-[-0.02em] leading-tight mb-4">
+              Build with Unifesto
             </h1>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="text-slate-300 text-lg max-w-2xl mx-auto">
               Everything you need to integrate Unifesto into your applications. APIs, SDKs, and guides.
             </p>
           </div>
 
-          {/* Search Bar */}
+          {/* Search */}
           <div className="max-w-2xl mx-auto">
             <div className="relative">
               <input
@@ -95,55 +88,57 @@ export default function DocsPage() {
                 placeholder="Search documentation..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 pl-12 text-sm text-white placeholder-slate-600 outline-none focus:border-[#3491ff] transition-colors"
+                className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 pl-12 text-sm text-white placeholder-slate-400 outline-none focus:border-primary transition-colors"
               />
-              <svg className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              <MagnifyingGlass
+                size={20}
+                weight="bold"
+                className="text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Main Content */}
+      {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-10">
-          
-          {/* Sidebar Navigation */}
+          {/* Sidebar */}
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <nav className="space-y-2">
-              {sections.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id as DocSection)}
-                  className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-3 ${
-                    activeSection === section.id
-                      ? "bg-white/5 text-white border border-white/10"
-                      : "text-slate-500 hover:text-white hover:bg-white/[0.02]"
-                  }`}
-                >
-                  <span className={activeSection === section.id ? "text-white" : "text-slate-500"}>
-                    {section.icon}
-                  </span>
-                  {section.label}
-                </button>
-              ))}
+              {filteredSections.map(({ id, label, Icon }) => {
+                const active = activeSection === id;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => setActiveSection(id)}
+                    className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-colors duration-200 flex items-center gap-3 ${
+                      active
+                        ? "bg-white/5 text-white border border-white/10"
+                        : "text-slate-300 hover:text-white hover:bg-white/[0.03] border border-transparent"
+                    }`}
+                  >
+                    <Icon size={20} weight="bold" className={active ? "text-primary" : "text-slate-400"} />
+                    {label}
+                  </button>
+                );
+              })}
             </nav>
 
             {/* Quick Links */}
-            <div className="mt-8 p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+            <div className="mt-8 p-4 rounded-xl border border-white/10 bg-white/[0.02]">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Quick Links</p>
               <div className="space-y-2">
-                <a href="#" className="block text-sm text-slate-500 hover:text-white transition-colors">
+                <a href="#" className="block text-sm text-slate-300 hover:text-white transition-colors">
                   API Status
                 </a>
-                <a href="#" className="block text-sm text-slate-500 hover:text-white transition-colors">
+                <a href="#" className="block text-sm text-slate-300 hover:text-white transition-colors">
                   Changelog
                 </a>
-                <a href="/support" className="block text-sm text-slate-500 hover:text-white transition-colors">
+                <a href="/support" className="block text-sm text-slate-300 hover:text-white transition-colors">
                   Support
                 </a>
-                <a href="#" className="block text-sm text-slate-500 hover:text-white transition-colors">
+                <a href="#" className="block text-sm text-slate-300 hover:text-white transition-colors">
                   GitHub
                 </a>
               </div>
@@ -152,58 +147,33 @@ export default function DocsPage() {
 
           {/* Content Area */}
           <div className="min-h-screen">
-            
             {/* Getting Started */}
             {activeSection === "getting-started" && (
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-3xl font-extrabold text-white mb-4">Getting Started</h2>
-                  <p className="text-slate-400 leading-relaxed">
+                  <h2 className="text-3xl font-extrabold text-white tracking-[-0.02em] mb-4">Getting Started</h2>
+                  <p className="text-slate-300 leading-relaxed">
                     Welcome to the Unifesto API documentation. This guide will help you integrate our platform into your applications.
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                   <h3 className="text-xl font-bold text-white mb-4">Quick Start</h3>
                   <div className="space-y-4">
-                    <div className="flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-black flex-shrink-0" style={{ background: brandGradient }}>
-                        1
-                      </div>
-                      <div>
-                        <h4 className="text-base font-semibold text-white mb-1">Create an Account</h4>
-                        <p className="text-sm text-slate-400">Sign up for a developer account at unifesto.app/auth</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-black flex-shrink-0" style={{ background: brandGradient }}>
-                        2
-                      </div>
-                      <div>
-                        <h4 className="text-base font-semibold text-white mb-1">Get API Keys</h4>
-                        <p className="text-sm text-slate-400">Navigate to Settings → API Keys to generate your credentials</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-black flex-shrink-0" style={{ background: brandGradient }}>
-                        3
-                      </div>
-                      <div>
-                        <h4 className="text-base font-semibold text-white mb-1">Make Your First Request</h4>
-                        <p className="text-sm text-slate-400">Use your API key to authenticate and start building</p>
-                      </div>
-                    </div>
+                    <Step n={1} title="Create an Account" desc="Sign up for a developer account at unifesto.app/auth" />
+                    <Step n={2} title="Get API Keys" desc="Navigate to Settings → API Keys to generate your credentials" />
+                    <Step n={3} title="Make Your First Request" desc="Use your API key to authenticate and start building" />
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-white/10 bg-black p-6">
+                <div className="rounded-2xl border border-white/10 bg-[#050507] p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="text-sm font-semibold text-white">Example Request</h4>
-                    <button className="text-xs font-medium text-slate-500 hover:text-white transition-colors">
+                    <button className="text-xs font-medium text-slate-300 hover:text-white transition-colors">
                       Copy
                     </button>
                   </div>
-                  <pre className="text-sm text-slate-300 overflow-x-auto">
+                  <pre className="text-sm text-slate-200 overflow-x-auto">
 {`curl https://api.unifesto.app/v1/events \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json"`}
@@ -211,13 +181,13 @@ export default function DocsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                     <h4 className="text-base font-bold text-white mb-2">Base URL</h4>
-                    <code className="text-sm text-slate-400">https://api.unifesto.app/v1</code>
+                    <code className="text-sm text-slate-300">https://api.unifesto.app/v1</code>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                     <h4 className="text-base font-bold text-white mb-2">Rate Limits</h4>
-                    <p className="text-sm text-slate-400">1000 requests per hour</p>
+                    <p className="text-sm text-slate-300">1000 requests per hour</p>
                   </div>
                 </div>
               </div>
@@ -227,17 +197,14 @@ export default function DocsPage() {
             {activeSection === "api" && (
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-3xl font-extrabold text-white mb-4">API Reference</h2>
-                  <p className="text-slate-400 leading-relaxed">
-                    Complete reference for all Unifesto API endpoints.
-                  </p>
+                  <h2 className="text-3xl font-extrabold text-white tracking-[-0.02em] mb-4">API Reference</h2>
+                  <p className="text-slate-300 leading-relaxed">Complete reference for all Unifesto API endpoints.</p>
                 </div>
 
-                {/* Events Endpoints */}
                 <div className="space-y-4">
                   <h3 className="text-xl font-bold text-white">Events</h3>
-                  
-                  <div className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden">
+
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden">
                     <div className="p-6 border-b border-white/5">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="px-2 py-1 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">
@@ -245,10 +212,10 @@ export default function DocsPage() {
                         </span>
                         <code className="text-sm text-white">/events</code>
                       </div>
-                      <p className="text-sm text-slate-400">List all events</p>
+                      <p className="text-sm text-slate-300">List all events</p>
                     </div>
-                    <div className="p-6 bg-black">
-                      <pre className="text-sm text-slate-300 overflow-x-auto">
+                    <div className="p-6 bg-[#050507]">
+                      <pre className="text-sm text-slate-200 overflow-x-auto">
 {`{
   "data": [
     {
@@ -270,7 +237,7 @@ export default function DocsPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden">
                     <div className="p-6 border-b border-white/5">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="px-2 py-1 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">
@@ -278,10 +245,10 @@ export default function DocsPage() {
                         </span>
                         <code className="text-sm text-white">/events/:id</code>
                       </div>
-                      <p className="text-sm text-slate-400">Get event details</p>
+                      <p className="text-sm text-slate-300">Get event details</p>
                     </div>
-                    <div className="p-6 bg-black">
-                      <pre className="text-sm text-slate-300 overflow-x-auto">
+                    <div className="p-6 bg-[#050507]">
+                      <pre className="text-sm text-slate-200 overflow-x-auto">
 {`{
   "data": {
     "id": "evt_123",
@@ -300,7 +267,7 @@ export default function DocsPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden">
                     <div className="p-6 border-b border-white/5">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="px-2 py-1 rounded text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
@@ -308,10 +275,10 @@ export default function DocsPage() {
                         </span>
                         <code className="text-sm text-white">/events</code>
                       </div>
-                      <p className="text-sm text-slate-400">Create a new event</p>
+                      <p className="text-sm text-slate-300">Create a new event</p>
                     </div>
-                    <div className="p-6 bg-black">
-                      <pre className="text-sm text-slate-300 overflow-x-auto">
+                    <div className="p-6 bg-[#050507]">
+                      <pre className="text-sm text-slate-200 overflow-x-auto">
 {`{
   "title": "New Event",
   "description": "Event description",
@@ -332,49 +299,43 @@ export default function DocsPage() {
             {activeSection === "authentication" && (
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-3xl font-extrabold text-white mb-4">Authentication</h2>
-                  <p className="text-slate-400 leading-relaxed">
+                  <h2 className="text-3xl font-extrabold text-white tracking-[-0.02em] mb-4">Authentication</h2>
+                  <p className="text-slate-300 leading-relaxed">
                     Unifesto uses API keys to authenticate requests. Include your API key in the Authorization header.
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                   <h3 className="text-xl font-bold text-white mb-4">API Key Authentication</h3>
-                  <p className="text-sm text-slate-400 mb-4">
+                  <p className="text-sm text-slate-300 mb-4">
                     All API requests must include your API key in the Authorization header:
                   </p>
-                  <div className="rounded-xl border border-white/10 bg-black p-4">
-                    <pre className="text-sm text-slate-300">
-{`Authorization: Bearer YOUR_API_KEY`}
-                    </pre>
-                  </div>
+                  <CodeBlock>{`Authorization: Bearer YOUR_API_KEY`}</CodeBlock>
                 </div>
 
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                   <h3 className="text-xl font-bold text-white mb-4">OAuth 2.0</h3>
-                  <p className="text-sm text-slate-400 mb-4">
+                  <p className="text-sm text-slate-300 mb-4">
                     For user-facing applications, use OAuth 2.0 for secure authentication:
                   </p>
                   <div className="space-y-3">
                     <div>
                       <p className="text-sm font-semibold text-white mb-1">Authorization URL</p>
-                      <code className="text-sm text-slate-400">https://unifesto.app/oauth/authorize</code>
+                      <code className="text-sm text-slate-300">https://unifesto.app/oauth/authorize</code>
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-white mb-1">Token URL</p>
-                      <code className="text-sm text-slate-400">https://api.unifesto.app/oauth/token</code>
+                      <code className="text-sm text-slate-300">https://api.unifesto.app/oauth/token</code>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-6">
+                <div className="rounded-2xl border border-yellow-500/25 bg-yellow-500/5 p-6">
                   <div className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
+                    <WarningCircle size={20} weight="fill" className="text-yellow-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-semibold text-yellow-500 mb-1">Security Best Practices</p>
-                      <p className="text-sm text-slate-400">
+                      <p className="text-sm font-semibold text-yellow-400 mb-1">Security Best Practices</p>
+                      <p className="text-sm text-slate-300">
                         Never expose your API keys in client-side code. Always make API calls from your backend server.
                       </p>
                     </div>
@@ -387,14 +348,14 @@ export default function DocsPage() {
             {activeSection === "events" && (
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-3xl font-extrabold text-white mb-4">Events API</h2>
-                  <p className="text-slate-400 leading-relaxed">
+                  <h2 className="text-3xl font-extrabold text-white tracking-[-0.02em] mb-4">Events API</h2>
+                  <p className="text-slate-300 leading-relaxed">
                     Manage events, registrations, and attendees programmatically.
                   </p>
                 </div>
 
                 <div className="space-y-6">
-                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                     <h3 className="text-lg font-bold text-white mb-3">Query Parameters</h3>
                     <div className="space-y-3">
                       {[
@@ -407,19 +368,18 @@ export default function DocsPage() {
                         <div key={item.param} className="flex items-start gap-4 pb-3 border-b border-white/5 last:border-0">
                           <code className="text-sm font-mono text-white bg-white/5 px-2 py-1 rounded">{item.param}</code>
                           <div className="flex-1">
-                            <p className="text-xs text-slate-500 mb-1">{item.type}</p>
-                            <p className="text-sm text-slate-400">{item.desc}</p>
+                            <p className="text-xs text-slate-400 mb-1">{item.type}</p>
+                            <p className="text-sm text-slate-300">{item.desc}</p>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                     <h3 className="text-lg font-bold text-white mb-3">Event Registration</h3>
-                    <p className="text-sm text-slate-400 mb-4">Register a user for an event:</p>
-                    <div className="rounded-xl border border-white/10 bg-black p-4">
-                      <pre className="text-sm text-slate-300 overflow-x-auto">
+                    <p className="text-sm text-slate-300 mb-4">Register a user for an event:</p>
+                    <CodeBlock>
 {`POST /events/:id/register
 
 {
@@ -427,8 +387,7 @@ export default function DocsPage() {
   "email": "user@example.com",
   "name": "John Doe"
 }`}
-                      </pre>
-                    </div>
+                    </CodeBlock>
                   </div>
                 </div>
               </div>
@@ -438,13 +397,13 @@ export default function DocsPage() {
             {activeSection === "webhooks" && (
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-3xl font-extrabold text-white mb-4">Webhooks</h2>
-                  <p className="text-slate-400 leading-relaxed">
+                  <h2 className="text-3xl font-extrabold text-white tracking-[-0.02em] mb-4">Webhooks</h2>
+                  <p className="text-slate-300 leading-relaxed">
                     Receive real-time notifications when events occur in your Unifesto account.
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                   <h3 className="text-xl font-bold text-white mb-4">Available Events</h3>
                   <div className="space-y-3">
                     {[
@@ -456,16 +415,15 @@ export default function DocsPage() {
                     ].map((item) => (
                       <div key={item.event} className="p-4 rounded-lg bg-white/[0.02] border border-white/5">
                         <code className="text-sm font-mono text-white">{item.event}</code>
-                        <p className="text-sm text-slate-400 mt-1">{item.desc}</p>
+                        <p className="text-sm text-slate-300 mt-1">{item.desc}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                   <h3 className="text-xl font-bold text-white mb-4">Webhook Payload</h3>
-                  <div className="rounded-xl border border-white/10 bg-black p-4">
-                    <pre className="text-sm text-slate-300 overflow-x-auto">
+                  <CodeBlock>
 {`{
   "id": "evt_webhook_123",
   "type": "event.created",
@@ -478,8 +436,7 @@ export default function DocsPage() {
     }
   }
 }`}
-                    </pre>
-                  </div>
+                  </CodeBlock>
                 </div>
               </div>
             )}
@@ -488,8 +445,8 @@ export default function DocsPage() {
             {activeSection === "sdks" && (
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-3xl font-extrabold text-white mb-4">SDKs & Libraries</h2>
-                  <p className="text-slate-400 leading-relaxed">
+                  <h2 className="text-3xl font-extrabold text-white tracking-[-0.02em] mb-4">SDKs & Libraries</h2>
+                  <p className="text-slate-300 leading-relaxed">
                     Official SDKs and community libraries to integrate Unifesto in your preferred language.
                   </p>
                 </div>
@@ -503,28 +460,27 @@ export default function DocsPage() {
                     { name: "Go", status: "Official", install: "go get github.com/unifesto/go-sdk" },
                     { name: "Java", status: "Community", install: "Maven/Gradle available" },
                   ].map((sdk) => (
-                    <div key={sdk.name} className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                    <div key={sdk.name} className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="text-base font-bold text-white">{sdk.name}</h4>
-                        <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                          sdk.status === "Official" 
-                            ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                            : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                        }`}>
+                        <span
+                          className={`text-xs font-semibold px-2 py-1 rounded ${
+                            sdk.status === "Official"
+                              ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                              : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                          }`}
+                        >
                           {sdk.status}
                         </span>
                       </div>
-                      <code className="text-xs text-slate-400 bg-black px-3 py-2 rounded block">
-                        {sdk.install}
-                      </code>
+                      <code className="text-xs text-slate-300 bg-[#050507] px-3 py-2 rounded block">{sdk.install}</code>
                     </div>
                   ))}
                 </div>
 
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                   <h3 className="text-xl font-bold text-white mb-4">Quick Example (Node.js)</h3>
-                  <div className="rounded-xl border border-white/10 bg-black p-4">
-                    <pre className="text-sm text-slate-300 overflow-x-auto">
+                  <CodeBlock>
 {`const Unifesto = require('@unifesto/sdk');
 
 const client = new Unifesto({
@@ -543,12 +499,10 @@ const event = await client.events.create({
   date: '2026-05-01',
   location: 'Main Hall'
 });`}
-                    </pre>
-                  </div>
+                  </CodeBlock>
                 </div>
               </div>
             )}
-
           </div>
         </div>
       </div>

@@ -12,6 +12,18 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return [
+      // The public API lives in this app as Route Handlers under
+      // /app/api/public/*. Expose them at /public/* so the frontend clients
+      // (which call `${NEXT_PUBLIC_API_URL}/public/...`) resolve when the API
+      // host (api.unifesto.app) is aliased to this Next.js deployment.
+      {
+        source: '/public/:path*',
+        destination: '/api/public/:path*',
+      },
+    ];
+  },
   async headers() {
     return [
       {

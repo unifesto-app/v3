@@ -8,7 +8,7 @@ const features = [
       </svg>
     ),
     title: "Discover Events",
-    description: "Browse all campus events in one unified feed with smart filters and personalized recommendations.",
+    description: "Browse all events in one unified feed with smart filters and personalized recommendations.",
   },
   {
     icon: (
@@ -77,10 +77,10 @@ export default function FeaturesHighlightSection() {
           </p>
           <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-5">
             Everything you need to<br />
-            <span style={gradientText}>elevate campus events.</span>
+            <span style={gradientText}>elevate events.</span>
           </h2>
           <p className="text-slate-500 text-sm md:text-base max-w-2xl mx-auto">
-            From discovery to analytics, we've built the complete toolkit for modern campus event management.
+            From discovery to analytics, we've built the complete toolkit for modern event management.
           </p>
         </div>
 

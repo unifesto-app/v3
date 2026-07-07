@@ -68,7 +68,7 @@ export default function DownloadPage() {
 
           {/* Description */}
           <p className="text-lg text-gray-400 mb-8 max-w-xl mx-auto">
-            Discover and register for events, manage your tickets, and connect with communities — all in one app.
+            Discover and register for events, manage your tickets, and connect with communities, all in one app.
           </p>
 
           {/* Auto-redirect message */}

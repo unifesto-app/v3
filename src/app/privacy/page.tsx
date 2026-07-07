@@ -1,13 +1,12 @@
-import { gradientText, brandGradient } from "@/lib/styles";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Privacy Policy — Unifesto",
+  title: "Privacy Policy | Unifesto",
   description: "Learn how Unifesto collects, uses, and protects your personal information. Your privacy is our priority.",
   keywords: ["privacy policy", "data protection", "user privacy", "unifesto privacy", "data security"],
   openGraph: {
-    title: "Privacy Policy — Unifesto",
+    title: "Privacy Policy | Unifesto",
     description: "Learn how Unifesto collects, uses, and protects your personal information.",
     type: "website",
     url: "https://www.unifesto.app/privacy",
@@ -15,7 +14,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Privacy Policy — Unifesto",
+    title: "Privacy Policy | Unifesto",
     description: "Learn how Unifesto collects, uses, and protects your personal information.",
     site: "@unifestoapp",
   },
@@ -23,19 +22,17 @@ export const metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-black overflow-x-hidden">
+    <main className="min-h-screen bg-[#050507] overflow-x-hidden text-white">
       <Navbar />
 
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="relative pt-36 pb-20 px-6 text-center overflow-hidden">
         <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(52,145,255,0.1) 0%, transparent 70%)" }}
-          aria-hidden="true"
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-72 w-[36rem] rounded-full bg-primary/12 blur-[130px]"
         />
         <div className="relative z-10 max-w-4xl mx-auto">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-4" style={gradientText}>Legal</p>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-5">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-[-0.02em] leading-tight mb-5">
             Privacy Policy
           </h1>
           <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
@@ -44,11 +41,10 @@ export default function PrivacyPage() {
         </div>
       </section>
 
-      {/* Content Section */}
+      {/* Content */}
       <section className="relative px-6 pb-20">
         <div className="max-w-4xl mx-auto">
           <div className="prose prose-invert prose-slate max-w-none">
-            
             {/* Introduction */}
             <div className="mb-12">
               <p className="text-slate-300 leading-relaxed mb-4">
@@ -59,15 +55,15 @@ export default function PrivacyPage() {
             {/* Section 1 */}
             <div className="mb-12">
               <h2 className="text-2xl font-bold text-white mb-4">1. Information We Collect</h2>
-              
+
               <h3 className="text-xl font-semibold text-white mb-3 mt-6">1.1 Information You Provide</h3>
               <p className="text-slate-300 leading-relaxed mb-4">
                 We collect information that you voluntarily provide when you:
               </p>
               <ul className="list-disc list-inside text-slate-300 space-y-2 mb-4 ml-4">
-                <li>Create an account (name, email, phone number, college/university)</li>
+                <li>Create an account (name, email, phone number, organisation)</li>
                 <li>Register for events (personal details, preferences)</li>
-                <li>Host events (organization information, event details)</li>
+                <li>Host events (space information, event details)</li>
                 <li>Contact our support team</li>
                 <li>Subscribe to our newsletter</li>
               </ul>
@@ -148,7 +144,7 @@ export default function PrivacyPage() {
                 <li>Data portability (receive your data in a structured format)</li>
               </ul>
               <p className="text-slate-300 leading-relaxed">
-                To exercise these rights, contact us at <a href="mailto:privacy@unifesto.app" className="text-blue-400 hover:text-blue-300">privacy@unifesto.app</a>
+                To exercise these rights, contact us at <a href="mailto:privacy@unifesto.app" className="text-primary hover:underline">privacy@unifesto.app</a>
               </p>
             </div>
 
@@ -182,13 +178,12 @@ export default function PrivacyPage() {
               <p className="text-slate-300 leading-relaxed mb-4">
                 If you have questions or concerns about this Privacy Policy, please contact us:
               </p>
-              <div className="bg-white/[0.02] border border-white/10 rounded-xl p-6">
-                <p className="text-slate-300 mb-2"><strong className="text-white">Email:</strong> <a href="mailto:privacy@unifesto.app" className="text-blue-400 hover:text-blue-300">privacy@unifesto.app</a></p>
-                <p className="text-slate-300 mb-2"><strong className="text-white">Support:</strong> <a href="mailto:support@unifesto.app" className="text-blue-400 hover:text-blue-300">support@unifesto.app</a></p>
+              <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6">
+                <p className="text-slate-300 mb-2"><strong className="text-white">Email:</strong> <a href="mailto:privacy@unifesto.app" className="text-primary hover:underline">privacy@unifesto.app</a></p>
+                <p className="text-slate-300 mb-2"><strong className="text-white">Support:</strong> <a href="mailto:support@unifesto.app" className="text-primary hover:underline">support@unifesto.app</a></p>
                 <p className="text-slate-300"><strong className="text-white">Company:</strong> Unifesto Private Limited</p>
               </div>
             </div>
-
           </div>
         </div>
       </section>

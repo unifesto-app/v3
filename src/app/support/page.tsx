@@ -1,11 +1,50 @@
 "use client";
 
 import { useState } from "react";
-import { gradientText, brandGradient } from "@/lib/styles";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  type Variants,
+} from "motion/react";
+import {
+  MagnifyingGlass,
+  CaretDown,
+  CaretRight,
+  ArrowLeft,
+  Plus,
+  X,
+  EnvelopeSimple,
+  ChatCircleDots,
+  Compass,
+  XLogo,
+  Check,
+  Ticket as TicketIcon,
+  PaperPlaneRight,
+  ArrowUpRight,
+} from "@phosphor-icons/react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-type Ticket = {
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+/* ── Reveal ─────────────────────────────────────────────────────────── */
+function useFade(reduce: boolean | null): Variants {
+  return {
+    hidden: reduce ? { opacity: 1 } : { opacity: 0, y: 20, filter: "blur(4px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduce ? 0 : 0.55, ease: EASE },
+    },
+  };
+}
+
+/* ── Types ──────────────────────────────────────────────────────────── */
+type TabId = "faq" | "tickets" | "contact";
+
+interface Ticket {
   id: string;
   subject: string;
   category: string;
@@ -19,11 +58,229 @@ type Ticket = {
     message: string;
     timestamp: string;
   }[];
-};
+}
+
+/* ── Data ───────────────────────────────────────────────────────────── */
+const faqs = [
+  {
+    id: "gs-1",
+    category: "Getting Started",
+    question: "What exactly is Unifesto?",
+    answer:
+      "Unifesto is the AI brain behind events run by institutions, clubs, communities, and startups. It unifies discovery, registration, face check-in, WhatsApp-first communication, and post-event analytics into one platform, replacing the scattered mix of forms, spreadsheets, posters, and group chats.",
+  },
+  {
+    id: "gs-2",
+    category: "Getting Started",
+    question: "How do I create an account?",
+    answer:
+      "Download the Unifesto app or sign in on the web with your email. Verification takes seconds, and you're matched to relevant events right away.",
+  },
+  {
+    id: "gs-3",
+    category: "Getting Started",
+    question: "Where is Unifesto available?",
+    answer:
+      "We launched in Hyderabad and are expanding across India. If your organisation isn't live yet, join the waitlist and we'll onboard you next.",
+  },
+  {
+    id: "st-1",
+    category: "For Students",
+    question: "How does AI face check-in work?",
+    answer:
+      "At the event, look at the check-in camera. A match against your registration opens the gate in under a second. No paper lists, no QR fumbling, no queue.",
+  },
+  {
+    id: "st-2",
+    category: "For Students",
+    question: "Where do my tickets and passes live?",
+    answer:
+      "Everything sits in your Unifesto wallet: event passes, QR codes, and certificates in one place, available offline once loaded.",
+  },
+  {
+    id: "st-3",
+    category: "For Students",
+    question: "Can I register for events in one tap?",
+    answer:
+      "Yes. Matched events show a single register action; most attendees are in under a minute, with a confirmation sent straight to WhatsApp.",
+  },
+  {
+    id: "or-1",
+    category: "For Organizers",
+    question: "How do I publish an event?",
+    answer:
+      "Create the event in the organiser dashboard, set registration fields, and publish. It's discoverable to matched attendees immediately, and you manage everything from one screen.",
+  },
+  {
+    id: "or-2",
+    category: "For Organizers",
+    question: "What is the post-event debrief?",
+    answer:
+      "After your event, Unifesto generates an AI debrief with real attendance data: who showed up, session-by-session numbers, and drop-off, so you plan the next one on evidence, not guesses.",
+  },
+  {
+    id: "or-3",
+    category: "For Organizers",
+    question: "Can my whole team manage one event?",
+    answer:
+      "Yes. Add volunteers and leads with roles so your team runs registration and check-in together, without stitching spreadsheets and group chats.",
+  },
+  {
+    id: "ft-1",
+    category: "Features",
+    question: "Does Unifesto work over WhatsApp?",
+    answer:
+      "WhatsApp is first-class. Confirmations, reminders, and updates reach attendees where they already are, with no separate inbox to check.",
+  },
+  {
+    id: "ft-2",
+    category: "Features",
+    question: "Can I use Unifesto offline?",
+    answer:
+      "Passes and QR codes in your wallet load once and work offline, useful on crowded venue networks and slower connections.",
+  },
+  {
+    id: "pr-1",
+    category: "Pricing & Billing",
+    question: "Is Unifesto free for students?",
+    answer:
+      "Yes, discovery, registration, and your wallet are free for attendees. You only pay if an individual event charges a ticket fee.",
+  },
+  {
+    id: "pr-2",
+    category: "Pricing & Billing",
+    question: "How does billing work for organisers?",
+    answer:
+      "Organisers can host free events at no cost. Paid tooling and payment collection are billed transparently per event. Reach out and we'll walk your team through it.",
+  },
+  {
+    id: "vf-1",
+    category: "Verification",
+    question: "How do I verify a certificate?",
+    answer:
+      "Every certificate issued through Unifesto carries a verifiable ID. Use the /verify page to confirm a certificate, employee ID, or space credential instantly.",
+  },
+  {
+    id: "vf-2",
+    category: "Verification",
+    question: "Are my face and personal data safe?",
+    answer:
+      "Face check-in data is used only to match you at your registered events and is handled per our privacy policy. You stay in control of your credentials.",
+  },
+];
+
+const categories = ["All", ...Array.from(new Set(faqs.map((f) => f.category)))];
+
+const contactOptions = [
+  {
+    Icon: EnvelopeSimple,
+    title: "Email Support",
+    description: "Reach the team directly. We reply within 24 hours.",
+    action: "support@unifesto.app",
+    href: "mailto:support@unifesto.app",
+  },
+  {
+    Icon: ChatCircleDots,
+    title: "Live Chat",
+    description: "Chat with support during working hours, IST.",
+    action: "Start a chat",
+    href: "#chat",
+  },
+  {
+    Icon: Compass,
+    title: "Help Center",
+    description: "Browse guides for attendees and organisers.",
+    action: "Open guides",
+    href: "#help-center",
+  },
+  {
+    Icon: XLogo,
+    title: "Twitter / X",
+    description: "Follow launches and reach us in public.",
+    action: "@unifestoapp",
+    href: "https://x.com/unifestoapp",
+  },
+];
+
+const resources = [
+  {
+    href: "/about",
+    title: "About Unifesto",
+    body: "Our mission and how we're rebuilding events in India.",
+  },
+  {
+    href: "/features",
+    title: "Platform Features",
+    body: "Discovery, face check-in, WhatsApp, and post-event analytics.",
+  },
+  {
+    href: "/verify",
+    title: "Verification",
+    body: "Confirm certificates, employee IDs, and space credentials.",
+  },
+];
+
+/* ── Status / priority styling (color + label, never color alone) ────── */
+function statusStyle(status: Ticket["status"]) {
+  switch (status) {
+    case "open":
+      return "border-sky-400/30 bg-sky-400/10 text-sky-200";
+    case "in-progress":
+      return "border-amber-400/30 bg-amber-400/10 text-amber-200";
+    case "resolved":
+      return "border-emerald-400/30 bg-emerald-400/10 text-emerald-200";
+    case "closed":
+      return "border-white/15 bg-white/5 text-slate-300";
+  }
+}
+
+function priorityStyle(priority: Ticket["priority"]) {
+  switch (priority) {
+    case "high":
+      return "border-rose-400/30 bg-rose-400/10 text-rose-200";
+    case "medium":
+      return "border-amber-400/30 bg-amber-400/10 text-amber-200";
+    case "low":
+      return "border-white/15 bg-white/5 text-slate-300";
+  }
+}
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+const formatTime = (iso: string) =>
+  new Date(iso).toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+const TABS: { id: TabId; label: string }[] = [
+  { id: "faq", label: "FAQ" },
+  { id: "tickets", label: "Support tickets" },
+  { id: "contact", label: "Contact us" },
+];
+
+/* ── Shared surface classes ─────────────────────────────────────────── */
+const CARD =
+  "rounded-2xl border border-white/10 bg-white/[0.03] transition-colors duration-200";
+const CTA =
+  "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-[#050507] transition-colors duration-200 hover:bg-[#1f83ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+const FIELD =
+  "w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition-colors duration-200 hover:border-white/20 focus:border-primary";
 
 export default function SupportPage() {
-  const [activeTab, setActiveTab] = useState<"faq" | "tickets" | "contact">("faq");
+  const reduce = useReducedMotion();
+  const fade = useFade(reduce);
+
+  const [activeTab, setActiveTab] = useState<TabId>("faq");
   const [openFaq, setOpenFaq] = useState<string | null>(null);
+  const [faqCategory, setFaqCategory] = useState<string>("All");
+  const [search, setSearch] = useState("");
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -32,7 +289,6 @@ export default function SupportPage() {
   });
   const [submitted, setSubmitted] = useState(false);
 
-  // Ticket System State
   const [showTicketForm, setShowTicketForm] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [ticketForm, setTicketForm] = useState({
@@ -42,64 +298,53 @@ export default function SupportPage() {
     description: "",
   });
   const [newMessage, setNewMessage] = useState("");
-
-  // Mock tickets data (in real app, this would come from backend)
   const [tickets, setTickets] = useState<Ticket[]>([
     {
       id: "TKT-001",
-      subject: "Unable to generate QR codes for attendees",
+      subject: "QR code not scanning at check-in",
       category: "technical",
       status: "in-progress",
       priority: "high",
-      createdAt: "2026-04-15T10:30:00Z",
-      lastUpdated: "2026-04-16T14:20:00Z",
+      createdAt: "2026-01-08T09:24:00",
+      lastUpdated: "2026-01-09T14:10:00",
       messages: [
         {
-          id: "msg-1",
+          id: "m1",
           sender: "user",
-          message: "I'm trying to generate QR codes for my event but getting an error. The event has 200 registrations.",
-          timestamp: "2026-04-15T10:30:00Z",
+          message:
+            "My event QR code won't scan at the gate and the camera just spins. Event is tomorrow, help!",
+          timestamp: "2026-01-08T09:24:00",
         },
         {
-          id: "msg-2",
+          id: "m2",
           sender: "support",
-          message: "Hi! Thanks for reaching out. We're looking into this issue. Can you share the event ID?",
-          timestamp: "2026-04-15T11:45:00Z",
-        },
-        {
-          id: "msg-3",
-          sender: "user",
-          message: "Sure, the event ID is EVT-2026-HL-001",
-          timestamp: "2026-04-15T12:10:00Z",
-        },
-        {
-          id: "msg-4",
-          sender: "support",
-          message: "Thank you! We've identified the issue and are working on a fix. We'll update you within 2 hours.",
-          timestamp: "2026-04-16T14:20:00Z",
+          message:
+            "Thanks for flagging this. Please update to the latest app version and reload your wallet, which regenerates the QR. We're also checking the venue scanner config on our side.",
+          timestamp: "2026-01-09T14:10:00",
         },
       ],
     },
     {
       id: "TKT-002",
-      subject: "Refund request for cancelled event",
+      subject: "Refund for a cancelled workshop",
       category: "billing",
       status: "resolved",
       priority: "medium",
-      createdAt: "2026-04-10T09:15:00Z",
-      lastUpdated: "2026-04-12T16:30:00Z",
+      createdAt: "2026-01-02T16:40:00",
+      lastUpdated: "2026-01-04T11:05:00",
       messages: [
         {
-          id: "msg-5",
+          id: "m1",
           sender: "user",
-          message: "I purchased a ticket for an event that got cancelled. How do I get a refund?",
-          timestamp: "2026-04-10T09:15:00Z",
+          message: "The workshop I paid for was cancelled. How do I get my refund?",
+          timestamp: "2026-01-02T16:40:00",
         },
         {
-          id: "msg-6",
+          id: "m2",
           sender: "support",
-          message: "We've processed your refund. It should reflect in your account within 5-7 business days.",
-          timestamp: "2026-04-12T16:30:00Z",
+          message:
+            "Sorry about the cancellation. Your refund has been processed and should reach your original payment method within 5 to 7 business days.",
+          timestamp: "2026-01-04T11:05:00",
         },
       ],
     },
@@ -114,498 +359,255 @@ export default function SupportPage() {
 
   const handleCreateTicket = (e: React.FormEvent) => {
     e.preventDefault();
-    const newTicket: Ticket = {
+    const now = new Date().toISOString();
+    const ticket: Ticket = {
       id: `TKT-${String(tickets.length + 1).padStart(3, "0")}`,
       subject: ticketForm.subject,
       category: ticketForm.category,
       status: "open",
       priority: ticketForm.priority,
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
+      createdAt: now,
+      lastUpdated: now,
       messages: [
         {
-          id: `msg-${Date.now()}`,
+          id: "m1",
           sender: "user",
           message: ticketForm.description,
-          timestamp: new Date().toISOString(),
+          timestamp: now,
         },
       ],
     };
-    setTickets([newTicket, ...tickets]);
-    setTicketForm({ subject: "", category: "", priority: "medium", description: "" });
+    setTickets([ticket, ...tickets]);
     setShowTicketForm(false);
-    setSelectedTicket(newTicket);
+    setTicketForm({ subject: "", category: "", priority: "medium", description: "" });
+    setSelectedTicket(ticket);
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTicket || !newMessage.trim()) return;
-
-    const updatedTicket = {
+    const now = new Date().toISOString();
+    const updated: Ticket = {
       ...selectedTicket,
-      lastUpdated: new Date().toISOString(),
+      lastUpdated: now,
       messages: [
         ...selectedTicket.messages,
-        {
-          id: `msg-${Date.now()}`,
-          sender: "user" as const,
-          message: newMessage,
-          timestamp: new Date().toISOString(),
-        },
+        { id: `m${selectedTicket.messages.length + 1}`, sender: "user", message: newMessage, timestamp: now },
       ],
     };
-
-    setTickets(tickets.map((t) => (t.id === selectedTicket.id ? updatedTicket : t)));
-    setSelectedTicket(updatedTicket);
+    setTickets(tickets.map((t) => (t.id === updated.id ? updated : t)));
+    setSelectedTicket(updated);
     setNewMessage("");
   };
 
-  const getStatusColor = (status: Ticket["status"]) => {
-    switch (status) {
-      case "open":
-        return "bg-blue-500/10 text-blue-400 border-blue-500/20";
-      case "in-progress":
-        return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
-      case "resolved":
-        return "bg-green-500/10 text-green-400 border-green-500/20";
-      case "closed":
-        return "bg-slate-500/10 text-slate-400 border-slate-500/20";
-    }
-  };
-
-  const getPriorityColor = (priority: Ticket["priority"]) => {
-    switch (priority) {
-      case "low":
-        return "bg-slate-500/10 text-slate-400 border-slate-500/20";
-      case "medium":
-        return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
-      case "high":
-        return "bg-red-500/10 text-red-400 border-red-500/20";
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  };
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-  };
-
-  const faqs = [
-    {
-      id: "getting-started",
-      category: "Getting Started",
-      question: "How do I create an account on Unifesto?",
-      answer: "Click on 'Get Started' in the navigation bar. You can sign up using your email, Google account, or university email. No credit card required for free events.",
-    },
-    {
-      id: "create-event",
-      category: "Getting Started",
-      question: "How do I create my first event?",
-      answer: "After logging in, click 'Host Event' in the navigation. Fill in basic details like event name, date, venue, and category. You can publish your event in under 5 minutes.",
-    },
-    {
-      id: "event-discovery",
-      category: "For Students",
-      question: "How do I find events on campus?",
-      answer: "Visit the 'Discover' section to browse all campus events. Use filters to narrow down by category (Hackathons, Cultural, Workshops, etc.), date, or organizer. You can also search by event name or keyword.",
-    },
-    {
-      id: "registration",
-      category: "For Students",
-      question: "Do I need an account to register for events?",
-      answer: "For free events, you can register without an account. For paid events or to access additional features like saved events and personalized recommendations, you'll need to create an account.",
-    },
-    {
-      id: "qr-ticket",
-      category: "For Students",
-      question: "Where is my QR ticket after registration?",
-      answer: "Your QR ticket is sent to your email immediately after registration. You can also access it from your account dashboard under 'My Events'. Show this QR code at the event entry for check-in.",
-    },
-    {
-      id: "ticketing",
-      category: "For Organizers",
-      question: "Can I sell paid tickets on Unifesto?",
-      answer: "Yes! Unifesto supports both free RSVP and paid ticketing. You can set ticket prices, capacity limits, and enable waitlists. Payment processing is integrated and secure.",
-    },
-    {
-      id: "qr-checkin",
-      category: "For Organizers",
-      question: "How does QR check-in work?",
-      answer: "Use the Unifesto QR Check-in App on any device. Simply scan attendee QR codes at the gate. The system tracks attendance in real-time, prevents duplicate entries, and works offline.",
-    },
-    {
-      id: "analytics",
-      category: "For Organizers",
-      question: "What analytics are available for my event?",
-      answer: "You get real-time registration tracking, check-in data, attendance reports, demographic insights, and conversion metrics. All data can be exported in CSV or PDF format.",
-    },
-    {
-      id: "capacity",
-      category: "For Organizers",
-      question: "What happens when my event reaches capacity?",
-      answer: "When capacity is reached, new registrations automatically go to a waitlist. If someone cancels, the next person on the waitlist is automatically promoted and notified.",
-    },
-    {
-      id: "certificates",
-      category: "Features",
-      question: "Can I generate certificates for attendees?",
-      answer: "Certificate generation is coming soon! You'll be able to bulk-generate certificates with custom templates, QR verification, and automatic email delivery to all attendees.",
-    },
-    {
-      id: "mobile-app",
-      category: "Features",
-      question: "Is there a mobile app?",
-      answer: "Native Android and iOS apps are coming soon! Currently, Unifesto works perfectly on mobile browsers and can be added to your home screen as a PWA (Progressive Web App).",
-    },
-    {
-      id: "pricing",
-      category: "Pricing & Billing",
-      question: "How much does Unifesto cost?",
-      answer: "Unifesto is free for organizers to create and manage events. For paid events, we charge a small platform fee. Free events have no charges whatsoever.",
-    },
-    {
-      id: "refunds",
-      category: "Pricing & Billing",
-      question: "What is your refund policy?",
-      answer: "Refund policies are set by individual event organizers. If you need a refund, contact the event organizer directly through the event page. For platform-related issues, contact our support team.",
-    },
-    {
-      id: "verification",
-      category: "Verification",
-      question: "How do I verify my organization?",
-      answer: "Visit your organization profile and click 'Request Verification'. Submit required documents (university ID, club registration, etc.). Our team reviews within 2-3 business days.",
-    },
-    {
-      id: "employee-verification",
-      category: "Verification",
-      question: "What is employee verification?",
-      answer: "Employee verification is for Unifesto Private Limited employees only. Employees can verify their identity by scanning the QR code on their employee ID card.",
-    },
-  ];
-
-  const categories = Array.from(new Set(faqs.map((faq) => faq.category)));
-
-  const contactOptions = [
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      ),
-      title: "Email Support",
-      description: "Get help via email within 24 hours",
-      action: "support@unifesto.app",
-      href: "mailto:support@unifesto.app",
-    },
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-      ),
-      title: "Live Chat",
-      description: "Chat with our support team",
-      action: "Start Chat",
-      href: "#chat",
-    },
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-        </svg>
-      ),
-      title: "Help Center",
-      description: "Browse guides and tutorials",
-      action: "View Docs",
-      href: "#help-center",
-    },
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-        </svg>
-      ),
-      title: "Twitter / X",
-      description: "Follow us for updates",
-      action: "@unifestoapp",
-      href: "https://x.com/unifestoapp",
-    },
-  ];
+  const filteredFaqs = faqs.filter((f) => {
+    const inCategory = faqCategory === "All" || f.category === faqCategory;
+    const q = search.trim().toLowerCase();
+    const inSearch =
+      !q ||
+      f.question.toLowerCase().includes(q) ||
+      f.answer.toLowerCase().includes(q);
+    return inCategory && inSearch;
+  });
 
   return (
-    <main className="min-h-screen bg-black overflow-x-hidden">
+    <main className="min-h-screen overflow-x-hidden bg-[#050507]">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative pt-36 pb-20 px-6 text-center overflow-hidden">
+      {/* ── Hero ──────────────────────────────────────────────────────── */}
+      <section className="relative px-6 pt-36 pb-14">
         <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(52,145,255,0.1) 0%, transparent 70%)" }}
-          aria-hidden="true"
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-24 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-primary/15 blur-[130px]"
         />
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-4" style={gradientText}>
-            Support Center
-          </p>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-5">
-            How can we<br />
-            <span style={gradientText}>help you?</span>
+        <motion.div
+          variants={fade}
+          initial="hidden"
+          animate="show"
+          className="relative mx-auto max-w-3xl text-center"
+        >
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-medium text-slate-200">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Support team online · replies within 24h
+          </span>
+          <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl">
+            How can we <span className="text-primary">help</span>?
           </h1>
-          <p className="text-slate-400 text-sm md:text-lg leading-relaxed max-w-2xl mx-auto mb-8">
-            Find answers, create support tickets, or get in touch with our team.
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-slate-300">
+            Answers for attendees and organisers running events on Unifesto.
+            Search the FAQ, track a ticket, or reach a real person.
           </p>
+        </motion.div>
 
-          {/* Tabs */}
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <button
-              onClick={() => setActiveTab("faq")}
-              className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-                activeTab === "faq"
-                  ? "text-black"
-                  : "text-slate-400 bg-white/5 hover:bg-white/10 border border-white/10"
-              }`}
-              style={activeTab === "faq" ? { background: brandGradient } : {}}
-            >
-              FAQ
-            </button>
-            <button
-              onClick={() => setActiveTab("tickets")}
-              className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-                activeTab === "tickets"
-                  ? "text-black"
-                  : "text-slate-400 bg-white/5 hover:bg-white/10 border border-white/10"
-              }`}
-              style={activeTab === "tickets" ? { background: brandGradient } : {}}
-            >
-              Support Tickets
-            </button>
-            <button
-              onClick={() => setActiveTab("contact")}
-              className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-                activeTab === "contact"
-                  ? "text-black"
-                  : "text-slate-400 bg-white/5 hover:bg-white/10 border border-white/10"
-              }`}
-              style={activeTab === "contact" ? { background: brandGradient } : {}}
-            >
-              Contact Us
-            </button>
-          </div>
+        {/* Segmented tab control */}
+        <motion.div
+          variants={fade}
+          initial="hidden"
+          animate="show"
+          className="relative mx-auto mt-10 flex max-w-md items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1"
+        >
+          {TABS.map((tab) => {
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                aria-pressed={active}
+                className={`relative flex-1 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-200 ${
+                  active ? "text-[#050507]" : "text-slate-300 hover:text-white"
+                }`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="support-tab"
+                    transition={{ duration: reduce ? 0 : 0.3, ease: EASE }}
+                    className="absolute inset-0 rounded-full bg-primary"
+                  />
+                )}
+                <span className="relative z-10">{tab.label}</span>
+              </button>
+            );
+          })}
+        </motion.div>
 
-          {/* Search Bar */}
-          {activeTab === "faq" && (
-            <div className="max-w-xl mx-auto">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search for help..."
-                  className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 pl-12 text-sm text-white placeholder-slate-500 outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200"
-                />
-                <svg
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* FAQ search, only on the FAQ tab */}
+        {activeTab === "faq" && (
+          <motion.div
+            variants={fade}
+            initial="hidden"
+            animate="show"
+            className="relative mx-auto mt-6 max-w-xl"
+          >
+            <MagnifyingGlass
+              weight="bold"
+              className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
+            />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search for help…"
+              aria-label="Search FAQs"
+              className="w-full rounded-full border border-white/10 bg-white/[0.04] py-4 pl-12 pr-6 text-sm text-white placeholder-slate-400 outline-none transition-colors duration-200 hover:border-white/20 focus:border-primary"
+            />
+          </motion.div>
+        )}
       </section>
 
-      {/* Contact Options */}
-      {activeTab === "contact" && (
-        <section className="relative py-20 px-6 border-t border-white/5">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-3" style={gradientText}>
-                Get in Touch
-              </p>
-              <h2 className="text-2xl md:text-4xl font-extrabold text-white">
-                Choose your preferred<br />
-                <span style={gradientText}>support channel.</span>
-              </h2>
+      {/* ── FAQ ───────────────────────────────────────────────────────── */}
+      {activeTab === "faq" && (
+        <section className="relative border-t border-white/5 px-6 py-16">
+          <div className="mx-auto max-w-4xl">
+            <div className="mb-8 flex flex-wrap justify-center gap-2">
+              {categories.map((category) => {
+                const active = faqCategory === category;
+                return (
+                  <button
+                    key={category}
+                    onClick={() => setFaqCategory(category)}
+                    className={`rounded-full border px-4 py-2 text-xs font-semibold transition-colors duration-200 ${
+                      active
+                        ? "border-primary bg-primary/15 text-primary"
+                        : "border-white/10 bg-white/[0.03] text-slate-300 hover:border-white/20 hover:text-white"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {contactOptions.map((option) => (
-                <a
-                  key={option.title}
-                  href={option.href}
-                  target={option.href.startsWith("http") ? "_blank" : undefined}
-                  rel={option.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/20 transition-all duration-300 hover:-translate-y-1 group"
-                >
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 text-black"
-                    style={{ background: brandGradient }}
-                  >
-                    {option.icon}
-                  </div>
-                  <h3 className="text-base font-bold text-white mb-2">{option.title}</h3>
-                  <p className="text-xs text-slate-500 mb-4">{option.description}</p>
-                  <p className="text-sm font-semibold" style={gradientText}>
-                    {option.action} →
-                  </p>
-                </a>
-              ))}
+            <div className="space-y-3">
+              {filteredFaqs.length === 0 ? (
+                <p className="py-12 text-center text-sm text-slate-300">
+                  No results for “{search}”. Try a different search or reach us on the
+                  Contact tab.
+                </p>
+              ) : (
+                filteredFaqs.map((faq) => {
+                  const open = openFaq === faq.id;
+                  return (
+                    <div key={faq.id} className={`overflow-hidden ${CARD}`}>
+                      <button
+                        onClick={() => setOpenFaq(open ? null : faq.id)}
+                        aria-expanded={open}
+                        className="flex w-full items-center justify-between gap-4 p-5 text-left"
+                      >
+                        <div className="flex-1">
+                          <span className="text-xs font-semibold text-primary">
+                            {faq.category}
+                          </span>
+                          <h3 className="mt-1 text-sm font-semibold text-white md:text-base">
+                            {faq.question}
+                          </h3>
+                        </div>
+                        <CaretDown
+                          weight="bold"
+                          className={`h-5 w-5 flex-shrink-0 text-slate-300 transition-transform duration-200 ${
+                            open ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                      <AnimatePresence initial={false}>
+                        {open && (
+                          <motion.div
+                            initial={reduce ? undefined : { height: 0, opacity: 0 }}
+                            animate={reduce ? undefined : { height: "auto", opacity: 1 }}
+                            exit={reduce ? undefined : { height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: EASE }}
+                          >
+                            <p className="px-5 pb-5 text-sm leading-relaxed text-slate-300">
+                              {faq.answer}
+                            </p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </section>
       )}
 
-      {/* Support Ticket System */}
+      {/* ── Tickets ───────────────────────────────────────────────────── */}
       {activeTab === "tickets" && (
-        <section className="relative py-20 px-6 border-t border-white/5">
-          <div className="max-w-7xl mx-auto">
+        <section className="relative border-t border-white/5 px-6 py-16">
+          <div className="mx-auto max-w-4xl">
             {!selectedTicket ? (
               <>
-                {/* Ticket List Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
                   <div>
-                    <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-                      Your Support Tickets
+                    <h2 className="text-2xl font-extrabold text-white md:text-3xl">
+                      Your support tickets
                     </h2>
-                    <p className="text-sm text-slate-500">
-                      Track and manage all your support requests
+                    <p className="mt-2 text-sm text-slate-300">
+                      Track and manage every request in one thread.
                     </p>
                   </div>
-                  <button
-                    onClick={() => setShowTicketForm(true)}
-                    className="rounded-full px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)] hover:-translate-y-0.5"
-                    style={{ background: brandGradient }}
-                  >
-                    + New Ticket
+                  <button onClick={() => setShowTicketForm(true)} className={CTA}>
+                    <Plus weight="bold" className="h-4 w-4" />
+                    New ticket
                   </button>
                 </div>
 
-                {/* Create Ticket Form Modal */}
-                {showTicketForm && (
-                  <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-                    <div className="bg-black border border-white/10 rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                      <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-xl font-bold text-white">Create Support Ticket</h3>
-                        <button
-                          onClick={() => setShowTicketForm(false)}
-                          className="text-slate-400 hover:text-white transition-colors"
-                        >
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-
-                      <form onSubmit={handleCreateTicket} className="space-y-5">
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-400 mb-2">
-                            Subject *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={ticketForm.subject}
-                            onChange={(e) => setTicketForm({ ...ticketForm, subject: e.target.value })}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200"
-                            placeholder="Brief description of your issue"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-400 mb-2">
-                              Category *
-                            </label>
-                            <select
-                              required
-                              value={ticketForm.category}
-                              onChange={(e) => setTicketForm({ ...ticketForm, category: e.target.value })}
-                              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200"
-                            >
-                              <option value="" className="bg-black">Select category</option>
-                              <option value="general" className="bg-black">General Inquiry</option>
-                              <option value="technical" className="bg-black">Technical Support</option>
-                              <option value="billing" className="bg-black">Billing & Payments</option>
-                              <option value="event" className="bg-black">Event Management</option>
-                              <option value="verification" className="bg-black">Verification</option>
-                              <option value="feedback" className="bg-black">Feedback</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-400 mb-2">
-                              Priority *
-                            </label>
-                            <select
-                              required
-                              value={ticketForm.priority}
-                              onChange={(e) => setTicketForm({ ...ticketForm, priority: e.target.value as "low" | "medium" | "high" })}
-                              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200"
-                            >
-                              <option value="low" className="bg-black">Low</option>
-                              <option value="medium" className="bg-black">Medium</option>
-                              <option value="high" className="bg-black">High</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-400 mb-2">
-                            Description *
-                          </label>
-                          <textarea
-                            required
-                            rows={6}
-                            value={ticketForm.description}
-                            onChange={(e) => setTicketForm({ ...ticketForm, description: e.target.value })}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200 resize-none"
-                            placeholder="Provide detailed information about your issue..."
-                          />
-                        </div>
-
-                        <div className="flex gap-3">
-                          <button
-                            type="button"
-                            onClick={() => setShowTicketForm(false)}
-                            className="flex-1 rounded-full px-6 py-3 text-sm font-semibold text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="submit"
-                            className="flex-1 rounded-full px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)]"
-                            style={{ background: brandGradient }}
-                          >
-                            Create Ticket
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                )}
-
-                {/* Tickets List */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {tickets.length === 0 ? (
-                    <div className="text-center py-16">
-                      <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                        </svg>
+                    <div className={`px-6 py-16 text-center ${CARD}`}>
+                      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]">
+                        <TicketIcon weight="duotone" className="h-7 w-7 text-primary" />
                       </div>
-                      <h3 className="text-lg font-bold text-white mb-2">No tickets yet</h3>
-                      <p className="text-sm text-slate-500 mb-6">Create your first support ticket to get help</p>
+                      <h3 className="text-lg font-bold text-white">No tickets yet</h3>
+                      <p className="mx-auto mt-2 max-w-sm text-sm text-slate-300">
+                        Open your first ticket and we'll pick it up within 24 hours.
+                      </p>
                       <button
                         onClick={() => setShowTicketForm(true)}
-                        className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)]"
-                        style={{ background: brandGradient }}
+                        className={`mt-6 ${CTA}`}
                       >
-                        Create Ticket
+                        <Plus weight="bold" className="h-4 w-4" />
+                        Create ticket
                       </button>
                     </div>
                   ) : (
@@ -613,362 +615,475 @@ export default function SupportPage() {
                       <button
                         key={ticket.id}
                         onClick={() => setSelectedTicket(ticket)}
-                        className="w-full p-6 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/20 transition-all duration-300 text-left"
+                        className={`group w-full p-5 text-left hover:border-white/20 hover:bg-white/[0.05] ${CARD}`}
                       >
-                        <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-xs font-bold text-slate-500">{ticket.id}</span>
-                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusColor(ticket.status)}`}>
-                                {ticket.status.toUpperCase().replace("-", " ")}
+                            <div className="mb-2 flex flex-wrap items-center gap-2">
+                              <span className="font-mono text-xs font-semibold text-slate-400">
+                                {ticket.id}
                               </span>
-                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getPriorityColor(ticket.priority)}`}>
-                                {ticket.priority.toUpperCase()}
+                              <span
+                                className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusStyle(
+                                  ticket.status,
+                                )}`}
+                              >
+                                {ticket.status.replace("-", " ")}
+                              </span>
+                              <span
+                                className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${priorityStyle(
+                                  ticket.priority,
+                                )}`}
+                              >
+                                {ticket.priority}
                               </span>
                             </div>
-                            <h3 className="text-base font-semibold text-white mb-1">{ticket.subject}</h3>
-                            <p className="text-xs text-slate-500">
-                              Created {formatDate(ticket.createdAt)} • Last updated {formatDate(ticket.lastUpdated)}
+                            <h3 className="text-base font-semibold text-white">
+                              {ticket.subject}
+                            </h3>
+                            <p className="mt-1 text-xs text-slate-400">
+                              Created {formatDate(ticket.createdAt)} · Updated{" "}
+                              {formatDate(ticket.lastUpdated)}
+                            </p>
+                            <p className="mt-3 line-clamp-2 text-sm text-slate-300">
+                              {ticket.messages[ticket.messages.length - 1].message}
                             </p>
                           </div>
-                          <svg className="w-5 h-5 text-slate-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
+                          <CaretRight
+                            weight="bold"
+                            className="mt-1 h-5 w-5 flex-shrink-0 text-slate-500 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-primary"
+                          />
                         </div>
-                        <p className="text-sm text-slate-400 line-clamp-2">
-                          {ticket.messages[ticket.messages.length - 1].message}
-                        </p>
                       </button>
                     ))
                   )}
                 </div>
               </>
             ) : (
-              /* Ticket Detail View */
               <div>
-                {/* Back Button */}
                 <button
                   onClick={() => setSelectedTicket(null)}
-                  className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors mb-6"
+                  className="mb-6 inline-flex items-center gap-2 text-sm text-slate-300 transition-colors hover:text-white"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
+                  <ArrowLeft weight="bold" className="h-4 w-4" />
                   Back to tickets
                 </button>
 
-                {/* Ticket Header */}
-                <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] mb-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-bold text-slate-500">{selectedTicket.id}</span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusColor(selectedTicket.status)}`}>
-                          {selectedTicket.status.toUpperCase().replace("-", " ")}
-                        </span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getPriorityColor(selectedTicket.priority)}`}>
-                          {selectedTicket.priority.toUpperCase()} PRIORITY
-                        </span>
-                      </div>
-                      <h2 className="text-xl md:text-2xl font-bold text-white mb-2">{selectedTicket.subject}</h2>
-                      <p className="text-xs text-slate-500">
-                        Created {formatDate(selectedTicket.createdAt)} • Last updated {formatDate(selectedTicket.lastUpdated)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Messages */}
-                <div className="space-y-4 mb-6">
-                  {selectedTicket.messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`p-5 rounded-2xl border ${
-                        msg.sender === "user"
-                          ? "border-white/10 bg-white/[0.02] ml-0 mr-8"
-                          : "border-blue-500/20 bg-blue-500/5 ml-8 mr-0"
-                      }`}
+                <div className={`mb-6 p-6 ${CARD}`}>
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <span className="font-mono text-xs font-semibold text-slate-400">
+                      {selectedTicket.id}
+                    </span>
+                    <span
+                      className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusStyle(
+                        selectedTicket.status,
+                      )}`}
                     >
-                      <div className="flex items-center gap-2 mb-3">
-                        <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                          style={msg.sender === "support" ? { background: brandGradient, color: "#000" } : { background: "rgba(255,255,255,0.1)", color: "#fff" }}
-                        >
-                          {msg.sender === "user" ? "Y" : "S"}
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-white">
-                            {msg.sender === "user" ? "You" : "Support Team"}
-                          </p>
-                          <p className="text-[10px] text-slate-500">
-                            {formatDate(msg.timestamp)} at {formatTime(msg.timestamp)}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-sm text-slate-300 leading-relaxed">{msg.message}</p>
-                    </div>
-                  ))}
+                      {selectedTicket.status.replace("-", " ")}
+                    </span>
+                    <span
+                      className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${priorityStyle(
+                        selectedTicket.priority,
+                      )}`}
+                    >
+                      {selectedTicket.priority} priority
+                    </span>
+                  </div>
+                  <h2 className="text-xl font-bold text-white md:text-2xl">
+                    {selectedTicket.subject}
+                  </h2>
+                  <p className="mt-2 text-xs text-slate-400">
+                    Created {formatDate(selectedTicket.createdAt)} · Updated{" "}
+                    {formatDate(selectedTicket.lastUpdated)}
+                  </p>
                 </div>
 
-                {/* Reply Form */}
+                <div className="mb-6 space-y-4">
+                  {selectedTicket.messages.map((msg) => {
+                    const isUser = msg.sender === "user";
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`rounded-2xl border p-5 ${
+                          isUser
+                            ? "mr-8 border-white/10 bg-white/[0.03]"
+                            : "ml-8 border-primary/25 bg-primary/[0.06]"
+                        }`}
+                      >
+                        <div className="mb-3 flex items-center gap-2">
+                          <div
+                            className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
+                              isUser
+                                ? "bg-white/10 text-white"
+                                : "bg-primary text-[#050507]"
+                            }`}
+                          >
+                            {isUser ? "You" : "S"}
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-white">
+                              {isUser ? "You" : "Support team"}
+                            </p>
+                            <p className="text-[10px] text-slate-400">
+                              {formatDate(msg.timestamp)} at {formatTime(msg.timestamp)}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-sm leading-relaxed text-slate-200">
+                          {msg.message}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+
                 {selectedTicket.status !== "closed" && (
-                  <form onSubmit={handleSendMessage} className="p-6 rounded-2xl border border-white/10 bg-white/[0.02]">
-                    <label className="block text-xs font-semibold text-slate-400 mb-3">
+                  <form onSubmit={handleSendMessage} className={`p-6 ${CARD}`}>
+                    <label
+                      htmlFor="reply"
+                      className="mb-3 block text-xs font-semibold text-slate-200"
+                    >
                       Add a reply
                     </label>
                     <textarea
+                      id="reply"
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       rows={4}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200 resize-none mb-4"
-                      placeholder="Type your message..."
+                      placeholder="Type your message…"
+                      className={`mb-4 resize-none ${FIELD}`}
                     />
-                    <button
-                      type="submit"
-                      className="rounded-full px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)]"
-                      style={{ background: brandGradient }}
-                    >
-                      Send Reply
+                    <button type="submit" className={CTA}>
+                      <PaperPlaneRight weight="bold" className="h-4 w-4" />
+                      Send reply
                     </button>
                   </form>
                 )}
               </div>
             )}
           </div>
+
+          {/* Create ticket modal */}
+          <AnimatePresence>
+            {showTicketForm && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reduce ? 0 : 0.2 }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm"
+                onClick={() => setShowTicketForm(false)}
+              >
+                <motion.div
+                  initial={reduce ? undefined : { opacity: 0, y: 16, scale: 0.98 }}
+                  animate={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
+                  exit={reduce ? undefined : { opacity: 0, y: 16, scale: 0.98 }}
+                  transition={{ duration: 0.25, ease: EASE }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/10 bg-[#0a0a0d] p-8"
+                >
+                  <div className="mb-6 flex items-center justify-between">
+                    <h3 className="text-xl font-bold text-white">Create support ticket</h3>
+                    <button
+                      onClick={() => setShowTicketForm(false)}
+                      aria-label="Close"
+                      className="text-slate-300 transition-colors hover:text-white"
+                    >
+                      <X weight="bold" className="h-6 w-6" />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleCreateTicket} className="space-y-5">
+                    <div>
+                      <label className="mb-2 block text-xs font-semibold text-slate-200">
+                        Subject *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={ticketForm.subject}
+                        onChange={(e) =>
+                          setTicketForm({ ...ticketForm, subject: e.target.value })
+                        }
+                        className={FIELD}
+                        placeholder="Brief description of your issue"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="mb-2 block text-xs font-semibold text-slate-200">
+                          Category *
+                        </label>
+                        <select
+                          required
+                          value={ticketForm.category}
+                          onChange={(e) =>
+                            setTicketForm({ ...ticketForm, category: e.target.value })
+                          }
+                          className={FIELD}
+                        >
+                          <option value="" className="bg-[#0a0a0d]">Select category</option>
+                          <option value="general" className="bg-[#0a0a0d]">General inquiry</option>
+                          <option value="technical" className="bg-[#0a0a0d]">Technical support</option>
+                          <option value="billing" className="bg-[#0a0a0d]">Billing & payments</option>
+                          <option value="event" className="bg-[#0a0a0d]">Event management</option>
+                          <option value="verification" className="bg-[#0a0a0d]">Verification</option>
+                          <option value="feedback" className="bg-[#0a0a0d]">Feedback</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-xs font-semibold text-slate-200">
+                          Priority *
+                        </label>
+                        <select
+                          required
+                          value={ticketForm.priority}
+                          onChange={(e) =>
+                            setTicketForm({
+                              ...ticketForm,
+                              priority: e.target.value as "low" | "medium" | "high",
+                            })
+                          }
+                          className={FIELD}
+                        >
+                          <option value="low" className="bg-[#0a0a0d]">Low</option>
+                          <option value="medium" className="bg-[#0a0a0d]">Medium</option>
+                          <option value="high" className="bg-[#0a0a0d]">High</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-xs font-semibold text-slate-200">
+                        Description *
+                      </label>
+                      <textarea
+                        required
+                        rows={6}
+                        value={ticketForm.description}
+                        onChange={(e) =>
+                          setTicketForm({ ...ticketForm, description: e.target.value })
+                        }
+                        className={`resize-none ${FIELD}`}
+                        placeholder="Provide detailed information about your issue…"
+                      />
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowTicketForm(false)}
+                        className="flex-1 rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-slate-200 transition-colors duration-200 hover:bg-white/[0.08]"
+                      >
+                        Cancel
+                      </button>
+                      <button type="submit" className={`flex-1 ${CTA}`}>
+                        Create ticket
+                      </button>
+                    </div>
+                  </form>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </section>
       )}
 
-      {/* FAQ Section */}
-      {activeTab === "faq" && (
-        <section className="relative py-20 px-6 border-t border-white/5">
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.025]"
-          style={{
-            backgroundImage: "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-          aria-hidden="true"
-        />
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-3" style={gradientText}>
-              FAQ
-            </p>
-            <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-3">
-              Frequently Asked<br />
-              <span style={gradientText}>Questions</span>
-            </h2>
-            <p className="text-slate-500 text-sm md:text-base">
-              Quick answers to common questions about Unifesto.
-            </p>
-          </div>
-
-          {/* Category Tabs */}
-          <div className="flex flex-wrap gap-2 justify-center mb-8">
-            {categories.map((category) => (
-              <button
-                key={category}
-                className="px-4 py-2 rounded-full text-xs font-medium bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white border border-white/5 hover:border-white/10 transition-all duration-200"
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-
-          {/* FAQ Accordion */}
-          <div className="space-y-3">
-            {faqs.map((faq) => (
-              <div
-                key={faq.id}
-                className="rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden"
-              >
-                <button
-                  onClick={() => setOpenFaq(openFaq === faq.id ? null : faq.id)}
-                  className="w-full flex items-center justify-between p-5 text-left hover:bg-white/[0.02] transition-colors duration-200"
-                >
-                  <div className="flex-1 pr-4">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 block">
-                      {faq.category}
-                    </span>
-                    <h3 className="text-sm md:text-base font-semibold text-white">
-                      {faq.question}
-                    </h3>
-                  </div>
-                  <svg
-                    className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${
-                      openFaq === faq.id ? "rotate-180" : ""
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+      {/* ── Contact ───────────────────────────────────────────────────── */}
+      {activeTab === "contact" && (
+        <section className="relative border-t border-white/5 px-6 py-16">
+          <div className="mx-auto max-w-6xl">
+            {/* Channels */}
+            <div className="mb-16 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {contactOptions.map(({ Icon, title, description, action, href }) => {
+                const external = href.startsWith("http");
+                return (
+                  <a
+                    key={title}
+                    href={href}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noopener noreferrer" : undefined}
+                    className={`group flex flex-col p-6 hover:border-white/20 hover:bg-white/[0.05] ${CARD}`}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {openFaq === faq.id && (
-                  <div className="px-5 pb-5 pt-0">
-                    <p className="text-sm text-slate-400 leading-relaxed">{faq.answer}</p>
-                  </div>
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/12 text-primary">
+                      <Icon weight="duotone" className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-base font-bold text-white">{title}</h3>
+                    <p className="mt-2 flex-1 text-sm text-slate-300">{description}</p>
+                    <p className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                      {action}
+                      <ArrowUpRight
+                        weight="bold"
+                        className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      />
+                    </p>
+                  </a>
+                );
+              })}
+            </div>
+
+            {/* Message form */}
+            <div className="mx-auto max-w-2xl">
+              <div className="mb-8 text-center">
+                <h2 className="text-2xl font-extrabold text-white md:text-3xl">
+                  Send us a message
+                </h2>
+                <p className="mt-3 text-sm text-slate-300">
+                  Can't find it in the FAQ? Our team replies within 24 hours.
+                </p>
+              </div>
+
+              <AnimatePresence mode="wait">
+                {submitted ? (
+                  <motion.div
+                    key="success"
+                    initial={reduce ? undefined : { opacity: 0, y: 12 }}
+                    animate={reduce ? undefined : { opacity: 1, y: 0 }}
+                    exit={reduce ? undefined : { opacity: 0 }}
+                    transition={{ duration: 0.35, ease: EASE }}
+                    className="rounded-2xl border border-emerald-400/25 bg-emerald-400/[0.06] p-8 text-center"
+                  >
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
+                      <Check weight="bold" className="h-7 w-7" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white">Message sent</h3>
+                    <p className="mx-auto mt-2 max-w-sm text-sm text-slate-300">
+                      We've received your message and will respond within 24 hours.
+                    </p>
+                  </motion.div>
+                ) : (
+                  <motion.form
+                    key="form"
+                    onSubmit={handleSubmit}
+                    initial={reduce ? undefined : { opacity: 0 }}
+                    animate={reduce ? undefined : { opacity: 1 }}
+                    exit={reduce ? undefined : { opacity: 0 }}
+                    transition={{ duration: 0.25, ease: EASE }}
+                    className="space-y-5"
+                  >
+                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                      <div>
+                        <label
+                          htmlFor="name"
+                          className="mb-2 block text-xs font-semibold text-slate-200"
+                        >
+                          Your name
+                        </label>
+                        <input
+                          id="name"
+                          type="text"
+                          required
+                          value={formData.name}
+                          onChange={(e) =>
+                            setFormData({ ...formData, name: e.target.value })
+                          }
+                          className={FIELD}
+                          placeholder="Priya Reddy"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="email"
+                          className="mb-2 block text-xs font-semibold text-slate-200"
+                        >
+                          Email address
+                        </label>
+                        <input
+                          id="email"
+                          type="email"
+                          required
+                          value={formData.email}
+                          onChange={(e) =>
+                            setFormData({ ...formData, email: e.target.value })
+                          }
+                          className={FIELD}
+                          placeholder="priya@example.com"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="category"
+                        className="mb-2 block text-xs font-semibold text-slate-200"
+                      >
+                        Category
+                      </label>
+                      <select
+                        id="category"
+                        required
+                        value={formData.category}
+                        onChange={(e) =>
+                          setFormData({ ...formData, category: e.target.value })
+                        }
+                        className={FIELD}
+                      >
+                        <option value="" className="bg-[#0a0a0d]">Select a category</option>
+                        <option value="general" className="bg-[#0a0a0d]">General inquiry</option>
+                        <option value="technical" className="bg-[#0a0a0d]">Technical support</option>
+                        <option value="billing" className="bg-[#0a0a0d]">Billing & payments</option>
+                        <option value="event" className="bg-[#0a0a0d]">Event management</option>
+                        <option value="verification" className="bg-[#0a0a0d]">Verification</option>
+                        <option value="feedback" className="bg-[#0a0a0d]">Feedback & suggestions</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="message"
+                        className="mb-2 block text-xs font-semibold text-slate-200"
+                      >
+                        Message
+                      </label>
+                      <textarea
+                        id="message"
+                        required
+                        rows={6}
+                        value={formData.message}
+                        onChange={(e) =>
+                          setFormData({ ...formData, message: e.target.value })
+                        }
+                        className={`resize-none ${FIELD}`}
+                        placeholder="Describe your issue or question…"
+                      />
+                    </div>
+
+                    <button type="submit" className={`w-full ${CTA}`}>
+                      Send message
+                    </button>
+                  </motion.form>
                 )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      )}
+              </AnimatePresence>
+            </div>
 
-      {/* Contact Form */}
-      {activeTab === "contact" && (
-        <section className="relative py-20 px-6 border-t border-white/5">
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-12">
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-3" style={gradientText}>
-                Still Need Help?
-              </p>
-              <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-3">
-                Send us a<br />
-                <span style={gradientText}>message.</span>
+            {/* Resources */}
+            <div className="mt-16 border-t border-white/5 pt-14">
+              <h2 className="mb-8 text-center text-2xl font-extrabold text-white md:text-3xl">
+                Helpful resources
               </h2>
-              <p className="text-slate-500 text-sm md:text-base">
-                Our support team will get back to you within 24 hours.
-              </p>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {resources.map((r) => (
+                  <a
+                    key={r.href}
+                    href={r.href}
+                    className={`group flex items-start justify-between gap-4 p-6 hover:border-white/20 hover:bg-white/[0.05] ${CARD}`}
+                  >
+                    <div>
+                      <h3 className="text-base font-bold text-white transition-colors group-hover:text-primary">
+                        {r.title}
+                      </h3>
+                      <p className="mt-2 text-sm text-slate-300">{r.body}</p>
+                    </div>
+                    <ArrowUpRight
+                      weight="bold"
+                      className="mt-1 h-5 w-5 flex-shrink-0 text-slate-500 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
+                    />
+                  </a>
+                ))}
+              </div>
             </div>
-
-          {submitted ? (
-            <div className="p-8 rounded-2xl border border-green-500/20 bg-green-500/5 text-center">
-              <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: brandGradient }}>
-                <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Message Sent!</h3>
-              <p className="text-sm text-slate-400">
-                We've received your message and will respond within 24 hours.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label htmlFor="name" className="block text-xs font-semibold text-slate-400 mb-2">
-                    Your Name
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200"
-                    placeholder="John Doe"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="block text-xs font-semibold text-slate-400 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200"
-                    placeholder="john@example.com"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="category" className="block text-xs font-semibold text-slate-400 mb-2">
-                  Category
-                </label>
-                <select
-                  id="category"
-                  required
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200"
-                >
-                  <option value="" className="bg-black">Select a category</option>
-                  <option value="general" className="bg-black">General Inquiry</option>
-                  <option value="technical" className="bg-black">Technical Support</option>
-                  <option value="billing" className="bg-black">Billing & Payments</option>
-                  <option value="event" className="bg-black">Event Management</option>
-                  <option value="verification" className="bg-black">Verification</option>
-                  <option value="feedback" className="bg-black">Feedback & Suggestions</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="message" className="block text-xs font-semibold text-slate-400 mb-2">
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  required
-                  rows={6}
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none hover:border-white/20 focus:border-[#3491ff] transition-colors duration-200 resize-none"
-                  placeholder="Describe your issue or question..."
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full rounded-full px-7 py-4 text-sm font-semibold text-black transition-all duration-300 hover:shadow-[0_0_30px_rgba(52,145,255,0.5)] hover:-translate-y-0.5"
-                style={{ background: brandGradient }}
-              >
-                Send Message
-              </button>
-            </form>
-          )}
-          </div>
-        </section>
-      )}
-
-      {/* Quick Links */}
-      {activeTab === "contact" && (
-        <section className="relative py-20 px-6 border-t border-white/5">
-          <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">
-              Helpful Resources
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <a
-              href="/about"
-              className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/20 transition-all duration-300 group"
-            >
-              <h3 className="text-base font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#3491ff] group-hover:to-[#0062ff] transition-all">
-                About Unifesto
-              </h3>
-              <p className="text-xs text-slate-500">Learn about our mission and how we're transforming campus events.</p>
-            </a>
-
-            <a
-              href="/products"
-              className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/20 transition-all duration-300 group"
-            >
-              <h3 className="text-base font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#3491ff] group-hover:to-[#0062ff] transition-all">
-                Products & Features
-              </h3>
-              <p className="text-xs text-slate-500">Explore all the tools and features available on Unifesto.</p>
-            </a>
-
-            <a
-              href="/verify"
-              className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/20 transition-all duration-300 group"
-            >
-              <h3 className="text-base font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#3491ff] group-hover:to-[#0062ff] transition-all">
-                Verification
-              </h3>
-              <p className="text-xs text-slate-500">Verify certificates, employee IDs, and organization credentials.</p>
-            </a>
-          </div>
           </div>
         </section>
       )}

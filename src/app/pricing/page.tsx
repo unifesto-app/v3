@@ -3,20 +3,20 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Pricing — Unifesto",
-  description: "Simple, transparent pricing for students and event organizers. Free for organizers to create events. No hidden fees for campus events.",
-  keywords: ["unifesto pricing", "event pricing", "free event hosting", "campus event costs", "student event pricing"],
+  title: "Pricing | Unifesto",
+  description: "Simple, transparent pricing for attendees and event organizers. Free for organizers to create events. No hidden fees.",
+  keywords: ["unifesto pricing", "event pricing", "free event hosting", "event costs", "organizer pricing"],
   openGraph: {
-    title: "Pricing — Unifesto",
-    description: "Simple, transparent pricing for students and event organizers on campus.",
+    title: "Pricing | Unifesto",
+    description: "Simple, transparent pricing for attendees and event organizers.",
     type: "website",
     url: "https://www.unifesto.app/pricing",
     siteName: "Unifesto",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pricing — Unifesto",
-    description: "Simple, transparent pricing for students and event organizers on campus.",
+    title: "Pricing | Unifesto",
+    description: "Simple, transparent pricing for attendees and event organizers.",
     site: "@unifestoapp",
   },
 };
@@ -63,14 +63,14 @@ const plans = [
     name: "Institution",
     price: "Custom",
     period: "per semester",
-    description: "For colleges and departments running multiple events at scale.",
+    description: "For institutions and organisations running multiple events at scale.",
     featured: false,
     cta: "Contact Us",
     ctaHref: "mailto:support@unifesto.app",
     features: [
       "Everything in Pro",
       "Multi-organiser accounts",
-      "Campus-wide event calendar",
+      "Organisation-wide event calendar",
       "API access",
       "White-label option",
       "Dedicated account manager",

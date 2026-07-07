@@ -1,11 +1,11 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Wallet — Unifesto",
+  title: "Wallet | Unifesto",
   description: "Manage your Uni Coins, view transaction history, and redeem rewards on Unifesto.",
-  keywords: ["uni coins", "wallet", "rewards", "campus currency", "transaction history", "redeem coins"],
+  keywords: ["uni coins", "wallet", "rewards", "event currency", "transaction history", "redeem coins"],
   openGraph: {
-    title: "Wallet — Unifesto",
+    title: "Wallet | Unifesto",
     description: "Manage your Uni Coins and redeem rewards on Unifesto.",
     type: "website",
     url: "https://www.unifesto.app/wallet",
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Wallet — Unifesto",
+    title: "Wallet | Unifesto",
     description: "Manage your Uni Coins and redeem rewards on Unifesto.",
     site: "@unifestoapp",
   },

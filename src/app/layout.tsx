@@ -16,19 +16,19 @@ const sweetApricot = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Unifesto — Optimize. Organize. Elevate. Events.",
+  title: "Unifesto | Optimize. Organize. Elevate. Events.",
   description:
-    "Unifesto is the premium campus event platform for discovering, hosting, and elevating college events at Malla Reddy University and beyond. Discover events, manage registrations, and connect with your campus community.",
+    "Unifesto is the premium event platform for discovering, hosting, and elevating events run by institutions, clubs, communities, and startups. Discover events, manage registrations, and connect with your community.",
   keywords: [
-    "campus events",
-    "college events",
+    "community events",
+    "institution events",
     "Unifesto",
-    "Malla Reddy University",
-    "student events",
+    "club events",
+    "startup events",
     "event management",
     "event discovery",
-    "campus activities",
-    "university events",
+    "community activities",
+    "organisation events",
     "event ticketing",
   ],
   authors: [{ name: "Unifesto" }],
@@ -39,8 +39,8 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Unifesto — Optimize. Organize. Elevate. Events.",
-    description: "Discover and host premium campus events with Unifesto. The all-in-one platform for college event management.",
+    title: "Unifesto | Optimize. Organize. Elevate. Events.",
+    description: "Discover and host premium events with Unifesto. The all-in-one platform for institutions, clubs, communities, and startups.",
     type: "website",
     url: "https://www.unifesto.app",
     siteName: "Unifesto",
@@ -48,8 +48,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Unifesto — Optimize. Organize. Elevate. Events.",
-    description: "Discover and host premium campus events with Unifesto.",
+    title: "Unifesto | Optimize. Organize. Elevate. Events.",
+    description: "Discover and host premium events with Unifesto.",
     site: "@unifestoapp",
     creator: "@unifestoapp",
   },

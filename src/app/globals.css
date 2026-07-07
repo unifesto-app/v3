@@ -6,30 +6,35 @@
 
 /* ─── Unifesto Design Tokens ─────────────────────────────────────────── */
 :root {
-  --background: #000000;
+  /* Off-black canvas: reads as black on-device, but keeps depth and avoids
+     the flat, hollow feel of pure #000. Surfaces step up from here. */
+  --background: #050507;
   --foreground: #ffffff;
-  --card: #000000;
+  --card: #0a0a0d;
   --card-foreground: #ffffff;
-  --popover: #000000;
+  --popover: #0a0a0d;
   --popover-foreground: #ffffff;
   --primary: #3491ff;
   --primary-bright: #0062ff;
-  --primary-foreground: #000000;
-  --secondary: #000000;
+  --primary-foreground: #050507;
+  --secondary: #0a0a0d;
   --secondary-foreground: #ffffff;
-  --muted: #000000;
+  --muted: #0a0a0d;
   --muted-foreground: #ffffff;
   --accent: #3491ff;
-  --accent-foreground: #000000;
+  --accent-foreground: #050507;
   --destructive: #3491ff;
   --border: rgba(52, 145, 255, 0.3);
   --input: rgba(52, 145, 255, 0.2);
   --ring: #3491ff;
   --radius: 0.75rem;
 
+  /* Canvas token for opaque section surfaces (use `bg-canvas`). */
+  --canvas: #050507;
+
   /* Legacy vars for backward compat */
-  --bg: #000000;
-  --panel: #000000;
+  --bg: #050507;
+  --panel: #0a0a0d;
   --text: #ffffff;
   --text-muted: #ffffff;
 }
@@ -47,8 +52,8 @@ html {
 
 body {
   margin: 0;
-  min-height: 100vh;
-  background-color: #000000;
+  min-height: 100dvh;
+  background-color: var(--canvas);
   color: var(--foreground);
   font-family: var(--font-agrandir), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -81,6 +86,7 @@ a {
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-canvas: var(--canvas);
   --radius-sm: calc(var(--radius) * 0.5);
   --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
@@ -189,4 +195,29 @@ a {
 
 .font-agrandir {
   font-family: var(--font-agrandir);
+}
+
+/* ─── Reduced Motion ─────────────────────────────────────────────────── */
+/* Respect users who ask for less motion: keep content visible, kill loops */
+@media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-fade-in-up,
+  .animate-marquee {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

@@ -24,12 +24,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/products`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
       url: `${baseUrl}/events`,
       lastModified: currentDate,
       changeFrequency: 'daily',
@@ -42,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/org`,
+      url: `${baseUrl}/spaces`,
       lastModified: currentDate,
       changeFrequency: 'weekly',
       priority: 0.8,

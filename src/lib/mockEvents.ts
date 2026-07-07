@@ -10,17 +10,17 @@ export type EventCategory =
   | "Sports"
   | "Ideathon";
 
-export interface Org {
+export interface Space {
   id: string;
   name: string;
   type: "university" | "college" | "club" | "community";
   description: string;
-  parentOrgId?: string;
+  parentSpaceId?: string;
   image: string;
   website?: string;
 }
 
-export interface OrgRef {
+export interface SpaceRef {
   id: string;
   name: string;
 }
@@ -53,8 +53,8 @@ export interface Reward {
 export interface MockEvent {
   id: string;
   title: string;
-  org: OrgRef;
-  collaborators?: OrgRef[];  // For collaboration events
+  space: SpaceRef;
+  collaborators?: SpaceRef[];  // For collaboration events
   organizer: string;  // kept for backwards compat display
   college: string;
   date: string;
@@ -79,9 +79,9 @@ export interface MockEvent {
   isParentEvent?: boolean;  // Indicates this event has sub-events
 }
 
-// ─── Org Data ────────────────────────────────────────────────────────────────
+// ─── Space Data ────────────────────────────────────────────────────────────────
 
-export const orgs: Org[] = [
+export const spaces: Space[] = [
   {
     id: "mruh",
     name: "Malla Reddy University",
@@ -93,16 +93,16 @@ export const orgs: Org[] = [
     id: "ie-cell",
     name: "Innovation & Entrepreneurship Cell",
     type: "club",
-    description: "The IE Cell at MRUH is the driving force behind the campus startup ecosystem. From ideathons to summits, we build tomorrow's founders today.",
-    parentOrgId: "mruh",
+    description: "The IE Cell at MRUH is the driving force behind the local startup ecosystem. From ideathons to summits, we build tomorrow's founders today.",
+    parentSpaceId: "mruh",
     image: "/orgs/tech.png",
   },
   {
     id: "gdg-mruh",
     name: "GDGon Campus MRUH",
     type: "club",
-    description: "Google Developer Groups on Campus at MRUH — a community of developers building with Google technologies. We run hackathons, workshops, and open source sprints.",
-    parentOrgId: "mruh",
+    description: "Google Developer Groups on Campus at MRUH: a community of developers building with Google technologies. We run hackathons, workshops, and open source sprints.",
+    parentSpaceId: "mruh",
     image: "/orgs/tech.png",
   },
   {
@@ -110,7 +110,7 @@ export const orgs: Org[] = [
     name: "Marquee Film Club",
     type: "club",
     description: "Marquee is MRUH's official film and arts collective. We celebrate student creativity through screenings, cultural festivals, open mics, and film competitions.",
-    parentOrgId: "mruh",
+    parentSpaceId: "mruh",
     image: "/orgs/arts.png",
   },
   {
@@ -118,15 +118,15 @@ export const orgs: Org[] = [
     name: "MUN Club MRUH",
     type: "club",
     description: "The MUN Club organises Model United Nations conferences and debate summits, training students in diplomacy, public speaking, and global affairs.",
-    parentOrgId: "mruh",
+    parentSpaceId: "mruh",
     image: "/orgs/event.png",
   },
   {
     id: "linkedinspire",
     name: "LinkedInspire Club",
     type: "club",
-    description: "LinkedInspire helps students build their professional brand, master LinkedIn, and connect with industry — from freshers to final years.",
-    parentOrgId: "mruh",
+    description: "LinkedInspire helps students build their professional brand, master LinkedIn, and connect with industry, from freshers to final years.",
+    parentSpaceId: "mruh",
     image: "/orgs/tech.png",
   },
   {
@@ -134,23 +134,23 @@ export const orgs: Org[] = [
     name: "BOS & R&D Dept. MRUH",
     type: "club",
     description: "The Board of Studies and Research & Development Department drives academic innovation at MRUH, organising Science Day, research expos, and faculty-led seminars.",
-    parentOrgId: "mruh",
+    parentSpaceId: "mruh",
     image: "/orgs/tech.png",
   },
   {
     id: "sports-committee",
     name: "Sports Committee MRUH",
     type: "club",
-    description: "The Sports Committee manages all inter-departmental and university-level sporting events — from cricket and football to basketball and athletics.",
-    parentOrgId: "mruh",
+    description: "The Sports Committee manages all inter-departmental and university-level sporting events, from cricket and football to basketball and athletics.",
+    parentSpaceId: "mruh",
     image: "/orgs/event.png",
   },
   {
     id: "soe",
     name: "School of Engineering",
     type: "college",
-    description: "The School of Engineering at MRUH houses departments across CSE, ECE, Mechanical, Civil and more — and is home to several active technical clubs and cells.",
-    parentOrgId: "mruh",
+    description: "The School of Engineering at MRUH houses departments across CSE, ECE, Mechanical, Civil and more, and is home to several active technical clubs and cells.",
+    parentSpaceId: "mruh",
     image: "/orgs/mruh.png",
   },
   {
@@ -158,14 +158,14 @@ export const orgs: Org[] = [
     name: "School of Science",
     type: "college",
     description: "The School of Science at MRUH encompasses Physics, Chemistry, Mathematics, and Life Sciences departments, fostering scientific research and innovation.",
-    parentOrgId: "mruh",
+    parentSpaceId: "mruh",
     image: "/orgs/mruh.png",
   },
   {
     id: "tedx-mruh",
     name: "TEDx Malla Reddy University",
     type: "community",
-    description: "TEDx MRUH is an independently organised TED event that brings together ideas worth spreading — student talks, workshops, and community conversations.",
+    description: "TEDx MRUH is an independently organised TED event that brings together ideas worth spreading: student talks, workshops, and community conversations.",
     image: "/orgs/event.png",
   },
 ];
@@ -174,7 +174,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "nav-nirman-3",
     title: "Nav Nirman 3.0",
-    org: { id: "ie-cell", name: "Innovation & Entrepreneurship Cell" },
+    space: { id: "ie-cell", name: "Innovation & Entrepreneurship Cell" },
     organizer: "Innovation & Entrepreneurship Club",
     college: "Malla Reddy University",
     date: "Saturday, August 23, 2025",
@@ -228,7 +228,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "esummit26",
     title: "ESummit'26",
-    org: { id: "ie-cell", name: "Innovation & Entrepreneurship Cell" },
+    space: { id: "ie-cell", name: "Innovation & Entrepreneurship Cell" },
     organizer: "Innovation & Entrepreneurship Cell",
     college: "Malla Reddy University",
     date: "Monday, March 16, 2026",
@@ -239,7 +239,7 @@ const mockEvents: MockEvent[] = [
     status: ["featured", "trending"],
     tags: ["Trending", "Featured", "Free"],
     description:
-      "The flagship entrepreneurship summit — startup pitches, VC talks, panel discussions & networking. ESummit'26 brings together the brightest student founders, mentors, and investors for a full day of action-packed programming.",
+      "The flagship entrepreneurship summit: startup pitches, VC talks, panel discussions & networking. ESummit'26 brings together the brightest student founders, mentors, and investors for a full day of action-packed programming.",
     price: 0,
     spotsLeft: 180,
     totalSpots: 1200,
@@ -311,7 +311,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "hack-league",
     title: "Hack League",
-    org: { id: "gdg-mruh", name: "GDGon Campus MRUH" },
+    space: { id: "gdg-mruh", name: "GDGon Campus MRUH" },
     organizer: "GDGon Campus MRUH",
     college: "Malla Reddy University",
     date: "Saturday, March 8, 2026",
@@ -322,7 +322,7 @@ const mockEvents: MockEvent[] = [
     status: ["past", "featured"],
     tags: ["Featured", "Completed"],
     description:
-      "36-hour hackathon — build fast, break things, win big. Teams of 2–4 compete across tracks: AI/ML, Web3, Social Impact, and Open Innovation. Mentors, snacks, and ₹50,000 in prizes await.",
+      "36-hour hackathon: build fast, break things, win big. Teams of 2–4 compete across tracks: AI/ML, Web3, Social Impact, and Open Innovation. Mentors, snacks, and ₹50,000 in prizes await.",
     price: 0,
     spotsLeft: 0,
     totalSpots: 320,
@@ -363,7 +363,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "wds2026",
     title: "WDS 2026",
-    org: { id: "mun-mruh", name: "MUN Club MRUH" },
+    space: { id: "mun-mruh", name: "MUN Club MRUH" },
     organizer: "MUN Club MRUH",
     college: "Malla Reddy University",
     date: "Saturday, April 4, 2026",
@@ -374,7 +374,7 @@ const mockEvents: MockEvent[] = [
     status: ["upcoming"],
     tags: ["Upcoming"],
     description:
-      "World Debate Summit — Model UN committees, crisis simulations & public speaking championships. Delegates from across campus debate pressing global issues in a structured parliamentary format.",
+      "World Debate Summit: Model UN committees, crisis simulations & public speaking championships. Delegates from across the community debate pressing global issues in a structured parliamentary format.",
     price: 150,
     spotsLeft: 62,
     totalSpots: 400,
@@ -395,7 +395,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "devsprints",
     title: "DevSprints",
-    org: { id: "gdg-mruh", name: "GDGon Campus MRUH" },
+    space: { id: "gdg-mruh", name: "GDGon Campus MRUH" },
     organizer: "GDGon Campus MRUH",
     college: "Malla Reddy University",
     date: "Friday, April 18, 2026",
@@ -427,7 +427,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "pitch-perfect",
     title: "Pitch Perfect",
-    org: { id: "ie-cell", name: "Innovation & Entrepreneurship Cell" },
+    space: { id: "ie-cell", name: "Innovation & Entrepreneurship Cell" },
     organizer: "Innovation & Entrepreneurship Cell",
     college: "Malla Reddy University",
     date: "Wednesday, April 22, 2026",
@@ -438,7 +438,7 @@ const mockEvents: MockEvent[] = [
     status: ["upcoming", "trending"],
     tags: ["Trending", "Free", "New"],
     description:
-      "Student startup pitching competition. Present your idea, get mentored live, and compete for seed funding & incubation support. The best idea wins ₹25,000 in prizes and a fast-track to the campus incubator.",
+      "Startup pitching competition. Present your idea, get mentored live, and compete for seed funding & incubation support. The best idea wins ₹25,000 in prizes and a fast-track to the incubator.",
     price: 0,
     spotsLeft: 28,
     totalSpots: 200,
@@ -480,7 +480,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "unite",
     title: "UNITE",
-    org: { id: "marquee", name: "Marquee Film Club" },
+    space: { id: "marquee", name: "Marquee Film Club" },
     organizer: "Marquee Film Club",
     college: "Malla Reddy University",
     date: "Monday, April 13, 2026",
@@ -491,7 +491,7 @@ const mockEvents: MockEvent[] = [
     status: ["upcoming", "trending"],
     tags: ["Trending", "Free"],
     description:
-      "A celebration of student cinema — short film screenings, photography exhibitions, competitions & awards night. UNITE is Marquee's annual showcase of creative talent across campus.",
+      "A celebration of independent cinema: short film screenings, photography exhibitions, competitions & awards night. UNITE is Marquee's annual showcase of creative talent across the community.",
     price: 0,
     spotsLeft: 230,
     totalSpots: 650,
@@ -510,7 +510,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "geetotsav",
     title: "Geetotsav",
-    org: { id: "marquee", name: "Marquee Film Club" },
+    space: { id: "marquee", name: "Marquee Film Club" },
     organizer: "Marquee Film Club",
     college: "Malla Reddy University",
     date: "Thursday, March 12, 2026",
@@ -540,7 +540,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "linkedinspire-summit",
     title: "LinkedInspire Summit",
-    org: { id: "linkedinspire", name: "LinkedInspire Club" },
+    space: { id: "linkedinspire", name: "LinkedInspire Club" },
     organizer: "LinkedInspire Club",
     college: "Malla Reddy University",
     date: "Monday, May 5, 2026",
@@ -551,7 +551,7 @@ const mockEvents: MockEvent[] = [
     status: ["upcoming", "featured"],
     tags: ["Featured", "Free", "New"],
     description:
-      "Professional networking & LinkedIn masterclass — build your personal brand, craft a standout profile, and land your dream internship or job. Featuring industry professionals as guest speakers.",
+      "Professional networking & LinkedIn masterclass: build your personal brand, craft a standout profile, and land your dream internship or job. Featuring industry professionals as guest speakers.",
     price: 0,
     spotsLeft: 120,
     totalSpots: 500,
@@ -603,7 +603,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "research-expo",
     title: "Research Expo",
-    org: { id: "bos-rd", name: "BOS & R&D Dept. MRUH" },
+    space: { id: "bos-rd", name: "BOS & R&D Dept. MRUH" },
     organizer: "BOS & R&D Dept. MRUH",
     college: "Malla Reddy University",
     date: "Friday, May 1, 2026",
@@ -614,7 +614,7 @@ const mockEvents: MockEvent[] = [
     status: ["upcoming", "featured"],
     tags: ["Featured", "Free"],
     description:
-      "Student research showcase — present your paper, project, or prototype to a panel of industry experts and faculty. Open to all departments. Certificate of participation for all presenters.",
+      "Student research showcase: present your paper, project, or prototype to a panel of industry experts and faculty. Open to all departments. Certificate of participation for all presenters.",
     price: 0,
     spotsLeft: 85,
     totalSpots: 350,
@@ -654,7 +654,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "frames-fest",
     title: "Frames Fest",
-    org: { id: "marquee", name: "Marquee Film Club" },
+    space: { id: "marquee", name: "Marquee Film Club" },
     organizer: "Marquee Film Club",
     college: "Malla Reddy University",
     date: "Saturday, May 2, 2026",
@@ -665,7 +665,7 @@ const mockEvents: MockEvent[] = [
     status: ["upcoming"],
     tags: ["Upcoming", "Free"],
     description:
-      "Short film festival — submit your film, screen it live, and compete for the Best Director award. Open to all students. All genres welcome.",
+      "Short film festival: submit your film, screen it live, and compete for the Best Director award. Open to all students. All genres welcome.",
     price: 0,
     spotsLeft: 200,
     totalSpots: 450,
@@ -684,7 +684,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "science-day",
     title: "National Science Day 2026",
-    org: { id: "bos-rd", name: "BOS & R&D Dept. MRUH" },
+    space: { id: "bos-rd", name: "BOS & R&D Dept. MRUH" },
     collaborators: [
       { id: "soe", name: "School of Engineering" },
       { id: "sos", name: "School of Science" },
@@ -699,7 +699,7 @@ const mockEvents: MockEvent[] = [
     status: ["past"],
     tags: ["Completed", "Collaboration"],
     description:
-      "National Science Day celebrations — a collaborative event organized by BOS & R&D Department with School of Engineering and School of Science. Features 4 sub-events including exhibitions, quizzes, lab demos & talks. Marking Raman Effect Day with science all day.",
+      "National Science Day celebrations: a collaborative event organized by BOS & R&D Department with School of Engineering and School of Science. Features 4 sub-events including exhibitions, quizzes, lab demos & talks. Marking Raman Effect Day with science all day.",
     price: 0,
     spotsLeft: 0,
     totalSpots: 900,
@@ -720,7 +720,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "science-day-quiz",
     title: "Science Quiz Competition",
-    org: { id: "soe", name: "School of Engineering" },
+    space: { id: "soe", name: "School of Engineering" },
     organizer: "School of Engineering",
     college: "Malla Reddy University",
     date: "Saturday, February 28, 2026",
@@ -750,7 +750,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "science-day-lab-demo",
     title: "Interactive Lab Demonstrations",
-    org: { id: "soe", name: "School of Engineering" },
+    space: { id: "soe", name: "School of Engineering" },
     organizer: "School of Engineering",
     college: "Malla Reddy University",
     date: "Saturday, February 28, 2026",
@@ -780,7 +780,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "science-day-talk",
     title: "History of Science: A Journey",
-    org: { id: "soe", name: "School of Engineering" },
+    space: { id: "soe", name: "School of Engineering" },
     organizer: "School of Engineering",
     college: "Malla Reddy University",
     date: "Saturday, February 28, 2026",
@@ -810,7 +810,7 @@ const mockEvents: MockEvent[] = [
   {
     id: "science-day-exhibition",
     title: "Science Exhibition & Projects",
-    org: { id: "sos", name: "School of Science" },
+    space: { id: "sos", name: "School of Science" },
     organizer: "School of Science",
     college: "Malla Reddy University",
     date: "Saturday, February 28, 2026",
@@ -937,56 +937,56 @@ export function isCollaborationEvent(event: MockEvent): boolean {
   return !!event.collaborators && event.collaborators.length > 0;
 }
 
-export function getAllCollaborators(event: MockEvent): OrgRef[] {
-  return [event.org, ...(event.collaborators || [])];
+export function getAllCollaborators(event: MockEvent): SpaceRef[] {
+  return [event.space, ...(event.collaborators || [])];
 }
 
-// ─── Org API ─────────────────────────────────────────────────────────────────
+// ─── Space API ─────────────────────────────────────────────────────────────────
 
-export function getAllOrgs(): Org[] {
-  return orgs;
+export function getAllSpaces(): Space[] {
+  return spaces;
 }
 
-export function getOrgById(id: string): Org | undefined {
-  return orgs.find((o) => o.id === id);
+export function getSpaceById(id: string): Space | undefined {
+  return spaces.find((o) => o.id === id);
 }
 
-export function getEventsByOrg(orgId: string): MockEvent[] {
-  return mockEvents.filter((e) => e.org.id === orgId);
+export function getEventsBySpace(spaceId: string): MockEvent[] {
+  return mockEvents.filter((e) => e.space.id === spaceId);
 }
 
-export function getSubOrgs(parentOrgId: string): Org[] {
-  return orgs.filter((o) => o.parentOrgId === parentOrgId);
+export function getSubSpaces(parentSpaceId: string): Space[] {
+  return spaces.filter((o) => o.parentSpaceId === parentSpaceId);
 }
 
-/** Returns all org IDs in the subtree rooted at orgId (inclusive). */
-export function getAllOrgIdsInTree(orgId: string): string[] {
-  const children = orgs.filter((o) => o.parentOrgId === orgId);
-  return [orgId, ...children.flatMap((c) => getAllOrgIdsInTree(c.id))];
+/** Returns all space IDs in the subtree rooted at spaceId (inclusive). */
+export function getAllSpaceIdsInTree(spaceId: string): string[] {
+  const children = spaces.filter((o) => o.parentSpaceId === spaceId);
+  return [spaceId, ...children.flatMap((c) => getAllSpaceIdsInTree(c.id))];
 }
 
-/** Events by org + all sub-orgs (recursive). */
-export function getEventsByOrgTree(orgId: string): MockEvent[] {
-  const ids = new Set(getAllOrgIdsInTree(orgId));
-  return mockEvents.filter((e) => ids.has(e.org.id));
+/** Events by space + all sub-spaces (recursive). */
+export function getEventsBySpaceTree(spaceId: string): MockEvent[] {
+  const ids = new Set(getAllSpaceIdsInTree(spaceId));
+  return mockEvents.filter((e) => ids.has(e.space.id));
 }
 
-export function getOrgsByType(type: Org["type"]): Org[] {
-  return orgs.filter((o) => o.type === type);
+export function getSpacesByType(type: Space["type"]): Space[] {
+  return spaces.filter((o) => o.type === type);
 }
 
-export function getParentChain(orgId: string): Org[] {
-  const chain: Org[] = [];
-  let current = getOrgById(orgId);
-  while (current?.parentOrgId) {
-    const parent = getOrgById(current.parentOrgId);
+export function getParentChain(spaceId: string): Space[] {
+  const chain: Space[] = [];
+  let current = getSpaceById(spaceId);
+  while (current?.parentSpaceId) {
+    const parent = getSpaceById(current.parentSpaceId);
     if (parent) chain.unshift(parent);
     current = parent;
   }
   return chain;
 }
 
-export const ORG_TYPE_LABELS: Record<Org["type"], string> = {
+export const SPACE_TYPE_LABELS: Record<Space["type"], string> = {
   university: "University",
   college: "College",
   club: "Club",

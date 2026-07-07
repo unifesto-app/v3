@@ -16,10 +16,10 @@ export default function Hero() {
 			</div>
 
 			<div className="hero-meta">
-				<p>#UnifestoAtYourCampus</p>
+				<p>#UnifestoEverywhere</p>
 				<ul>
 					<li>
-						<strong>10K+</strong> Active Students
+						<strong>10K+</strong> Active Members
 					</li>
 					<li>
 						<strong>25+</strong> Events Hosted
@@ -30,7 +30,7 @@ export default function Hero() {
 				</ul>
 			</div>
 
-			<div className="ticker" aria-label="Partner organizations">
+			<div className="ticker" aria-label="Partner spaces">
 				<p>
 					Malla Reddu University | StudLYF | GDG Hyderabad | StartupCypher
 					Hyderabad | LinkedInspire
