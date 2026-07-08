@@ -29,7 +29,15 @@ export default function EventsGrid() {
   useEffect(() => {
     let active = true;
 
+    // Check if geolocation is available
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
+
+    // Check if we're in a secure context (HTTPS or localhost)
+    // Most modern browsers require secure context for geolocation
+    if (typeof window !== "undefined" && !window.isSecureContext) {
+      console.warn("Geolocation requires a secure context (HTTPS)");
+      return;
+    }
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -42,12 +50,14 @@ export default function EventsGrid() {
           const detected: string | null =
             data?.city || data?.locality || data?.principalSubdivision || null;
           if (active && detected) setCity(detected);
-        } catch {
+        } catch (error) {
           /* keep fallback heading */
+          console.error("Error fetching location:", error);
         }
       },
-      () => {
+      (error) => {
         /* permission denied or unavailable — keep fallback heading */
+        console.error("Geolocation error:", error.message);
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
     );
