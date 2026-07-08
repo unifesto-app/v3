@@ -34,6 +34,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Unifesto" }],
   creator: "Unifesto",
   publisher: "Unifesto Private Limited",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
   metadataBase: new URL("https://www.unifesto.app"),
   alternates: {
     canonical: "/",
